@@ -23,6 +23,7 @@
 //#include <sys/types.h>
 #include <iostream>
 #include <cmath>
+#include <string.h>
 
 float TaoInstrument::defaultMass=3.5;		// Set to optimum value for
                                                 // frequency response of

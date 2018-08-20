@@ -24,6 +24,7 @@
 #include <fstream>
 #include "TaoOutput.h"
 #include "Tao.h"
+#include <string.h>
 
 extern Tao tao;
 

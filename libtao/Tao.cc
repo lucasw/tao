@@ -18,6 +18,7 @@
 
 #include "Tao.h"
 #include <iostream>
+#include <stdio.h>
 
 extern Tao tao;
 float &Time = tao.synthesisEngine.time;

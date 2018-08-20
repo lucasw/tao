@@ -20,6 +20,7 @@
 #include "Tao.h"
 #include "TaoAccessPoint.h"
 #include "TaoInstrument.h"
+#include <string.h>
 
 TaoDevice::TaoDevice()
     {

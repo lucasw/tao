@@ -19,10 +19,12 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
 #include <string>
+#include <string.h>
 #include "taoparserdefs.h"
 
-int yyerror(char *s);
+int yyerror(const char *s);
 
 //#ifdef LINUX
 int yylex(void);
@@ -2923,7 +2925,7 @@ int streq(const char *str1, const char *str2)
     } 
 
 
-int yyerror (char *s)
+int yyerror (const char *s)
     {
     parse_error(what_I_expected_here);
     std::cout << "PARSE_FAILED";

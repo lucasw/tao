@@ -23,6 +23,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <stdlib.h>
+#include <string.h>
 #include "audiofile.h"
 #include "tao2wav.h"
 

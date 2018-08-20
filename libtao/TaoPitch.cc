@@ -30,6 +30,7 @@ extern "C"
 #include "TaoPitch.h"
 #include <iostream>
 #include <cmath>
+#include <string.h>
 
 // This class allows pitches and frequencies to be specified in a number of
 // different formats including the following:

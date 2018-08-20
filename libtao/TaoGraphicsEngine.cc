@@ -28,7 +28,9 @@ extern "C"
 #include "TaoAccessPoint.h"
 #include "TaoDevice.h"
 #include <string>
-    
+#include <string.h>
+#include <stdio.h>
+
 extern Tao tao;
 extern void taoMasterTick();
 
