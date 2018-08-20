@@ -1,0 +1,159 @@
+// This script creates an instrument with an array of 40 strings which
+// are coupled to a resonator. The strings are attached to the resonator
+// in such a way that the lowest pitched strings are attached to the centre
+// of the resonator and the highest pitched strings are attached near the
+// ends. This is achieved by first setting up the array of strings but then
+// declaring a second array `stringConnectionOrder' which defines the order
+// in which the strings will be coupled to the resonator, from left to right.
+// In addition this resonator is then connected to a second resonator by
+// way of five further connectors, and sound output is taken from this
+// second resonator.
+//
+// An array of time intervals is set up and the score repeatedly chooses a
+// string at random, applies a short impulse to it, and then calculates the
+// time to the next event by reading a value out of the `interval[]' array
+// at random.
+
+Audio rate: 44100;
+
+String string[]=
+    {
+    (7.00000 	pch, 60 secs), 
+    (7.01333 	pch, 60 secs), 
+    (7.02666 	pch, 60 secs), 
+    (7.04000 	pch, 60 secs), 
+    (7.05333	pch, 60 secs), 
+    (7.06666	pch, 60 secs), 
+    (7.08000	pch, 60 secs), 
+    (7.09333	pch, 60 secs), 
+    (7.10666	pch, 60 secs), 
+    (8.00000	pch, 60 secs), 
+    (8.01333	pch, 60 secs), 
+    (8.02666	pch, 60 secs), 
+    (8.04000	pch, 60 secs), 
+    (8.05333	pch, 60 secs), 
+    (8.06666	pch, 60 secs), 
+    (8.08000	pch, 60 secs), 
+    (8.09333	pch, 60 secs), 
+    (8.10666	pch, 60 secs), 
+    (9.00000	pch, 60 secs), 
+    (9.01333	pch, 60 secs), 
+    (9.02666	pch, 60 secs), 
+    (9.04000	pch, 60 secs), 
+    (9.05333	pch, 60 secs), 
+    (9.06666	pch, 60 secs), 
+    (9.08000	pch, 60 secs), 
+    (9.09333	pch, 60 secs), 
+    (9.10666	pch, 60 secs), 
+    (10.00000	pch, 60 secs), 
+    (10.01333	pch, 60 secs), 
+    (10.02666	pch, 60 secs), 
+    (10.04000	pch, 60 secs), 
+    (10.05333	pch, 60 secs), 
+    (10.06666	pch, 60 secs), 
+    (10.08000	pch, 60 secs), 
+    (10.09333	pch, 60 secs), 
+    (10.10666	pch, 60 secs), 
+    (11.00000	pch, 60 secs), 
+    (11.01333	pch, 60 secs), 
+    (11.02666	pch, 60 secs), 
+    (11.04000	pch, 60 secs)
+    };
+
+    
+String resonator1(200 Hz, 5 secs);
+String resonator2(200 Hz, 5 secs);
+
+Integer stringConnectionOrder[40]=
+    {
+    39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11,  9,  7,  5,  3,  1, 
+    0,   2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38
+    };
+    
+Integer s, stringToPluck;
+
+Connector c[40];
+Connector r2r[5];
+
+Output out(stereo);
+	
+Param interval[]=
+    {1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10};
+    
+Param now=0.0;
+Param position, force;
+Param volume=1.0;
+
+Init:
+    resonator1.setDamping(left, 0.1, 0.2);	    // Change the characteristics of the
+    resonator1.setDamping(right,0.9, 0.2);	    // resonator1 to give it a spectral decay.
+    resonator1.setMagnification(5.0);		    // Amplify the vibrations in the graphics
+						    // window (does nothing to the sound).
+    For s=0 to 39:
+	string[s].lockEnds();
+	...
+	
+    resonator1(0.1) -- r2r[0] -- resonator2(0.1);
+    resonator1(0.3) -- r2r[1] -- resonator2(0.3);
+    resonator1(0.5) -- r2r[2] -- resonator2(0.5);
+    resonator1(0.7) -- r2r[3] -- resonator2(0.7);
+    resonator1(0.9) -- r2r[4] -- resonator2(0.9);
+    
+    resonator1.placeRightOf(string[32], 40);
+    resonator2.placeAbove(resonator1, 30);
+    ...
+
+
+Score 30 secs:
+   Before 21 secs:
+	At now for 0.5 msecs:
+	    At start:
+		stringToPluck=randomi(0,39);
+		position=randomf(0.0,1.0);
+		force=randomf(5.0,10.0);
+		Print "plucking string ", string[s].getName();
+		Print " with force ", force;
+		Print " at position ", position;
+		Print " at time ", Time, newline;
+		...
+
+	    string[stringToPluck](position).applyForce(force);
+
+	    At end:
+		now+=interval[randomi(0, 9)];	    // choose the interval until
+		...				    // the next event at random from
+	    ...					    // the array `interval[]'
+	...
+ 
+    Every 0.01 secs:
+	Print "Time=", Time, newline;
+	...
+
+    ControlRate 1000:
+	For s=0 to 39:
+	    string[stringConnectionOrder[s]](linear(0.05, 0.5))
+		-- c[s] --
+	    resonator1((s+10)/60.0) strength 0.2; 
+	    ...
+	...
+
+    // Fade out for last five seconds.
+    
+    At 0 secs:
+	volume=1.0;
+	...
+	
+    From 25 secs to 30 secs:
+	volume=linear(1.0, 0.0);
+	...
+    
+    out.chL:  resonator2(0.05) * volume;
+    out.chR:  resonator2(0.95) * volume; 
+    ...
+
+
+
+
+
+
+
