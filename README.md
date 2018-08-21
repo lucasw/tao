@@ -201,7 +201,7 @@ have the following files installed (I will assume that prefix=/usr/local)
             tao-config
             taosf
             taoparse
-            tao2aiff
+            tao2wav
 
 The install process leaves Tao's header files where they are but
 provides a shell script 'tao-config' which can be used to find out

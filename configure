@@ -23177,7 +23177,7 @@ esac
 
 
 
-                                                                                                                                                                                    ac_config_files="$ac_config_files Makefile include/Makefile libtao/Makefile taoparse/Makefile tao2aiff/Makefile tao2wav/Makefile examples/Makefile doc/Makefile doc/UserManual/Makefile doc/UserManual/introduction.tex doc/UserManual/html/Makefile doc/Dependencies/Makefile doc/Dependencies/html/Makefile doc/ClassReference/Makefile doc/ClassReference/tao.doxy.cnf user-scripts/Makefile user-scripts/tao user-scripts/tao-config"
+                                                                                                                                                                                    ac_config_files="$ac_config_files Makefile include/Makefile libtao/Makefile taoparse/Makefile tao2wav/Makefile examples/Makefile doc/Makefile doc/UserManual/Makefile doc/UserManual/introduction.tex doc/UserManual/html/Makefile doc/Dependencies/Makefile doc/Dependencies/html/Makefile doc/ClassReference/Makefile doc/ClassReference/tao.doxy.cnf user-scripts/Makefile user-scripts/tao user-scripts/tao-config"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -23752,7 +23752,6 @@ do
   "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
   "libtao/Makefile" ) CONFIG_FILES="$CONFIG_FILES libtao/Makefile" ;;
   "taoparse/Makefile" ) CONFIG_FILES="$CONFIG_FILES taoparse/Makefile" ;;
-  "tao2aiff/Makefile" ) CONFIG_FILES="$CONFIG_FILES tao2aiff/Makefile" ;;
   "tao2wav/Makefile" ) CONFIG_FILES="$CONFIG_FILES tao2wav/Makefile" ;;
   "examples/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;

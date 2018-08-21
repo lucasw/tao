@@ -195,7 +195,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 x_includes = @x_includes@
-SRC_SUBDIRS = libtao include taoparse tao2aiff tao2wav
+SRC_SUBDIRS = libtao include taoparse tao2wav
 SUBDIRS = $(SRC_SUBDIRS) user-scripts doc examples
 EXTRA_DIST = TODO \
 	README.FIRST \

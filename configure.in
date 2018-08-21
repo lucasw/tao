@@ -183,7 +183,6 @@ AC_OUTPUT(\
 	include/Makefile \
 	libtao/Makefile \
 	taoparse/Makefile \
-	tao2aiff/Makefile \
 	tao2wav/Makefile \
 	examples/Makefile \
 	doc/Makefile \

@@ -32,18 +32,12 @@ DATFILE=""
 if [ ${1} = "-h" ]; then
 	echo "Usage: taosf [-a|-h] <datfile_minus_.dat>"
 	echo
-	echo "  -a        Output to .aiff.  Otherwise output to .wav."
 	echo "  -h        Display this help."
 	echo
-	echo "e.g. \"taosf -a outputs_out1\""
-	echo "     generates a file outputs_out1.aiff from the outputs_out1.dat file."
+	echo "e.g. \"taosf outputs_out1\""
+	echo "     generates a file outputs_out1.wav from the outputs_out1.dat file."
 	echo
 	exit
-# Check if we should output an aiff.  Stick with .wav otherwise.
-elif [ ${1} = "-a" ]; then
-	TAOSF="tao2aiff"
-	TAOEXT=".aiff"
-	DATFILE=${2}
 else
 	DATFILE=${1}
 fi

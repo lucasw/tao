@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SRC_SUBDIRS = libtao include taoparse tao2aiff tao2wav
+SRC_SUBDIRS = libtao include taoparse tao2wav
 SUBDIRS = $(SRC_SUBDIRS) user-scripts doc examples
 
 EXTRA_DIST = TODO \
