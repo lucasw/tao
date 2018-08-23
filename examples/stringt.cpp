@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////
-// This is the translated version of script "string.tao".
+// This is the translated version of script "tau_string.tao".
 //
 // It contains automatically generated definitions for the following functions
 // which are required by the Tao library in order to produce a complete
@@ -40,12 +40,12 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString string("string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+TaoString tau_string("tau_string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
 
 // Init: <statements> ...
 
 void taoInit() {
-  string.lockEnds();
+  tau_string.lockEnds();
 }
 
 // Score <duration> : <statements> ...
@@ -60,7 +60,7 @@ void taoScore() {
       Tick >= (long)((tao.newStart = 0.00000) *
                      tao.synthesisEngine.modelSampleRate)) {
     tao.pushStartAndEnd1();
-    string(0.100000f).applyForce(
+    tau_string(0.100000f).applyForce(
         ((Time - tao.start) / (tao.end - tao.start) * (0.00000f - 1.00000f) +
          1.00000f));
     tao.popStartAndEnd();
@@ -78,4 +78,4 @@ main(int argc, char *argv[]) {
   tao.main(argc, argv);
 }
 
-// End of C++ program generated from script "string.tao"
+// End of C++ program generated from script "tau_string.tao"

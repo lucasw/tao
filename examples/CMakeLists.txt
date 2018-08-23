@@ -25,7 +25,7 @@ list(APPEND example_files
   rectangle2
   rectangle
   stop
-  string
+  stringt
   testt
 )
 

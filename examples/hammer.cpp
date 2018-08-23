@@ -40,15 +40,15 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString string("string", TaoPitch(200.000f, TaoPitch::frq), 30.0000f);
+TaoString tau_string("tau_string", TaoPitch(200.000f, TaoPitch::frq), 30.0000f);
 
 TaoHammer hammer("hammer");
 
 // Init: <statements> ...
 
 void taoInit() {
-  string.lockEnds();
-  hammer(string(0.700000f));
+  tau_string.lockEnds();
+  hammer(tau_string(0.700000f));
   hammer.setGravity(0.000100000f).setMass(200.000f);
 }
 

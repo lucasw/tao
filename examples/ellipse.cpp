@@ -51,7 +51,9 @@ void taoInit() {
 
 // Score <duration> : <statements> ...
 
-float taoScoreDuration() { return 5.00000f; }
+float taoScoreDuration() { return 18.00000f; }
+
+TaoOutput output("out", "ellipse", 2);
 
 void taoScore() {
   tao.initStartAndEnd();
@@ -67,6 +69,9 @@ void taoScore() {
                      30.0000f));
     tao.popStartAndEnd();
   }
+
+  output.chL(ellipse(0.2, 0.5));
+  output.chR(ellipse(0.8, 0.5));
 
   tao.popStartAndEnd();
 }

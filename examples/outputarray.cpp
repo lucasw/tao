@@ -40,7 +40,7 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString string("string", TaoPitch(200.000f, TaoPitch::frq), 30.0000f);
+TaoString tau_string("tau_string", TaoPitch(200.000f, TaoPitch::frq), 30.0000f);
 
 TaoOutput outputs[5] = {TaoOutput("outputs_0", "outputarray_outputs_0", 1),
                         TaoOutput("outputs_1", "outputarray_outputs_1", 1),
@@ -51,7 +51,7 @@ TaoOutput outputs[5] = {TaoOutput("outputs_0", "outputarray_outputs_0", 1),
 // Init: <statements> ...
 
 void taoInit() {
-  string.lockEnds();
+  tau_string.lockEnds();
 }
 
 // Score <duration> : <statements> ...
@@ -66,15 +66,15 @@ void taoScore() {
       Tick >= (long)((tao.newStart = tao.start) *
                      tao.synthesisEngine.modelSampleRate)) {
     tao.pushStartAndEnd1();
-    string(0.100000f).applyForce(1.00000f);
+    tau_string(0.100000f).applyForce(1.00000f);
     tao.popStartAndEnd();
   }
 
-  outputs[0].ch1(string(0.100000f));
-  outputs[1].ch1(string(0.300000f));
-  outputs[2].ch1(string(0.500000f));
-  outputs[3].ch1(string(0.700000f));
-  outputs[4].ch1(string(0.900000f));
+  outputs[0].ch1(tau_string(0.100000f));
+  outputs[1].ch1(tau_string(0.300000f));
+  outputs[2].ch1(tau_string(0.500000f));
+  outputs[3].ch1(tau_string(0.700000f));
+  outputs[4].ch1(tau_string(0.900000f));
 
   tao.popStartAndEnd();
 }

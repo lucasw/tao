@@ -42,11 +42,11 @@ int taoAudioRate() { return 44100; }
 
 TaoCircle c("c", TaoPitch(800.000f, TaoPitch::frq), 20.0000f);
 
-TaoString strings[4] = {
-    TaoString("strings[0]", TaoPitch(800.000f, TaoPitch::frq), 20.0000f),
-    TaoString("strings[1]", TaoPitch(810.000f, TaoPitch::frq), 20.0000f),
-    TaoString("strings[2]", TaoPitch(820.000f, TaoPitch::frq), 20.0000f),
-    TaoString("strings[3]", TaoPitch(830.000f, TaoPitch::frq), 20.0000f)};
+TaoString tau_strings[4] = {
+    TaoString("tau_strings[0]", TaoPitch(800.000f, TaoPitch::frq), 20.0000f),
+    TaoString("tau_strings[1]", TaoPitch(810.000f, TaoPitch::frq), 20.0000f),
+    TaoString("tau_strings[2]", TaoPitch(820.000f, TaoPitch::frq), 20.0000f),
+    TaoString("tau_strings[3]", TaoPitch(830.000f, TaoPitch::frq), 20.0000f)};
 
 TaoRectangle r("r", TaoPitch(800.000f, TaoPitch::frq),
                TaoPitch(900.000f, TaoPitch::frq), 20.0000f);
@@ -61,15 +61,15 @@ int s;
 
 void taoInit() {
   for (s = 0; s <= 3; s++) {
-    strings[s].lockEnds();
+    tau_strings[s].lockEnds();
   }
 
   c.lockPerimeter();
   r.lockCorners();
   t.lockLeft().lockRight();
-  conn1(strings[0](0.100000f), strings[1](0.100000f));
-  conn2(strings[1](0.900000f), strings[2](0.900000f));
-  conn3(strings[2](0.100000f), strings[3](0.100000f));
+  conn1(tau_strings[0](0.100000f), tau_strings[1](0.100000f));
+  conn2(tau_strings[1](0.900000f), tau_strings[2](0.900000f));
+  conn3(tau_strings[2](0.100000f), tau_strings[3](0.100000f));
   conn4(r(0.600000f, 0.200000f), 0.00000f);
   r.placeRightOf(c, 20);
   t.placeAbove(r);
@@ -87,10 +87,10 @@ void taoScore() {
       Tick >= (long)((tao.newStart = tao.start) *
                      tao.synthesisEngine.modelSampleRate)) {
     tao.pushStartAndEnd1();
-    strings[0](0.100000f).applyForce(1.00000f);
-    strings[1](0.100000f).applyForce(1.00000f);
-    strings[2](0.100000f).applyForce(1.00000f);
-    strings[3](0.100000f).applyForce(1.00000f);
+    tau_strings[0](0.100000f).applyForce(1.00000f);
+    tau_strings[1](0.100000f).applyForce(1.00000f);
+    tau_strings[2](0.100000f).applyForce(1.00000f);
+    tau_strings[3](0.100000f).applyForce(1.00000f);
     c(0.100000f, 0.500000f).applyForce(10.0000f);
     r(0.700000f, 0.800000f).applyForce(10.0000f);
     t(0.800000f, 0.600000f).applyForce(10.0000f);

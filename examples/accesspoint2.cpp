@@ -40,9 +40,9 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString string1("string1", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+TaoString tau_string1("tau_string1", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
 
-TaoString string2("string2", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+TaoString tau_string2("tau_string2", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
 
 TaoAccessPoint point1, point2;
 
@@ -53,8 +53,8 @@ TaoOutput out("out", "accesspoint2_out", 2);
 // Init: <statements> ...
 
 void taoInit() {
-  string1.lockEnds();
-  string2.lockEnds();
+  tau_string1.lockEnds();
+  tau_string2.lockEnds();
 }
 
 // Score <duration> : <statements> ...
@@ -69,16 +69,16 @@ void taoScore() {
       Tick >= (long)((tao.newStart = 0.00000) *
                      tao.synthesisEngine.modelSampleRate)) {
     tao.pushStartAndEnd1();
-    string1(0.0500000f).applyForce(1.00000f);
+    tau_string1(0.0500000f).applyForce(1.00000f);
     tao.popStartAndEnd();
   }
 
   if (Tick % 100L == 0) {
     tao.pushStartAndEnd2();
-    point1 = string1(
+    point1 = tau_string1(
         ((Time - tao.start) / (tao.end - tao.start) * (1.00000f - 0.00000f) +
          0.00000f));
-    point2 = string2(
+    point2 = tau_string2(
         ((Time - tao.start) / (tao.end - tao.start) * (0.00000f - 1.00000f) +
          1.00000f));
     tao.popStartAndEnd();
