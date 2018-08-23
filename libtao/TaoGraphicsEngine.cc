@@ -118,8 +118,8 @@ void tao_keyboard(unsigned char key, int x, int y) {
 
 TaoGraphicsEngine::TaoGraphicsEngine() {
   active = FALSE;
-  viewportWidth = 400;
-  viewportHeight = 300;
+  viewportWidth = 1280;
+  viewportHeight = 720;
   xOffset = 0.0;
   yOffset = 0.0;
   zOffset = -400.0;
@@ -161,7 +161,7 @@ void TaoGraphicsEngine::init(int argc, char *argv[]) {
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-  glutInitWindowSize(400, 300);
+  glutInitWindowSize(1280, 720);
   winId = glutCreateWindow(argv[0]);
 
   glutReshapeFunc(::tao_reshape);
