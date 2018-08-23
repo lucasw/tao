@@ -51,10 +51,16 @@ void taoInit() {
 
 // Score <duration> : <statements> ...
 
-float taoScoreDuration() { return 18.00000f; }
+float taoScoreDuration() { return 9.00000f; }
 
-TaoOutput output("out", "ellipse", 2);
+TaoOutput outputs[5] = {TaoOutput("outputs_0", "ellipse_outputs_0", 1),
+                        TaoOutput("outputs_1", "ellipse_outputs_1", 1),
+                        TaoOutput("outputs_2", "ellipse_outputs_2", 1),
+                        TaoOutput("outputs_3", "ellipse_outputs_3", 1),
+                        TaoOutput("outputs_4", "ellipse_outputs_4", 1)};
 
+
+int count = 0;
 void taoScore() {
   tao.initStartAndEnd();
 
@@ -70,10 +76,19 @@ void taoScore() {
     tao.popStartAndEnd();
   }
 
-  output.chL(ellipse(0.2, 0.5));
-  output.chR(ellipse(0.8, 0.5));
+  float y = 0.2;
+  for (size_t i = 0; i < 5; ++i) {
+    outputs[i].chL(ellipse(0.3, y));
+    outputs[i].chR(ellipse(0.7, y));
+    y += 0.1;
+  }
 
   tao.popStartAndEnd();
+
+  if (count++ % taoAudioRate() == 0)
+  {
+    std::cout << count / taoAudioRate() << std::endl;
+  }
 }
 
 main(int argc, char *argv[]) {

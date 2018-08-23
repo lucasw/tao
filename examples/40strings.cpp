@@ -91,7 +91,7 @@ int tau_stringConnectionOrder[40] = {39, 37, 35, 33, 31, 29, 27, 25, 23, 21,
                                  20, 22, 24, 26, 28, 30, 32, 34, 36, 38};
 int s, tau_stringToPluck;
 
-TaoConnector c[40] = {
+TaoConnector con[40] = {
     TaoConnector("c0"),  TaoConnector("c1"),  TaoConnector("c2"),
     TaoConnector("c3"),  TaoConnector("c4"),  TaoConnector("c5"),
     TaoConnector("c6"),  TaoConnector("c7"),  TaoConnector("c8"),
@@ -196,11 +196,10 @@ void taoScore() {
   if (Tick % 1000L == 0) {
     tao.pushStartAndEnd2();
     for (s = 0; s <= 39; s++) {
-      c[s](tau_string[tau_stringConnectionOrder[s]](((Time - tao.start) /
-                                                 (tao.end - tao.start) *
-                                                 (0.500000f - 0.0500000f) +
-                                             0.0500000f)),
-           resonator1((s + 10) / 60.0000f), 0.200000f);
+      const float val = (Time - tao.start) / (tao.end - tao.start) * (0.5f - 0.05f) + 0.05f;
+      const float rval = resonator1((s + 10) / 60.0f);
+      const float val3 = 0.2f;
+      con[s](tau_string[tau_stringConnectionOrder[s]](val), rval, val3);
     }
 
     tao.popStartAndEnd();
