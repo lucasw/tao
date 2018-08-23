@@ -26,7 +26,7 @@ list(APPEND example_files
   rectangle
   stop
   string
-  test
+  testt
 )
 
 foreach(example ${example_files})
