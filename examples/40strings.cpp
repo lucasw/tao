@@ -111,7 +111,7 @@ TaoConnector r2r[5] = {TaoConnector("r2r0"), TaoConnector("r2r1"),
                        TaoConnector("r2r2"), TaoConnector("r2r3"),
                        TaoConnector("r2r4")};
 
-TaoOutput out("out", "40tau_strings_out", 2);
+TaoOutput out("out", "40strings_out", 2);
 float interval[] = {1,       1 / 2.0, 1 / 3.0, 1 / 4.0, 1 / 5.0,
                     1 / 6.0, 1 / 7.0, 1 / 8.0, 1 / 9.0, 1 / 10.0};
 float now = 0.00000f;
@@ -196,10 +196,18 @@ void taoScore() {
   if (Tick % 1000L == 0) {
     tao.pushStartAndEnd2();
     for (s = 0; s <= 39; s++) {
+        con[s](tau_string[tau_stringConnectionOrder[s]](((Time - tao.start) /
+                                                    (tao.end - tao.start) *
+                                                    (0.500000f - 0.0500000f) +
+                                                     0.0500000f)),
+            resonator1((s + 10) / 60.0000f), 0.200000f);
+#if 0
+      // this didn't work
       const float val = (Time - tao.start) / (tao.end - tao.start) * (0.5f - 0.05f) + 0.05f;
       const float rval = resonator1((s + 10) / 60.0f);
       const float val3 = 0.2f;
       con[s](tau_string[tau_stringConnectionOrder[s]](val), rval, val3);
+#endif
     }
 
     tao.popStartAndEnd();
