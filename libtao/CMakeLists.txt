@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
-project(libtao_synth)
+project(tao_synth)
 
 include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/../include
 )
-
-# -lX11 -lXmu -lXi -lGL -lGLU -lpthread -lglut -laudiofile
 
 add_library(${PROJECT_NAME} SHARED
   TaoAccessPoint.cc
@@ -28,3 +26,5 @@ add_library(${PROJECT_NAME} SHARED
   TaoSynthEngine.cc
   TaoTriangle.cc
 )
+# -lX11 -lXmu -lXi -lGL -lGLU -lpthread -lglut -laudiofile
+target_link_libraries(${PROJECT_NAME} GL GLU glut)
