@@ -758,25 +758,30 @@ static struct colors=
 {"LightGreen"144 238 144 }
 */
 
-class TaoRGBColor
-    {
+class TaoRGBColor {
 public:
-    TaoRGBColor(float red, float green, float blue)
-        {this->red=red;this->green=green;this->blue=blue;}
-    TaoRGBColor(float greyLevel)
-        {this->red=greyLevel;this->green=greyLevel;this->blue=greyLevel;}
-    TaoRGBColor(const char *colorName)
-        {}
-    void setRed(float red)     {this->red=red;}
-    void setGreen(float green) {this->green=green;}
-    void setBlue(float blue)   {this->blue=blue;}
-    float getRed()             {return red;}
-    float getGreen()           {return green;}
-    float getBlue()            {return blue;}
+  TaoRGBColor(float red, float green, float blue) {
+    this->red = red;
+    this->green = green;
+    this->blue = blue;
+  }
+  TaoRGBColor(float greyLevel) {
+    this->red = greyLevel;
+    this->green = greyLevel;
+    this->blue = greyLevel;
+  }
+  TaoRGBColor(const char *colorName) {}
+  void setRed(float red) { this->red = red; }
+  void setGreen(float green) { this->green = green; }
+  void setBlue(float blue) { this->blue = blue; }
+  float getRed() { return red; }
+  float getGreen() { return green; }
+  float getBlue() { return blue; }
+
 private:
-    float red;
-    float green;
-    float blue;
-    };
+  float red;
+  float green;
+  float blue;
+};
 
 #endif
