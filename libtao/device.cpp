@@ -22,7 +22,7 @@
 #include <tao/instrument.h>
 #include <string.h>
 
-TaoDevice::TaoDevice() {
+TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) : tao_(tao), interfacePoint(tao) {
   strcpy(name, "anon");
   targetInstrument = NULL;
   interfacePoint.clear();
@@ -34,7 +34,8 @@ TaoDevice::TaoDevice() {
 
 TaoDevice::~TaoDevice() {}
 
-TaoDevice::TaoDevice(const char *deviceName) {
+TaoDevice::TaoDevice(std::shared_ptr<Tao> tao, const char *deviceName) :
+    tao_(tao), interfacePoint(tao) {
   strcpy(name, deviceName);
   targetInstrument = NULL;
   active = 0;
@@ -63,10 +64,8 @@ void TaoDevice::activate() { active = TRUE; }
 
 void TaoDevice::deactivate() { active = FALSE; }
 
-extern Tao tao;
-
-void TaoDevice::addToSynthesisEngine() { tao.synthesisEngine.addDevice(this); }
+void TaoDevice::addToSynthesisEngine() { tao_->synthesisEngine.addDevice(this); }
 
 void TaoDevice::removeFromSynthesisEngine() {
-  tao.synthesisEngine.removeDevice(this);
+  tao_->synthesisEngine.removeDevice(this);
 }

@@ -19,7 +19,7 @@
 //
 // The `main()' function defined at the end of this generated file registers
 // the functions described above with the top level object `tao' (an instance
-// of class `Tao'), and then invokes the member function `tao.main()'. This
+// of class `Tao'), and then invokes the member function `mtao->main()'. This
 // function enters the main synthesis engine loop which calculates the number
 // of ticks specified by the score duration, and updates the graphics window
 // (if graphics mode is on). It only exits if the graphics window is closed, if
@@ -32,7 +32,7 @@
 #include <cmath>
 #include <iostream>
 
-Tao tao;
+static std::shared_ptr<Tao> mtao;
 
 // Audio rate: <sample_rate> ;
 
@@ -40,7 +40,7 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString tau_string("tau_string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+TaoString tau_string(mtao, "tau_string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
 
 // Init: <statements> ...
 
@@ -53,29 +53,30 @@ void taoInit() {
 float taoScoreDuration() { return 5.00000f; }
 
 void taoScore() {
-  tao.initStartAndEnd();
+  mtao->initStartAndEnd();
 
-  if (Tick <= (long)((tao.newEnd = 0.00100000) *
-                     tao.synthesisEngine.modelSampleRate) &&
-      Tick >= (long)((tao.newStart = 0.00000) *
-                     tao.synthesisEngine.modelSampleRate)) {
-    tao.pushStartAndEnd1();
+  if (Tick <= (long)((mtao->newEnd = 0.00100000) *
+                     mtao->synthesisEngine.modelSampleRate) &&
+      Tick >= (long)((mtao->newStart = 0.00000) *
+                     mtao->synthesisEngine.modelSampleRate)) {
+    mtao->pushStartAndEnd1();
     tau_string(0.100000f).applyForce(
-        ((Time - tao.start) / (tao.end - tao.start) * (0.00000f - 1.00000f) +
+        ((Time - mtao->start) / (mtao->end - mtao->start) * (0.00000f - 1.00000f) +
          1.00000f));
-    tao.popStartAndEnd();
+    mtao->popStartAndEnd();
   }
 
-  tao.popStartAndEnd();
+  mtao->popStartAndEnd();
 }
 
 main(int argc, char *argv[]) {
-  tao.initStartAndEnd();
-  tao.audioRateFunc(taoAudioRate);
-  tao.initFunc(taoInit);
-  tao.scoreDurationFunc(taoScoreDuration);
-  tao.scoreFunc(taoScore);
-  tao.main(argc, argv);
+  mtao.reset(new Tao());
+  mtao->initStartAndEnd();
+  mtao->audioRateFunc(taoAudioRate);
+  mtao->initFunc(taoInit);
+  mtao->scoreDurationFunc(taoScoreDuration);
+  mtao->scoreFunc(taoScore);
+  mtao->main(argc, argv);
 }
 
 // End of C++ program generated from script "tau_string.tao"

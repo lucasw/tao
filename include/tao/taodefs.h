@@ -87,7 +87,6 @@
   float taoScoreDuration() { return duration; }                                \
   void taoScore()
 
-extern Tao tao;
 extern float &Time;
 extern long &Tick;
 

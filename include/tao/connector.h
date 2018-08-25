@@ -30,18 +30,22 @@
 
 class DLLEXPORT TaoConnector : public TaoDevice {
 public:
-  TaoConnector(void);
+  TaoConnector(std::shared_ptr<Tao> tao);
   ~TaoConnector();
-  TaoConnector(const char *connectorName);
-  TaoConnector(const char *connectorName, TaoAccessPoint &ap1,
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName);
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap1,
                TaoAccessPoint &ap2);
-  TaoConnector(const char *connectorName, TaoAccessPoint &ap1,
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap1,
                TaoAccessPoint &ap2, float connectionStrength);
-  TaoConnector(const char *connectorName, TaoAccessPoint &ap, float anchor);
-  TaoConnector(const char *connectorName, TaoAccessPoint &ap, float anchor,
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap,
+               float anchor);
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap,
+               float anchor,
                float connectionStrength);
-  TaoConnector(const char *connectorName, float anchor, TaoAccessPoint &ap);
-  TaoConnector(const char *connectorName, float anchor, TaoAccessPoint &ap,
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, float anchor,
+               TaoAccessPoint &ap);
+  TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, float anchor,
+               TaoAccessPoint &ap,
                float connectionStrength);
   void operator()(TaoAccessPoint &ap1, TaoAccessPoint &ap2);
   void operator()(TaoAccessPoint &ap1, TaoAccessPoint &ap2,

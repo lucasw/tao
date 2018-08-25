@@ -29,9 +29,7 @@ float TaoInstrument::defaultMass = 3.5; // Set to optimum value for
                                         // frequency response of
                                         // material. Leave well alone!!
 
-extern Tao tao;
-
-TaoInstrument::TaoInstrument() {}
+TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao) : tao_(tao), currentAccess(tao) {}
 
 TaoInstrument::~TaoInstrument() {
   for (int j = 0; j <= ymax; j++) {
@@ -40,8 +38,9 @@ TaoInstrument::~TaoInstrument() {
   delete[] rows;
 }
 
-TaoInstrument::TaoInstrument(const TaoPitch &xpitch, const TaoPitch &ypitch,
-                             float decay) {
+TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
+                             const TaoPitch &ypitch,
+                             float decay) : tao_(tao), currentAccess(tao) {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -57,11 +56,11 @@ TaoInstrument::TaoInstrument(const TaoPitch &xpitch, const TaoPitch &ypitch,
   strcpy(name, "");
   next = NULL;
 
-  tao.synthesisEngine.addInstrument(this);
+  tao_->synthesisEngine.addInstrument(this);
 }
 
-TaoInstrument::TaoInstrument(const char *name, const TaoPitch &xpitch,
-                             const TaoPitch &ypitch, float decay) {
+TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
+                             const TaoPitch &ypitch, float decay) : tao_(tao), currentAccess(tao) {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -78,11 +77,11 @@ TaoInstrument::TaoInstrument(const char *name, const TaoPitch &xpitch,
   next = NULL;
 
 #ifdef INSTRUMENT_DEBUG
-  cout << "In TaoInstrument() tao.synthesisEngine.add(" << this << ")"
+  cout << "In TaoInstrument() tao_->synthesisEngine.add(" << this << ")"
        << " name=" << name << endl;
 #endif
 
-  tao.synthesisEngine.addInstrument(this);
+  tao_->synthesisEngine.addInstrument(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -105,8 +104,8 @@ TaoAccessPoint &TaoInstrument::operator()(float x, float y) {
   TaoAccessPoint &p = currentAccess;
 
   point(x, y);
-  if (tao.graphics_engine_)
-    tao.graphics_engine_->displayAccessPoint(p);
+  if (tao_->graphics_engine_)
+    tao_->graphics_engine_->displayAccessPoint(p);
 
   return p;
 }
@@ -513,7 +512,7 @@ void TaoInstrument::initialiseCells() {
 #endif
 
   intendedFreq = xfrequency;
-  actualFreq = tao.synthesisEngine.Hz2CellConst / (xmax + 1);
+  actualFreq = tao_->synthesisEngine.Hz2CellConst / (xmax + 1);
   compensationFactor =
       powf(4.0, log10f(actualFreq / intendedFreq) / log10f(2.0));
 
@@ -1901,11 +1900,11 @@ void TaoInstrument::joinTopToTop(TaoCell &cell1, TaoCell &cell2) {
 }
 
 float TaoInstrument::decay2velocityMultiplier(float decay) {
-  return (1.0 - (tao.synthesisEngine.Decay2VelocityMultiplierConst / decay));
+  return (1.0 - (tao_->synthesisEngine.Decay2VelocityMultiplierConst / decay));
 }
 
 int TaoInstrument::hertz2cells(float freq) {
   if (freq == 0.0)
     return 1;
-  return (int)(tao.synthesisEngine.Hz2CellConst / freq);
+  return (int)(tao_->synthesisEngine.Hz2CellConst / freq);
 }

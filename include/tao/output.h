@@ -40,10 +40,10 @@ class DLLEXPORT TaoOutput : public TaoDevice {
   friend class TaoSynthEngine;
 
 public:
-  TaoOutput();
+  TaoOutput(std::shared_ptr<Tao> tao);
   ~TaoOutput();
-  TaoOutput(const char *filename, int channels);
-  TaoOutput(const char *outputName, const char *filename, int channels);
+  TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channels);
+  TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const char *filename, int channels);
   inline void ch1(float value) { samples[0] = value; }
   inline void ch2(float value) { samples[1] = value; }
   inline void ch3(float value) { samples[2] = value; }

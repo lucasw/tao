@@ -20,13 +20,14 @@
 #include <tao/instrument.h>
 #include <cassert>
 
-TaoString::TaoString(const TaoPitch &pitch, float decay)
-    : TaoInstrument(pitch, TaoPitch(0.0), decay) {
+TaoString::TaoString(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay)
+    : TaoInstrument(tao, pitch, TaoPitch(0.0), decay) {
   createTheMaterial();
 }
 
-TaoString::TaoString(const char *name, const TaoPitch &pitch, float decay)
-    : TaoInstrument(name, pitch, TaoPitch(0.0), decay) {
+TaoString::TaoString(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &pitch,
+    float decay)
+    : TaoInstrument(tao, name, pitch, TaoPitch(0.0), decay) {
   createTheMaterial();
 }
 

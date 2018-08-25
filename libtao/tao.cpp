@@ -20,9 +20,8 @@
 #include <iostream>
 #include <stdio.h>
 
-extern Tao tao;
-float &Time = tao.synthesisEngine.time;
-long &Tick = tao.synthesisEngine.tick;
+// float &Time = tao.synthesisEngine.time;
+// long &Tick = tao.synthesisEngine.tick;
 
 Tao::Tao() {
   start = 0.0;
@@ -123,7 +122,7 @@ void Tao::masterTick() {
   }
 }
 
-void taoMasterTick() { tao.masterTick(); }
+// void taoMasterTick() { tao.masterTick(); }
 
 void Tao::main(int argc, char *argv[]) {
   int option;
@@ -135,7 +134,7 @@ void Tao::main(int argc, char *argv[]) {
 
     switch (option) {
     case 'g':
-      graphics_engine_.reset(new TaoGraphicsEngine(this));
+      graphics_engine_.reset(new TaoGraphicsEngine(shared_from_this()));
       graphics_engine_->activate();
       synthesisEngine.pause();
       break;

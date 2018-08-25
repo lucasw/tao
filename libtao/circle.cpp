@@ -20,13 +20,13 @@
 #include <tao/instrument.h>
 #include <cmath>
 
-TaoCircle::TaoCircle(const TaoPitch &pitch, float decay)
-    : TaoInstrument(pitch, pitch, decay) {
+TaoCircle::TaoCircle(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay)
+    : TaoInstrument(tao, pitch, pitch, decay) {
   createTheMaterial();
 }
 
-TaoCircle::TaoCircle(const char *name, const TaoPitch &pitch, float decay)
-    : TaoInstrument(name, pitch, pitch, decay) {
+TaoCircle::TaoCircle(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &pitch, float decay)
+    : TaoInstrument(tao, name, pitch, pitch, decay) {
   createTheMaterial();
 }
 

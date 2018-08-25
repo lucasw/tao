@@ -26,12 +26,10 @@
 #include <fstream>
 #include <string.h>
 
-extern Tao tao;
-
 const int TaoOutput::buffersize = 500;
 float TaoOutput::displayPosition = 0.0f;
 
-TaoOutput::TaoOutput() {}
+TaoOutput::TaoOutput(std::shared_ptr<Tao> tao) : TaoDevice(tao) {}
 
 TaoOutput::~TaoOutput() {
   delete outputfile;
@@ -49,7 +47,7 @@ TaoOutput::~TaoOutput() {
   outputfile = NULL;
 }
 
-TaoOutput::TaoOutput(const char *filename, int channels) : TaoDevice() {
+TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channels) : TaoDevice(tao) {
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
@@ -78,8 +76,8 @@ TaoOutput::TaoOutput(const char *filename, int channels) : TaoDevice() {
   addToSynthesisEngine();
 }
 
-TaoOutput::TaoOutput(const char *outputName, const char *filename, int channels)
-    : TaoDevice(outputName) {
+TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const char *filename, int channels)
+    : TaoDevice(tao, outputName) {
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
@@ -111,7 +109,7 @@ TaoOutput::TaoOutput(const char *outputName, const char *filename, int channels)
 void TaoOutput::update() {
   extern long &Tick;
 
-  if (Tick % tao.synthesisEngine.throwAway)
+  if (Tick % tao_->synthesisEngine.throwAway)
     return; // Throw away samples
 
   if (index < buffersize) {
@@ -135,7 +133,7 @@ void TaoOutput::update() {
       first_write = 0;
       outputfile->open(fullfilename, std::ios::out);
       outputfile->write("TAO OUTPUT FILE", 15);
-      outputfile->write((char *)&tao.synthesisEngine.audioSampleRate,
+      outputfile->write((char *)&tao_->synthesisEngine.audioSampleRate,
                         (int)sizeof(int));
       outputfile->write((char *)&numChannels, (int)sizeof(int));
       outputfile->close();
@@ -149,11 +147,11 @@ void TaoOutput::update() {
 }
 
 void TaoOutput::display() {
-  if (!tao.graphics_engine_)
+  if (!tao_->graphics_engine_)
     return;
-  if (!tao.graphics_engine_->active)
+  if (!tao_->graphics_engine_->active)
     return;
-  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
     return;
 
   displayStream->seekp(std::ios::beg);
@@ -169,7 +167,7 @@ void TaoOutput::display() {
                    << "   Max:     " << maxSample << std::ends;
   }
 
-  // tao.graphics_engine_->displayCharString(10.0, myDisplayPosition,
+  // tao_->graphics_engine_->displayCharString(10.0, myDisplayPosition,
   // displayString);
 
   // mic1 -  L:    1338.0 R:    0.932  Max:    1340.0

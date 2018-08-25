@@ -20,15 +20,15 @@
 #include <tao/instrument.h>
 #include <cmath>
 
-TaoEllipse::TaoEllipse(const TaoPitch &xpitch, const TaoPitch &ypitch,
+TaoEllipse::TaoEllipse(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
                        float decay)
-    : TaoInstrument(xpitch, ypitch, decay) {
+    : TaoInstrument(tao, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-TaoEllipse::TaoEllipse(const char *name, const TaoPitch &xpitch,
+TaoEllipse::TaoEllipse(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
                        const TaoPitch &ypitch, float decay)
-    : TaoInstrument(name, xpitch, ypitch, decay) {
+    : TaoInstrument(tao, name, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 

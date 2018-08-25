@@ -29,8 +29,8 @@
 
 class DLLEXPORT TaoHammer : public TaoDevice {
 public:
-  TaoHammer();
-  TaoHammer(const char *hammerName);
+  TaoHammer(std::shared_ptr<Tao> tao);
+  TaoHammer(std::shared_ptr<Tao> tao, const char *hammerName);
   void update();
   void display();
   void reset();

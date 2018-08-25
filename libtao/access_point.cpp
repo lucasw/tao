@@ -20,9 +20,7 @@
 #include <tao/access_point.h>
 #include <tao/cell.h>
 
-extern Tao tao;
-
-TaoAccessPoint::TaoAccessPoint() {
+TaoAccessPoint::TaoAccessPoint(std::shared_ptr<Tao> tao) : tao_(tao) {
   instrument = NULL;
   x = 0.0;
   y = 0.0;
@@ -122,8 +120,8 @@ float TaoAccessPoint::getForce() {
     break;
   }
 
-  if (tao.graphics_engine_ && tao.graphics_engine_->active)
-    tao.graphics_engine_->displayAccessPoint(*this);
+  if (tao_->graphics_engine_ && tao_->graphics_engine_->active)
+    tao_->graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }
@@ -215,8 +213,8 @@ float TaoAccessPoint::getVelocity() {
     break;
   }
 
-  if (tao.graphics_engine_ && tao.graphics_engine_->active)
-    tao.graphics_engine_->displayAccessPoint(*this);
+  if (tao_->graphics_engine_ && tao_->graphics_engine_->active)
+    tao_->graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }

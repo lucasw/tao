@@ -152,8 +152,8 @@ void tao_keyboard(unsigned char key, int x, int y) {
   }
 }
 
-TaoGraphicsEngine::TaoGraphicsEngine(Tao* ptao) : tao_(ptao) {
-  tao.reset(ptao);
+TaoGraphicsEngine::TaoGraphicsEngine(std::shared_ptr<Tao> ptao) : tao_(ptao) {
+  tao = ptao;
   active = FALSE;
   viewportWidth = 1280;
   viewportHeight = 720;

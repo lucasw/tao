@@ -76,7 +76,7 @@ class DLLEXPORT TaoGraphicsEngine {
   friend void tao_special(int key, int x, int y);
 
 public:
-  TaoGraphicsEngine(Tao* ptao);
+  TaoGraphicsEngine(std::shared_ptr<Tao> ptao);
 
   void activate();
   void deactivate();

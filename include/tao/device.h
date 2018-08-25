@@ -47,9 +47,9 @@ class DLLEXPORT TaoDevice {
   friend class TaoGraphicsEngine;
 
 public:
-  TaoDevice();
+  TaoDevice(std::shared_ptr<Tao> tao);
   ~TaoDevice();
-  TaoDevice(const char *deviceName);
+  TaoDevice(std::shared_ptr<Tao> tao, const char *deviceName);
   char *getName();
   float getX();
   float getY();
@@ -58,6 +58,7 @@ public:
   float x, y;
 
 protected:
+  std::shared_ptr<Tao> tao_;
   void addToSynthesisEngine();
   void removeFromSynthesisEngine();
   void activate();

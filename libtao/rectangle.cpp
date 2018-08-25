@@ -19,15 +19,17 @@
 #include <tao/rectangle.h>
 #include <tao/instrument.h>
 
-TaoRectangle::TaoRectangle(const TaoPitch &xpitch, const TaoPitch &ypitch,
+TaoRectangle::TaoRectangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
+                           const TaoPitch &ypitch,
                            float decay)
-    : TaoInstrument(xpitch, ypitch, decay) {
+    : TaoInstrument(tao, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-TaoRectangle::TaoRectangle(const char *name, const TaoPitch &xpitch,
+TaoRectangle::TaoRectangle(std::shared_ptr<Tao> tao, const char *name,
+                           const TaoPitch &xpitch,
                            const TaoPitch &ypitch, float decay)
-    : TaoInstrument(name, xpitch, ypitch, decay) {
+    : TaoInstrument(tao, name, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 

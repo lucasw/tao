@@ -20,7 +20,7 @@
 #include <tao/tao.h>
 #include <tao/instrument.h>
 
-TaoStop::TaoStop(const char *stopName) : TaoDevice(stopName) {
+TaoStop::TaoStop(std::shared_ptr<Tao> tao, const char *stopName) : TaoDevice(tao, stopName) {
   deviceType = TaoDevice::STOP;
   maxDampingCoefficient = 0.95f;
   currentDampingCoefficient = 0.0f;
@@ -70,8 +70,6 @@ void TaoStop::operator()(TaoString &string, TaoPitch &stoppedPitch) {
   apply(string(stopPosition));
 }
 
-extern Tao tao;
-
 void TaoStop::update() {
   static float last_x = 0.0;
 
@@ -80,7 +78,7 @@ void TaoStop::update() {
   if (!targetInstrument)
     return;
 
-  if (dampMode == 1 && tao.synthesisEngine.tick % 100 == 0) {
+  if (dampMode == 1 && tao_->synthesisEngine.tick % 100 == 0) {
     targetInstrument->resetDamping(0, last_x);
     targetInstrument->setDamping(0, interfacePoint.x,
                                  currentDampingCoefficient);
@@ -92,25 +90,25 @@ void TaoStop::update() {
 }
 
 void TaoStop::display() {
-  if (!tao.graphics_engine_)
+  if (!tao_->graphics_engine_)
     return;
-  if (!tao.graphics_engine_->active || !active || !targetInstrument)
+  if (!tao_->graphics_engine_->active || !active || !targetInstrument)
     return;
-  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr = interfacePoint.getInstrument();
   GLfloat x, y, z;
 
-  tao.graphics_engine_->displayAccessPoint(interfacePoint);
+  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
 
-  if (tao.graphics_engine_->displayDeviceNames) {
+  if (tao_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(interfacePoint.getPosition() * instr.getMagnification() *
-                      tao.graphics_engine_->globalMagnification +
+                      tao_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao.graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

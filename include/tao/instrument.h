@@ -48,10 +48,11 @@ class DLLEXPORT TaoInstrument {
   friend int main(int argc, char *argv[]);
 
 public:
-  TaoInstrument();
+  TaoInstrument(std::shared_ptr<Tao> tao);
   ~TaoInstrument();
-  TaoInstrument(const TaoPitch &xpitch, const TaoPitch &ypitch, float decay);
-  TaoInstrument(const char *name, const TaoPitch &xpitch,
+  TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
+                float decay);
+  TaoInstrument(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
                 const TaoPitch &ypitch, float decay);
   void calculateForces(int startRow, int endRow);
   void calculatePositions(int startRow, int endRow);
@@ -117,8 +118,8 @@ public:
   inline float getXFrequency() { return xfrequency; }
   inline float getYFrequency() { return yfrequency; }
 
-  static float decay2velocityMultiplier(float decay);
-  static int hertz2cells(float freq);
+  float decay2velocityMultiplier(float decay);
+  int hertz2cells(float freq);
 
   static void glue(TaoInstrument &i1, float x1, float y1, TaoInstrument &i2,
                    float x2, float y2);
@@ -138,6 +139,7 @@ public:
   TaoPitch xpitch, ypitch;
 
 protected:
+  std::shared_ptr<Tao> tao_;
   char name[30];
   float defaultDecay, defaultVelocityMultiplier;
   float amplification;

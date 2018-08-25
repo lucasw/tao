@@ -19,12 +19,15 @@
 #ifndef ACCESSPOINT_H
 #define ACCESSPOINT_H
 
+#include <memory>
+
 #ifdef WIN32
 #define DLLEXPORT __declspec(dllexport)
 #else
 #define DLLEXPORT
 #endif
 
+class Tao;
 class TaoCell;
 class TaoInstrument;
 class TaoGraphicsEngine;
@@ -70,7 +73,7 @@ class DLLEXPORT TaoAccessPoint {
   friend int main(int argc, char *argv[]);
 
 public:
-  TaoAccessPoint();
+  TaoAccessPoint(std::shared_ptr<Tao> tao);
   float getForce();
   void setForce(float f);
   float getVelocity();
@@ -87,6 +90,7 @@ public:
   static void ground(TaoAccessPoint &p, float connectionStrength);
 
 private:
+  std::shared_ptr<Tao> tao_;
   TaoInstrument *instrument; // target instrument
   float x, y;                // normalised instrument coordinates
   float cellx, celly;        // real x and y coords in terms of

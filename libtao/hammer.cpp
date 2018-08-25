@@ -22,9 +22,7 @@
 #include <tao/cell.h>
 #include <tao/instrument.h>
 
-extern Tao tao;
-
-TaoHammer::TaoHammer() : TaoDevice("") {
+TaoHammer::TaoHammer(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   deviceType = TaoDevice::HAMMER;
   mode = nocontact;
   mass = 10.0;
@@ -41,7 +39,8 @@ TaoHammer::TaoHammer() : TaoDevice("") {
   addToSynthesisEngine();
 }
 
-TaoHammer::TaoHammer(const char *hammerName) : TaoDevice(hammerName) {
+TaoHammer::TaoHammer(std::shared_ptr<Tao> tao, const char *hammerName) :
+    TaoDevice(tao, hammerName) {
   deviceType = TaoDevice::HAMMER;
   mode = nocontact;
   mass = 10.0;
@@ -156,11 +155,11 @@ int TaoHammer::numberOfImpacts() { return numImpacts; }
 int TaoHammer::getMaxImpacts() { return maxImpacts; }
 
 void TaoHammer::display() {
-  if (!tao.graphics_engine_)
+  if (!tao_->graphics_engine_)
     return;
-  if (!tao.graphics_engine_->active || !active || !targetInstrument)
+  if (!tao_->graphics_engine_->active || !active || !targetInstrument)
     return;
-  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr = interfacePoint.getInstrument();
@@ -168,17 +167,17 @@ void TaoHammer::display() {
   GLfloat y;
   GLfloat z;
 
-  tao.graphics_engine_->displayAccessPoint(interfacePoint);
-  tao.graphics_engine_->displayPointInInstrumentSpace(
+  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
+  tao_->graphics_engine_->displayPointInInstrumentSpace(
       *targetInstrument, interfacePoint.x, interfacePoint.y, this->position);
 
-  if (tao.graphics_engine_->displayDeviceNames) {
+  if (tao_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(this->position * instr.getMagnification() *
-                      tao.graphics_engine_->globalMagnification +
+                      tao_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao.graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

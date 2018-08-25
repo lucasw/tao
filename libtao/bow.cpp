@@ -22,9 +22,7 @@
 #include <tao/instrument.h>
 #include <cmath>
 
-extern Tao tao;
-
-TaoBow::TaoBow() : TaoDevice("") {
+TaoBow::TaoBow(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   deviceType = TaoDevice::BOW;
   mode = stick;
   bowVelocity = 0.0;
@@ -34,7 +32,7 @@ TaoBow::TaoBow() : TaoDevice("") {
   addToSynthesisEngine();
 }
 
-TaoBow::TaoBow(const char *bowName) : TaoDevice(bowName) {
+TaoBow::TaoBow(std::shared_ptr<Tao> tao, const char *bowName) : TaoDevice(tao, bowName) {
   deviceType = TaoDevice::BOW;
   mode = stick;
   bowVelocity = 0.0;
@@ -103,11 +101,11 @@ void TaoBow::update() {
 } // frictional force.
 
 void TaoBow::display() {
-  if (!tao.graphics_engine_)
+  if (!tao_->graphics_engine_)
     return;
-  if (!active || !targetInstrument || !tao.graphics_engine_->active)
+  if (!active || !targetInstrument || !tao_->graphics_engine_->active)
     return;
-  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr = interfacePoint.getInstrument();
@@ -115,15 +113,15 @@ void TaoBow::display() {
   GLfloat y;
   GLfloat z;
 
-  tao.graphics_engine_->displayAccessPoint(interfacePoint);
+  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
 
-  if (tao.graphics_engine_->displayDeviceNames) {
+  if (tao_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(interfacePoint.getPosition() * instr.getMagnification() *
-                      tao.graphics_engine_->globalMagnification +
+                      tao_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao.graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

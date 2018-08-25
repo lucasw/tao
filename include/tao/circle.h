@@ -30,8 +30,8 @@
 
 class DLLEXPORT TaoCircle : public TaoInstrument {
 public:
-  TaoCircle(const TaoPitch &pitch, float decay);
-  TaoCircle(const char *name, const TaoPitch &pitch, float decay);
+  TaoCircle(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay);
+  TaoCircle(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &pitch, float decay);
   void createTheMaterial();
 };
 
