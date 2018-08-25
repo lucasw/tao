@@ -28,7 +28,7 @@
 // `performance' reaches its natural conclusion.
 //////////////////////////////////////////////////////////////////////////////////
 
-#include "taodefs.h"
+#include <tao/taodefs.h>
 #include <cmath>
 #include <iostream>
 

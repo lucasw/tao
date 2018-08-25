@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////
-// This is the translated version of script "ellipse2.tao".
+// This is the translated version of script "tau_string.tao".
 //
 // It contains automatically generated definitions for the following functions
 // which are required by the Tao library in order to produce a complete
@@ -30,64 +30,52 @@
 
 #include <tao/taodefs.h>
 #include <cmath>
-#include <functional>
 #include <iostream>
 
-// this has to be global and named tao or undefined reference?
 Tao tao;
 
-class EllipseExample
-{
-public:
-  EllipseExample()
-  {
-    ellipse2 = new TaoEllipse("ellipse2", TaoPitch(200.000f, TaoPitch::frq),
-                              TaoPitch(400.000f, TaoPitch::frq), 20.0000f);
-  }
+// Audio rate: <sample_rate> ;
 
 int taoAudioRate() { return 44100; }
 
-TaoEllipse* ellipse2;
+// Declarations
+
+TaoString tau_string("tau_string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+
+// Init: <statements> ...
 
 void taoInit() {
-  ellipse2->lock(0.00000f, 0.800000f, 0.500000f, 0.500000f);
+  tau_string.lockEnds();
 }
+
+// Score <duration> : <statements> ...
 
 float taoScoreDuration() { return 5.00000f; }
 
-void update() {
+void taoScore() {
   tao.initStartAndEnd();
 
-  if (Tick <= (long)((tao.newEnd = 0.000500000) *
+  if (Tick <= (long)((tao.newEnd = 0.00100000) *
                      tao.synthesisEngine.modelSampleRate) &&
       Tick >= (long)((tao.newStart = 0.00000) *
                      tao.synthesisEngine.modelSampleRate)) {
     tao.pushStartAndEnd1();
-    (*ellipse2)(0.300000f, 0.200000f)
-        .applyForce(((Time - tao.start) / (tao.end - tao.start) *
-                         (0.00000f - 30.0000f) +
-                     30.0000f));
+    tau_string(0.100000f).applyForce(
+        ((Time - tao.start) / (tao.end - tao.start) * (0.00000f - 1.00000f) +
+         1.00000f));
     tao.popStartAndEnd();
   }
 
   tao.popStartAndEnd();
 }
 
-  void run(int argc, char *argv[]) {
-    #if 0
-    tao.initStartAndEnd();
-    // tao.audioRateFunc(std::bind(&EllipseExample::taoAudioRate, this));
-    // auto f = [this](void*) {return taoAudioRate();};
-    tao.audioRateFunc(f);
-    tao.initFunc(taoInit);
-    tao.scoreDurationFunc(taoScoreDuration);
-    tao.scoreFunc(taoScore);
-    tao.main(argc, argv);
-    #endif
-  }
-};
-
-int main(int argc, char *argv[]) {
-  EllipseExample ellipse_example;
-  return 0;
+main(int argc, char *argv[]) {
+  tao.initStartAndEnd();
+  tao.audioRateFunc(taoAudioRate);
+  tao.initFunc(taoInit);
+  tao.scoreDurationFunc(taoScoreDuration);
+  tao.scoreFunc(taoScore);
+  tao.main(argc, argv);
 }
+
+// End of C++ program generated from script "tau_string.tao"

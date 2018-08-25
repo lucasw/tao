@@ -6,25 +6,25 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME} SHARED
-  TaoAccessPoint.cc
-  TaoBow.cc
-  Tao.cc
-  TaoCell.cc
-  TaoCircle.cc
-  TaoConnector.cc
-  TaoDevice.cc
-  TaoEllipse.cc
+  access_point.cpp
+  bow.cpp
+  tao.cpp
+  cell.cpp
+  circle.cpp
+  connector.cpp
+  device.cpp
+  ellipse.cpp
   # TODO(lucasw) move the graphics engine out
-  TaoGraphicsEngine.cc
-  TaoHammer.cc
-  TaoInstrument.cc
-  TaoOutput.cc
-  TaoPitch.cc
-  TaoRectangle.cc
-  TaoStop.cc
-  TaoString.cc
-  TaoSynthEngine.cc
-  TaoTriangle.cc
+  graphics_engine.cpp
+  hammer.cpp
+  instrument.cpp
+  output.cpp
+  pitch.cpp
+  rectangle.cpp
+  stop.cpp
+  strand.cpp
+  synth_engine.cpp
+  triangle.cpp
 )
 # -lX11 -lXmu -lXi -lGL -lGLU -lpthread -lglut -laudiofile
 target_link_libraries(${PROJECT_NAME} GL GLU glut)
