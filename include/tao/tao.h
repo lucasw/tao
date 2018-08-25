@@ -80,7 +80,7 @@ public:
   float newStart, newEnd;
 
   TaoSynthEngine synthesisEngine;
-  TaoGraphicsEngine graphicsEngine;
+  std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
 
 private:
   void (*scoreFunctionPtr)(void); // User supplied functions

@@ -333,9 +333,11 @@ void TaoConnector::updateAnchorToAccess() {
 }
 
 void TaoConnector::display() {
-  if (!tao.graphicsEngine.active)
+  if (!tao.graphics_engine_)
     return;
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (!tao.graphics_engine_->active)
+    return;
+  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr1 = accessPoint1.getInstrument();
@@ -348,30 +350,30 @@ void TaoConnector::display() {
   GLfloat z2;
 
   if (accessPoint1.instrument) {
-    if (tao.graphicsEngine.displayDeviceNames) {
+    if (tao.graphics_engine_->displayDeviceNames) {
       x1 = (GLfloat)(instr1.getWorldX() + accessPoint1.cellx);
       z1 = (GLfloat)(accessPoint1.getPosition() * instr1.getMagnification() *
-                         tao.graphicsEngine.globalMagnification +
+                         tao.graphics_engine_->globalMagnification +
                      2.0);
       y1 = (GLfloat)(instr1.getWorldY() + accessPoint1.celly);
 
-      tao.graphicsEngine.displayCharString(x1, y1, z1, this->name, 1.0, 1.0,
+      tao.graphics_engine_->displayCharString(x1, y1, z1, this->name, 1.0, 1.0,
                                            1.0);
     }
-    tao.graphicsEngine.displayAccessPoint(accessPoint1);
+    tao.graphics_engine_->displayAccessPoint(accessPoint1);
   }
 
   if (accessPoint2.instrument) {
-    if (tao.graphicsEngine.displayDeviceNames) {
+    if (tao.graphics_engine_->displayDeviceNames) {
       x2 = (GLfloat)(instr2.getWorldX() + accessPoint2.cellx);
       z2 = (GLfloat)(accessPoint2.getPosition() * instr2.getMagnification() *
-                         tao.graphicsEngine.globalMagnification +
+                         tao.graphics_engine_->globalMagnification +
                      2.0);
       y2 = (GLfloat)(instr2.getWorldY() + accessPoint2.celly);
 
-      tao.graphicsEngine.displayCharString(x2, y2, z2, this->name, 1.0, 1.0,
+      tao.graphics_engine_->displayCharString(x2, y2, z2, this->name, 1.0, 1.0,
                                            1.0);
     }
-    tao.graphicsEngine.displayAccessPoint(accessPoint2);
+    tao.graphics_engine_->displayAccessPoint(accessPoint2);
   }
 }

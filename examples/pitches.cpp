@@ -76,8 +76,9 @@ float taoScoreDuration() { return 5.00000f; }
 void taoScore() {
   tao.initStartAndEnd();
 
-  tao.graphicsEngine.label(array1[0], 1.00000f, 1.00000f, -1.00000f,
-                           "User-defined label!", 0.00000f, 1.00000f, 0.00000f);
+  if (tao.graphics_engine_)
+    tao.graphics_engine_->label(array1[0], 1.00000f, 1.00000f, -1.00000f,
+                                "User-defined label!", 0.00000f, 1.00000f, 0.00000f);
 
   if (Tick <= (long)((tao.newEnd = tao.start * 1.00000 + 0.000100000f) *
                      tao.synthesisEngine.modelSampleRate) &&

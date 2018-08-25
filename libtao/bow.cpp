@@ -103,9 +103,11 @@ void TaoBow::update() {
 } // frictional force.
 
 void TaoBow::display() {
-  if (!active || !targetInstrument || !tao.graphicsEngine.active)
+  if (!tao.graphics_engine_)
     return;
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (!active || !targetInstrument || !tao.graphics_engine_->active)
+    return;
+  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr = interfacePoint.getInstrument();
@@ -113,15 +115,15 @@ void TaoBow::display() {
   GLfloat y;
   GLfloat z;
 
-  tao.graphicsEngine.displayAccessPoint(interfacePoint);
+  tao.graphics_engine_->displayAccessPoint(interfacePoint);
 
-  if (tao.graphicsEngine.displayDeviceNames) {
+  if (tao.graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(interfacePoint.getPosition() * instr.getMagnification() *
-                      tao.graphicsEngine.globalMagnification +
+                      tao.graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao.graphicsEngine.displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao.graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

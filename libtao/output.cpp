@@ -149,9 +149,11 @@ void TaoOutput::update() {
 }
 
 void TaoOutput::display() {
-  if (!tao.graphicsEngine.active)
+  if (!tao.graphics_engine_)
     return;
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (!tao.graphics_engine_->active)
+    return;
+  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
     return;
 
   displayStream->seekp(std::ios::beg);
@@ -167,7 +169,7 @@ void TaoOutput::display() {
                    << "   Max:     " << maxSample << std::ends;
   }
 
-  // tao.graphicsEngine.displayCharString(10.0, myDisplayPosition,
+  // tao.graphics_engine_->displayCharString(10.0, myDisplayPosition,
   // displayString);
 
   // mic1 -  L:    1338.0 R:    0.932  Max:    1340.0

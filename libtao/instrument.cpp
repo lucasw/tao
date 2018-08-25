@@ -105,7 +105,8 @@ TaoAccessPoint &TaoInstrument::operator()(float x, float y) {
   TaoAccessPoint &p = currentAccess;
 
   point(x, y);
-  tao.graphicsEngine.displayAccessPoint(p);
+  if (tao.graphics_engine_)
+    tao.graphics_engine_->displayAccessPoint(p);
 
   return p;
 }

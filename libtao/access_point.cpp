@@ -122,8 +122,8 @@ float TaoAccessPoint::getForce() {
     break;
   }
 
-  if (tao.graphicsEngine.active)
-    tao.graphicsEngine.displayAccessPoint(*this);
+  if (tao.graphics_engine_ && tao.graphics_engine_->active)
+    tao.graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }
@@ -215,8 +215,8 @@ float TaoAccessPoint::getVelocity() {
     break;
   }
 
-  if (tao.graphicsEngine.active)
-    tao.graphicsEngine.displayAccessPoint(*this);
+  if (tao.graphics_engine_ && tao.graphics_engine_->active)
+    tao.graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }

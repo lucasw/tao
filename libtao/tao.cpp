@@ -24,7 +24,7 @@ extern Tao tao;
 float &Time = tao.synthesisEngine.time;
 long &Tick = tao.synthesisEngine.tick;
 
-Tao::Tao() : graphicsEngine(this) {
+Tao::Tao() {
   start = 0.0;
   end = 0.0;
   newStart = 0.0;
@@ -100,11 +100,11 @@ void Tao::masterTick() {
 
   synthesisEngine.calculateInstrumentForces();
 
-  if (graphicsEngine.active &&
-      (synthesisEngine.tick % graphicsEngine.refreshRate == 0)) {
-    graphicsEngine.clearBackBuffer();
-    graphicsEngine.pushModelViewMatrix();
-    graphicsEngine.rotateAndTranslate();
+  if (graphics_engine_ && graphics_engine_->active &&
+      (synthesisEngine.tick % graphics_engine_->refreshRate == 0)) {
+    graphics_engine_->clearBackBuffer();
+    graphics_engine_->pushModelViewMatrix();
+    graphics_engine_->rotateAndTranslate();
   }
 
   if (synthesisEngine.isActive())
@@ -114,12 +114,12 @@ void Tao::masterTick() {
   synthesisEngine.calculateInstrumentPositions();
   synthesisEngine.Tick();
 
-  if (graphicsEngine.active &&
-      (synthesisEngine.tick % graphicsEngine.refreshRate == 0)) {
-    graphicsEngine.display();
-    graphicsEngine.popModelViewMatrix();
-    graphicsEngine.swapBuffers();
-    graphicsEngine.flushGraphics();
+  if (graphics_engine_ && graphics_engine_->active &&
+      (synthesisEngine.tick % graphics_engine_->refreshRate == 0)) {
+    graphics_engine_->display();
+    graphics_engine_->popModelViewMatrix();
+    graphics_engine_->swapBuffers();
+    graphics_engine_->flushGraphics();
   }
 }
 
@@ -135,7 +135,8 @@ void Tao::main(int argc, char *argv[]) {
 
     switch (option) {
     case 'g':
-      graphicsEngine.activate();
+      graphics_engine_.reset(new TaoGraphicsEngine(this));
+      graphics_engine_->activate();
       synthesisEngine.pause();
       break;
     case 's':
@@ -147,8 +148,8 @@ void Tao::main(int argc, char *argv[]) {
     }
   }
 
-  if (graphicsEngine.active) {
-    graphicsEngine.init(argc, argv);
+  if (graphics_engine_ && graphics_engine_->active) {
+    graphics_engine_->init(argc, argv);
   }
 
   setAudioSampleRate(); // These overloaded functions with no arguments only
@@ -171,9 +172,9 @@ void Tao::main(int argc, char *argv[]) {
   seedRandomNumGen();
   initInstrumentsAndDevices();
 
-  if (graphicsEngine.active) {
-    graphicsEngine.calculateOriginForRotations();
-    graphicsEngine.mainLoop();
+  if (graphics_engine_ && graphics_engine_->active) {
+    graphics_engine_->calculateOriginForRotations();
+    graphics_engine_->mainLoop();
   }
 
   else

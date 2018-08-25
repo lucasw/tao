@@ -156,9 +156,11 @@ int TaoHammer::numberOfImpacts() { return numImpacts; }
 int TaoHammer::getMaxImpacts() { return maxImpacts; }
 
 void TaoHammer::display() {
-  if (!tao.graphicsEngine.active || !active || !targetInstrument)
+  if (!tao.graphics_engine_)
     return;
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (!tao.graphics_engine_->active || !active || !targetInstrument)
+    return;
+  if (tao.synthesisEngine.tick % tao.graphics_engine_->refreshRate != 0)
     return;
 
   TaoInstrument &instr = interfacePoint.getInstrument();
@@ -166,17 +168,17 @@ void TaoHammer::display() {
   GLfloat y;
   GLfloat z;
 
-  tao.graphicsEngine.displayAccessPoint(interfacePoint);
-  tao.graphicsEngine.displayPointInInstrumentSpace(
+  tao.graphics_engine_->displayAccessPoint(interfacePoint);
+  tao.graphics_engine_->displayPointInInstrumentSpace(
       *targetInstrument, interfacePoint.x, interfacePoint.y, this->position);
 
-  if (tao.graphicsEngine.displayDeviceNames) {
+  if (tao.graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(this->position * instr.getMagnification() *
-                      tao.graphicsEngine.globalMagnification +
+                      tao.graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao.graphicsEngine.displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao.graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }
