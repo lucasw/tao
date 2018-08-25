@@ -24,7 +24,7 @@ extern Tao tao;
 float &Time = tao.synthesisEngine.time;
 long &Tick = tao.synthesisEngine.tick;
 
-Tao::Tao() {
+Tao::Tao() : graphicsEngine(this) {
   start = 0.0;
   end = 0.0;
   newStart = 0.0;

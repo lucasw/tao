@@ -19,6 +19,8 @@
 #ifndef TAOGRAPHICSENGINE_H
 #define TAOGRAPHICSENGINE_H
 
+#include <memory>
+
 #ifndef HAVE_OSX
 #include <GL/glut.h>
 #else
@@ -74,7 +76,7 @@ class DLLEXPORT TaoGraphicsEngine {
   friend void tao_special(int key, int x, int y);
 
 public:
-  TaoGraphicsEngine();
+  TaoGraphicsEngine(Tao* ptao);
 
   void activate();
   void deactivate();
@@ -119,6 +121,7 @@ public:
   void displayAccessPoint(TaoAccessPoint &p);
 
 private:
+  std::shared_ptr<Tao> tao_;
   int active;
   int winId;
   int viewportWidth, viewportHeight;

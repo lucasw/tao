@@ -30,7 +30,8 @@ extern "C" {
 #include <string.h>
 #include <string>
 
-extern Tao tao;
+// Global just for use in glut
+static Tao* tao;
 extern void taoMasterTick();
 
 // These variables are declared extern by the getopt() function, which
@@ -44,53 +45,53 @@ extern int optind, opterr, optopt;
 
 void tao_visibility(int state) {
   if (state == GLUT_NOT_VISIBLE)
-    tao.graphicsEngine.active = FALSE;
+    tao->graphicsEngine.active = FALSE;
   if (state == GLUT_VISIBLE) {
     glutIdleFunc(taoMasterTick);
-    tao.graphicsEngine.active = TRUE;
+    tao->graphicsEngine.active = TRUE;
   }
 }
 
 void tao_mouse(int button, int state, int x, int y) {
-  tao.graphicsEngine.mouse(button, state, x, y);
+  tao->graphicsEngine.mouse(button, state, x, y);
 }
 
-void tao_motion(int x, int y) { tao.graphicsEngine.motion(x, y); }
+void tao_motion(int x, int y) { tao->graphicsEngine.motion(x, y); }
 
-void tao_display() { tao.graphicsEngine.display(); }
+void tao_display() { tao->graphicsEngine.display(); }
 
-void tao_reshape(int w, int h) { tao.graphicsEngine.reshape(w, h); }
+void tao_reshape(int w, int h) { tao->graphicsEngine.reshape(w, h); }
 
 void tao_special(int key, int x, int y) {
   x, y; // referenced to get rid of compiler warning
 
   switch (key) {
   case GLUT_KEY_UP:
-    tao.graphicsEngine.globalMagnification *= 1.1f;
+    tao->graphicsEngine.globalMagnification *= 1.1f;
     break;
 
   case GLUT_KEY_DOWN:
-    tao.graphicsEngine.globalMagnification /= 1.1f;
+    tao->graphicsEngine.globalMagnification /= 1.1f;
     break;
 
   case GLUT_KEY_RIGHT:
-    if (tao.graphicsEngine.refreshRate == 1 &&
-        !tao.synthesisEngine.isActive()) {
-      tao.synthesisEngine.unpause();
+    if (tao->graphicsEngine.refreshRate == 1 &&
+        !tao->synthesisEngine.isActive()) {
+      tao->synthesisEngine.unpause();
       glutIdleFunc(taoMasterTick);
     } else {
-      if (tao.graphicsEngine.refreshRate < 65536) {
-        tao.graphicsEngine.refreshRate *= 2;
+      if (tao->graphicsEngine.refreshRate < 65536) {
+        tao->graphicsEngine.refreshRate *= 2;
       }
     }
     break;
 
   case GLUT_KEY_LEFT:
-    if (tao.graphicsEngine.refreshRate != 1)
-      tao.graphicsEngine.refreshRate /= 2;
+    if (tao->graphicsEngine.refreshRate != 1)
+      tao->graphicsEngine.refreshRate /= 2;
     else {
-      if (tao.synthesisEngine.isActive()) {
-        tao.synthesisEngine.pause();
+      if (tao->synthesisEngine.isActive()) {
+        tao->synthesisEngine.pause();
       }
     }
     break;
@@ -105,18 +106,19 @@ void tao_keyboard(unsigned char key, int x, int y) {
     exit(0);
 
   case 'i':
-    tao.graphicsEngine.displayInstrumentNames =
-        tao.graphicsEngine.displayInstrumentNames ? 0 : 1;
+    tao->graphicsEngine.displayInstrumentNames =
+        tao->graphicsEngine.displayInstrumentNames ? 0 : 1;
     break;
 
   case 'd':
-    tao.graphicsEngine.displayDeviceNames =
-        tao.graphicsEngine.displayDeviceNames ? 0 : 1;
+    tao->graphicsEngine.displayDeviceNames =
+        tao->graphicsEngine.displayDeviceNames ? 0 : 1;
     break;
   }
 }
 
-TaoGraphicsEngine::TaoGraphicsEngine() {
+TaoGraphicsEngine::TaoGraphicsEngine(Tao* ptao) : tao_(ptao) {
+  tao = ptao;
   active = FALSE;
   viewportWidth = 1280;
   viewportHeight = 720;
@@ -338,7 +340,7 @@ void TaoGraphicsEngine::motion(int x, int y) {
 }
 
 void TaoGraphicsEngine::calculateOriginForRotations() {
-  for (TaoInstrument *i = tao.synthesisEngine.instrumentList; i; i = i->next) {
+  for (TaoInstrument *i = tao_->synthesisEngine.instrumentList; i; i = i->next) {
     if (i->worldx < minWorldX)
       minWorldX = i->worldx;
     if (i->worldy < minWorldY)
@@ -360,7 +362,7 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
                                           char *string) {
   int len, i;
 
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
   if (!this->active)
     return;
@@ -378,7 +380,7 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
                                           GLfloat b) {
   int len, i;
 
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
   if (!this->active)
     return;
@@ -392,7 +394,7 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
 }
 
 void TaoGraphicsEngine::displayPoint(GLfloat x, GLfloat y, int colour) {
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
   if (!this->active)
     return;
@@ -406,14 +408,14 @@ void TaoGraphicsEngine::displayPoint(GLfloat x, GLfloat y, int colour) {
 void TaoGraphicsEngine::displayInstruments() {
   if (!this->active)
     return;
-  for (TaoInstrument *i = tao.synthesisEngine.instrumentList; i; i = i->next)
+  for (TaoInstrument *i = tao_->synthesisEngine.instrumentList; i; i = i->next)
     displayInstrument(*i);
 }
 
 void TaoGraphicsEngine::displayDevices() {
   if (!this->active)
     return;
-  for (TaoDevice *d = tao.synthesisEngine.deviceList; d; d = d->next)
+  for (TaoDevice *d = tao_->synthesisEngine.deviceList; d; d = d->next)
     d->display();
 }
 
@@ -564,7 +566,7 @@ void TaoGraphicsEngine::displayAccessPoint(TaoInstrument &instr, int i, int j) {
 
   glPointSize(4.0);
   glColor3f(1.0, 0.0, 0.0);
-  if (tao.synthesisEngine.tick % this->refreshRate == 0) {
+  if (tao_->synthesisEngine.tick % this->refreshRate == 0) {
     c = &instr.rows[j].cells[0];
     cellPosition = c->position;
     x = instr.worldx + instr.rows[j].offset + i;
@@ -590,7 +592,7 @@ void TaoGraphicsEngine::displayAccessPoint(TaoAccessPoint &p) {
     return;
   TaoInstrument &instr = *(p.instrument);
 
-  if (tao.synthesisEngine.tick % this->refreshRate == 0) {
+  if (tao_->synthesisEngine.tick % this->refreshRate == 0) {
     j = (int)p.celly;
     x = instr.worldx + instr.rows[j].offset + p.cellx;
     z = (GLfloat)(p.getPosition() * instr.amplification * globalMagnification);
@@ -644,7 +646,7 @@ void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float y,
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x, y);
 
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
 
   if (active) {
@@ -662,7 +664,7 @@ void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float labelXOffset,
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x);
 
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
 
   if (active) {
@@ -680,7 +682,7 @@ void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float y, float z,
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x, y);
 
-  if (tao.synthesisEngine.tick % tao.graphicsEngine.refreshRate != 0)
+  if (tao_->synthesisEngine.tick % tao_->graphicsEngine.refreshRate != 0)
     return;
 
   if (active) {
