@@ -32,7 +32,6 @@ extern "C" {
 
 // Global just for use in glut
 static std::shared_ptr<Tao> tao;
-extern void taoMasterTick();
 
 // These variables are declared extern by the getopt() function, which
 // is used to parse the command line arguments sent to the graphics
@@ -43,6 +42,12 @@ extern int optind, opterr, optopt;
 
 // The following global functions are registered callbacks for OpenGL.
 
+void tao_master_tick() {
+  if (!tao)
+    return;
+  tao->masterTick();
+}
+
 void tao_visibility(int state) {
   if (!tao)
     return;
@@ -52,7 +57,7 @@ void tao_visibility(int state) {
   if (state == GLUT_NOT_VISIBLE)
     tao->graphics_engine_->active = FALSE;
   if (state == GLUT_VISIBLE) {
-    glutIdleFunc(taoMasterTick);
+    glutIdleFunc(tao_master_tick);
     tao->graphics_engine_->active = TRUE;
   }
 }
@@ -109,7 +114,7 @@ void tao_special(int key, int x, int y) {
     if (tao->graphics_engine_->refreshRate == 1 &&
         !tao->synthesisEngine.isActive()) {
       tao->synthesisEngine.unpause();
-      glutIdleFunc(taoMasterTick);
+      glutIdleFunc(tao_master_tick);
     } else {
       if (tao->graphics_engine_->refreshRate < 65536) {
         tao->graphics_engine_->refreshRate *= 2;
@@ -281,14 +286,13 @@ void TaoGraphicsEngine::rotateAndTranslate() {
 void TaoGraphicsEngine::display() {
   int len, i;
   char *string;
-  extern float &Time;
 
   displayInstruments();
   displayDevices();
 
   timestream << std::setw(0) << std::setprecision(4)
              << std::setiosflags(std::ios::fixed);
-  timestream << "Time=" << Time << " seconds";
+  timestream << "Time=" << tao_->synthesisEngine.time << " seconds";
 
   /*  THIS DOESN'T WORK AND NEVER HAS!!
 

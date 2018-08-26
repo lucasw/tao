@@ -40,29 +40,29 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoString tau_string(mtao, "tau_string", TaoPitch(200.000f, TaoPitch::frq), 20.0000f);
+static std::shared_ptr<TaoString> tau_string;
 
 // Init: <statements> ...
 
 void taoInit() {
-  tau_string.lockEnds();
+  tau_string->lockEnds();
 }
 
 // Score <duration> : <statements> ...
 
-float taoScoreDuration() { return 5.00000f; }
+float taoScoreDuration() { return 5.0f; }
 
 void taoScore() {
   mtao->initStartAndEnd();
 
-  if (Tick <= (long)((mtao->newEnd = 0.00100000) *
+  if (mtao->synthesisEngine.tick <= (long)((mtao->newEnd = 0.001) *
                      mtao->synthesisEngine.modelSampleRate) &&
-      Tick >= (long)((mtao->newStart = 0.00000) *
+      mtao->synthesisEngine.tick >= (long)((mtao->newStart = 0.0) *
                      mtao->synthesisEngine.modelSampleRate)) {
     mtao->pushStartAndEnd1();
-    tau_string(0.100000f).applyForce(
-        ((Time - mtao->start) / (mtao->end - mtao->start) * (0.00000f - 1.00000f) +
-         1.00000f));
+    (*tau_string)(0.1f).applyForce(
+        ((mtao->synthesisEngine.time - mtao->start) / (mtao->end - mtao->start) * (0.0f - 1.0f) +
+         1.0f));
     mtao->popStartAndEnd();
   }
 
@@ -70,7 +70,10 @@ void taoScore() {
 }
 
 main(int argc, char *argv[]) {
-  mtao.reset(new Tao());
+  mtao.reset(new Tao);
+  const float decay = 20.0;
+  tau_string.reset(new TaoString(mtao, "tau_string",
+      TaoPitch(200.0f, TaoPitch::frq), decay));
   mtao->initStartAndEnd();
   mtao->audioRateFunc(taoAudioRate);
   mtao->initFunc(taoInit);

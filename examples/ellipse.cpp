@@ -32,7 +32,7 @@
 #include <cmath>
 #include <iostream>
 
-Tao tao;
+static std::shared_ptr<Tao> tao;
 
 // Audio rate: <sample_rate> ;
 
@@ -40,8 +40,9 @@ int taoAudioRate() { return 44100; }
 
 // Declarations
 
-TaoEllipse ellipse("ellipse", TaoPitch(200.000f, TaoPitch::frq),
-                   TaoPitch(400.000f, TaoPitch::frq), 20.0000f);
+TaoEllipse ellipse(tao, "ellipse",
+                   TaoPitch(tao, 200.000f, TaoPitch::frq),
+                   TaoPitch(tao, 400.000f, TaoPitch::frq), 20.0000f);
 
 // Init: <statements> ...
 

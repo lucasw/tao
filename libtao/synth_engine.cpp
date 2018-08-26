@@ -29,8 +29,6 @@ extern long random();
 #endif
 
 extern TaoSynthEngine taoSynthesisEngine;
-extern float &Time;
-extern long &Tick;
 
 TaoSynthEngine::TaoSynthEngine() : throwAway(2) {
   active = TRUE;

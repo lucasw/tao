@@ -30,7 +30,7 @@ extern "C" {
 extern char *optarg;
 extern int optind, opterr, optopt;
 
-class Tao : std::enable_shared_from_this<Tao> {
+class Tao { // : std::enable_shared_from_this<Tao> {
   friend class TaoOutput; // necessary because a TaoOutput object must
                           // be able to find out the audio sample rate
 public:
@@ -92,6 +92,9 @@ private:
   float startStack[30];
   float endStack[30];
   int stackPointer;
+
+  // using std::enable_shared_from_this<Tao>::shared_from_this;
+
 };
 
 void taoMasterTick();

@@ -133,15 +133,21 @@ void Tao::main(int argc, char *argv[]) {
       break;
 
     switch (option) {
-    case 'g':
-      graphics_engine_.reset(new TaoGraphicsEngine(shared_from_this()));
+    case 'g': {
+      // graphics_engine_.reset(new TaoGraphicsEngine(shared_from_this()));
+      // TODO(lucasw) if 'this' is already a shared_ptr then this
+      // one will be separate
+      std::shared_ptr<Tao> stao(this);
+      graphics_engine_.reset(new TaoGraphicsEngine(stao));
       graphics_engine_->activate();
       synthesisEngine.pause();
       break;
-    case 's':
+    }
+    case 's': {
       audioRate = atoi((char *)optarg);
       std::cerr << "audioRate=" << audioRate << std::endl;
       break;
+    }
     default:
       break;
     }

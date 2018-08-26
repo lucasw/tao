@@ -107,9 +107,7 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const cha
 }
 
 void TaoOutput::update() {
-  extern long &Tick;
-
-  if (Tick % tao_->synthesisEngine.throwAway)
+  if (tao_->synthesisEngine.tick % tao_->synthesisEngine.throwAway)
     return; // Throw away samples
 
   if (index < buffersize) {
