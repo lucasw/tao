@@ -22,8 +22,10 @@
 #include <tao/instrument.h>
 #include <string.h>
 
-TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) : tao_(tao), interfacePoint(tao) {
-  strcpy(name, "anon");
+TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) :
+    tao_(tao),
+    interfacePoint(tao),
+    name("anon") {
   targetInstrument = NULL;
   interfacePoint.clear();
   active = 0;
@@ -34,15 +36,14 @@ TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) : tao_(tao), interfacePoint(tao) 
 
 TaoDevice::~TaoDevice() {}
 
-TaoDevice::TaoDevice(std::shared_ptr<Tao> tao, const char *deviceName) :
-    tao_(tao), interfacePoint(tao) {
-  strcpy(name, deviceName);
+TaoDevice::TaoDevice(std::shared_ptr<Tao> tao, const std::string deviceName) :
+    tao_(tao), interfacePoint(tao), name(deviceName) {
   targetInstrument = NULL;
   active = 0;
   next = NULL;
 }
 
-char *TaoDevice::getName() { return name; }
+std::string TaoDevice::getName() { return name; }
 
 float TaoDevice::getX() { return interfacePoint.x; }
 

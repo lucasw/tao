@@ -45,11 +45,13 @@ void taoInit() {
 
 float taoScoreDuration() { return 5.0f; }
 
+float pos = 0.1;
 void taoScore() {
   mtao->initStartAndEnd();
 
   bool apply_force = true;
 
+  pos += 0.000001;
   if (apply_force) {
 
     #if 0
@@ -58,17 +60,17 @@ void taoScore() {
         << mtao->start << " " << mtao->end << std::endl;
     #endif
 
-    const int nsamples = 26000;
+    const int nsamples = 16000;
     float force = 1.0 - float(mtao->synthesisEngine.tick % nsamples) / float(nsamples);
 
     mtao->pushStartAndEnd1();
-    (*tau_string)(0.1f).applyForce(force);
+    (*tau_string)(pos).applyForce(force);
     mtao->popStartAndEnd();
   }
 
   // TODO(lucasw) if output only has one channel, what does L and R do?
   output->chL((*tau_string)(0.2));
-  output->chR((*tau_string)(0.8));
+  output->chR((*tau_string)(0.5));
 
   mtao->popStartAndEnd();
 }
@@ -79,7 +81,9 @@ main(int argc, char *argv[]) {
   tau_string.reset(new TaoString(mtao, "tau_string",
       TaoPitch(200.0f, TaoPitch::frq), decay));
 
-  output.reset(new TaoOutput(mtao, "output", "strand_output", 1));
+  // need two channels if going to use stereo L and R
+  const size_t num_channels = 2;
+  output.reset(new TaoOutput(mtao, "output", "strand_output", num_channels));
 
   for (int i = 0; i < argc; ++i) {
     std::cout << argv[i] << std::endl;

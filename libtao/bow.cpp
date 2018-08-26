@@ -32,7 +32,7 @@ TaoBow::TaoBow(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   addToSynthesisEngine();
 }
 
-TaoBow::TaoBow(std::shared_ptr<Tao> tao, const char *bowName) : TaoDevice(tao, bowName) {
+TaoBow::TaoBow(std::shared_ptr<Tao> tao, const std::string bowName) : TaoDevice(tao, bowName) {
   deviceType = TaoDevice::BOW;
   mode = stick;
   bowVelocity = 0.0;
@@ -122,6 +122,6 @@ void TaoBow::display() {
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    tao_->graphics_engine_->displayCharString(x, y, z, this->name.c_str(), 1.0, 1.0, 1.0);
   }
 }

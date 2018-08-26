@@ -34,25 +34,22 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao) : TaoDevice(tao) {}
 TaoOutput::~TaoOutput() {
   delete outputfile;
   delete displayStream;
-  delete[] fullfilename;
-  delete[] displayString;
   delete[] buffer;
   delete[] samples;
 
   displayStream = NULL;
-  fullfilename = NULL;
-  displayString = NULL;
   buffer = NULL;
   samples = NULL;
   outputfile = NULL;
 }
 
-TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channels) : TaoDevice(tao) {
+TaoOutput::TaoOutput(std::shared_ptr<Tao> tao,
+    const std::string filename, const size_t channels) : TaoDevice(tao) {
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
   numChannels = channels;
-  displayString = new char[50];
+  displayString = "";
   buffer = new float[buffersize];
   next = NULL;
   samples = new float[numChannels];
@@ -64,8 +61,7 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channel
 
   std::ostringstream tempname(std::ostringstream::out);
   tempname << filename << ".dat" << std::ends;
-  fullfilename = new char[tempname.str().length() + 1];
-  strcpy(fullfilename, tempname.str().c_str());
+  fullfilename = tempname.str();
 
   // This code is used to display output sample values being sent to TaoOutput
   // devices in the graphics window
@@ -76,13 +72,14 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channel
   addToSynthesisEngine();
 }
 
-TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const char *filename, int channels)
+TaoOutput::TaoOutput(std::shared_ptr<Tao> tao,
+    const std::string outputName, const std::string filename, size_t channels)
     : TaoDevice(tao, outputName) {
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
   numChannels = channels;
-  displayString = new char[50];
+  displayString = "";
   buffer = new float[buffersize];
   next = NULL;
   samples = new float[numChannels];
@@ -94,8 +91,7 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const cha
 
   std::ostringstream tempname(std::ostringstream::out);
   tempname << filename << ".dat" << std::ends;
-  fullfilename = new char[tempname.str().length() + 1];
-  strcpy(fullfilename, tempname.str().c_str());
+  fullfilename = tempname.str();
 
   // This code is used to display output sample values being sent to TaoOutput
   // devices in the graphics window

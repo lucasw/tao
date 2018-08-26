@@ -20,7 +20,7 @@
 #include <tao/tao.h>
 #include <tao/instrument.h>
 
-TaoStop::TaoStop(std::shared_ptr<Tao> tao, const char *stopName) : TaoDevice(tao, stopName) {
+TaoStop::TaoStop(std::shared_ptr<Tao> tao, const std::string stopName) : TaoDevice(tao, stopName) {
   deviceType = TaoDevice::STOP;
   maxDampingCoefficient = 0.95f;
   currentDampingCoefficient = 0.0f;

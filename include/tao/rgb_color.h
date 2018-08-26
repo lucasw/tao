@@ -770,7 +770,7 @@ public:
     this->green = greyLevel;
     this->blue = greyLevel;
   }
-  TaoRGBColor(const char *colorName) {}
+  TaoRGBColor(const std::string colorName) {}
   void setRed(float red) { this->red = red; }
   void setGreen(float green) { this->green = green; }
   void setBlue(float blue) { this->blue = blue; }

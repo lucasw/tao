@@ -42,8 +42,8 @@ class DLLEXPORT TaoOutput : public TaoDevice {
 public:
   TaoOutput(std::shared_ptr<Tao> tao);
   ~TaoOutput();
-  TaoOutput(std::shared_ptr<Tao> tao, const char *filename, int channels);
-  TaoOutput(std::shared_ptr<Tao> tao, const char *outputName, const char *filename, int channels);
+  TaoOutput(std::shared_ptr<Tao> tao, const std::string filename, size_t channels);
+  TaoOutput(std::shared_ptr<Tao> tao, const std::string outputName, const std::string filename, size_t channels);
   inline void ch1(float value) { samples[0] = value; }
   inline void ch2(float value) { samples[1] = value; }
   inline void ch3(float value) { samples[2] = value; }
@@ -56,13 +56,14 @@ public:
 private:
   static const int buffersize;
   int first_write;
-  int index, numChannels;
+  int index;
+  size_t numChannels;
   float *buffer;
-  char *fullfilename;
+  std::string fullfilename;
   std::ofstream *outputfile;
   float *samples;
   float maxSample;
-  char *displayString;
+  std::string displayString;
   std::ostringstream *displayStream;
   static float displayPosition;
   float myDisplayPosition;

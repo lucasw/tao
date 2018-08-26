@@ -40,7 +40,7 @@ TaoInstrument::~TaoInstrument() {
 
 TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
                              const TaoPitch &ypitch,
-                             float decay) : tao_(tao), currentAccess(tao) {
+                             float decay) : tao_(tao), currentAccess(tao), name("") {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -53,14 +53,17 @@ TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
   graphy = 0;          // ditto
   worldx = 0;          // ditto
   worldy = 0;          // ditto
-  strcpy(name, "");
   next = NULL;
 
   tao_->synthesisEngine.addInstrument(this);
 }
 
-TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
-                             const TaoPitch &ypitch, float decay) : tao_(tao), currentAccess(tao) {
+TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao,
+                             const std::string name,
+                             const TaoPitch &xpitch,
+                             const TaoPitch &ypitch,
+                             float decay) :
+    tao_(tao), currentAccess(tao), name(name) {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -73,7 +76,6 @@ TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const char *name, const T
   graphy = 0;          // ditto
   worldx = 0;          // ditto
   worldy = 0;          // ditto
-  strcpy(this->name, name);
   next = NULL;
 
 #ifdef INSTRUMENT_DEBUG

@@ -45,6 +45,7 @@ class TaoGraphicsEngine;
 class DLLEXPORT TaoInstrument {
   friend class TaoSynthEngine;
   friend class TaoGraphicsEngine;
+  // TODO(lucasw) is this needed?
   friend int main(int argc, char *argv[]);
 
 public:
@@ -52,11 +53,11 @@ public:
   ~TaoInstrument();
   TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
                 float decay);
-  TaoInstrument(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
+  TaoInstrument(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &xpitch,
                 const TaoPitch &ypitch, float decay);
   void calculateForces(int startRow, int endRow);
   void calculatePositions(int startRow, int endRow);
-  char *getName() { return name; }
+  std::string getName() { return name; }
   float getMagnification();
   TaoInstrument &setMagnification(float m);
   TaoInstrument &setDecay(float x1, float x2, float y1, float y2, float decay);
@@ -140,7 +141,7 @@ public:
 
 protected:
   std::shared_ptr<Tao> tao_;
-  char name[30];
+  const std::string name;
   float defaultDecay, defaultVelocityMultiplier;
   float amplification;
   TaoInstrument *next;

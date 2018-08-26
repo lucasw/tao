@@ -32,7 +32,7 @@ class DLLEXPORT TaoTriangle : public TaoInstrument {
 public:
   TaoTriangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
               float decay);
-  TaoTriangle(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
+  TaoTriangle(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &xpitch,
               const TaoPitch &ypitch,
               float decay);
   void createTheMaterial();

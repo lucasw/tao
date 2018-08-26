@@ -31,7 +31,7 @@
 class DLLEXPORT TaoEllipse : public TaoInstrument {
 public:
   TaoEllipse(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch, float decay);
-  TaoEllipse(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch, const TaoPitch &ypitch,
+  TaoEllipse(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &xpitch, const TaoPitch &ypitch,
              float decay);
   void createTheMaterial();
 };

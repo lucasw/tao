@@ -39,7 +39,7 @@ TaoHammer::TaoHammer(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   addToSynthesisEngine();
 }
 
-TaoHammer::TaoHammer(std::shared_ptr<Tao> tao, const char *hammerName) :
+TaoHammer::TaoHammer(std::shared_ptr<Tao> tao, const std::string hammerName) :
     TaoDevice(tao, hammerName) {
   deviceType = TaoDevice::HAMMER;
   mode = nocontact;

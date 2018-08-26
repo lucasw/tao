@@ -26,7 +26,7 @@ TaoTriangle::TaoTriangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
   createTheMaterial();
 }
 
-TaoTriangle::TaoTriangle(std::shared_ptr<Tao> tao, const char *name,
+TaoTriangle::TaoTriangle(std::shared_ptr<Tao> tao, const std::string name,
                          const TaoPitch &xpitch,
                          const TaoPitch &ypitch, float decay)
     : TaoInstrument(tao, name, xpitch, ypitch, decay) {

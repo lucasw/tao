@@ -25,7 +25,7 @@ TaoString::TaoString(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float deca
   createTheMaterial();
 }
 
-TaoString::TaoString(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &pitch,
+TaoString::TaoString(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &pitch,
     float decay)
     : TaoInstrument(tao, name, pitch, TaoPitch(0.0), decay) {
   createTheMaterial();

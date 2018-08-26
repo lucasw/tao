@@ -27,9 +27,6 @@ extern "C" {
 #include <tao/graphics_engine.h>
 #include <tao/synth_engine.h>
 
-extern char *optarg;
-extern int optind, opterr, optopt;
-
 class Tao { // : std::enable_shared_from_this<Tao> {
   friend class TaoOutput; // necessary because a TaoOutput object must
                           // be able to find out the audio sample rate

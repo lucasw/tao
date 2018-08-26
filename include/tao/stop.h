@@ -32,7 +32,7 @@
 
 class DLLEXPORT TaoStop : public TaoDevice {
 public:
-  TaoStop(std::shared_ptr<Tao> tao, const char *stopName);
+  TaoStop(std::shared_ptr<Tao> tao, const std::string stopName);
   ~TaoStop();
   TaoStop &dampModeOn();
   TaoStop &dampModeOff();

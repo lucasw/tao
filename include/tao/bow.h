@@ -33,7 +33,7 @@ class TaoInstrument;
 class DLLEXPORT TaoBow : public TaoDevice {
 public:
   TaoBow(std::shared_ptr<Tao> tao);
-  TaoBow(std::shared_ptr<Tao> tao, const char *bowName);
+  TaoBow(std::shared_ptr<Tao> tao, const std::string bowName);
   TaoBow &setForce(float force);
   TaoBow &setVelocity(float velocity);
   float getForce();

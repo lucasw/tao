@@ -49,8 +49,8 @@ class DLLEXPORT TaoDevice {
 public:
   TaoDevice(std::shared_ptr<Tao> tao);
   ~TaoDevice();
-  TaoDevice(std::shared_ptr<Tao> tao, const char *deviceName);
-  char *getName();
+  TaoDevice(std::shared_ptr<Tao> tao, const std::string deviceName);
+  std::string getName();
   float getX();
   float getY();
   virtual void apply(TaoAccessPoint &a);
@@ -70,7 +70,7 @@ protected:
 
   int deviceType;
   int active;
-  char name[30];
+  std::string name;
   TaoInstrument *targetInstrument;
   TaoAccessPoint interfacePoint;
   TaoDevice *next;

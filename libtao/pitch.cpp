@@ -60,8 +60,7 @@ extern "C" {
 
 TaoPitch::TaoPitch() {}
 
-TaoPitch::TaoPitch(const char *pitchName) {
-  int nameLength = strlen(pitchName);
+TaoPitch::TaoPitch(const std::string pitchName) {
   double octave, semitone, frequency, value;
   int isFlat = 0, isSharp = 0;
   int charno = 0;
@@ -148,8 +147,7 @@ TaoPitch::TaoPitch(const char *pitchName) {
 
   frequency = pow(2, value - 8.0) * 261.6;
 
-  this->name = new char[nameLength];
-  strcpy(this->name, pitchName);
+  this->name = pitchName;
   this->frequencyVersion = frequency;
   this->pitchVersion = octave + semitone;
   this->octaveVersion = octave + semitone * 100.0 / 12.0;
@@ -159,8 +157,7 @@ TaoPitch::TaoPitch(float pitch) {
   double octave, semitone;
 
   if (pitch == 0.0) {
-    this->name = new char[4];
-    strcpy(this->name, "N/A");
+    this->name = "N/A";
     this->pitchVersion = 0.0;
     this->octaveVersion = 0.0;
     this->frequencyVersion = 0.0;
@@ -208,20 +205,16 @@ TaoPitch::TaoPitch(float value, TaoPitchFormat format) {
 }
 
 TaoPitch::TaoPitch(const TaoPitch &p) {
-  name = new char[strlen(p.name) + 1];
-
-  strcpy(name, p.name);
+  name = p.name;
   pitchVersion = p.pitchVersion;
   octaveVersion = p.octaveVersion;
   frequencyVersion = p.frequencyVersion;
 }
 
-TaoPitch::~TaoPitch() { delete[] name; }
+TaoPitch::~TaoPitch() { }
 
 TaoPitch &TaoPitch::operator=(const TaoPitch &p) {
-  name = new char[strlen(p.name) + 1];
-
-  strcpy(name, p.name);
+  name = p.name;
   pitchVersion = p.pitchVersion;
   octaveVersion = p.octaveVersion;
   frequencyVersion = p.frequencyVersion;
@@ -232,7 +225,7 @@ TaoPitch &TaoPitch::operator=(const TaoPitch &p) {
 float TaoPitch::asPitch() const { return (float)pitchVersion; }
 float TaoPitch::asOctave() const { return (float)octaveVersion; }
 float TaoPitch::asFrequency() const { return (float)frequencyVersion; }
-const char *TaoPitch::asName() const { return name; }
+const std::string TaoPitch::asName() const { return name; }
 
 void TaoPitch::createName() {
   double octave, semitone, fraction;
@@ -246,7 +239,7 @@ void TaoPitch::createName() {
   wholesemi = (int)(semitone * 100.0 + 0.5);
   fractsemi = (int)((semitone - (wholesemi / 100.0)) * 10000.0);
 
-  name = new char[12];
+  name = "";
 
   // ostrstream nameStream(name, 12);
   std::ostringstream nameStream(name, std::ostringstream::out);

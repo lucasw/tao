@@ -98,8 +98,8 @@ public:
 
   void setDrawColour(int colour);
   void setClearColour(int colour);
-  void displayCharString(GLfloat x, GLfloat y, GLfloat z, char *string);
-  void displayCharString(GLfloat x, GLfloat y, GLfloat z, char *string,
+  void displayCharString(GLfloat x, GLfloat y, GLfloat z, const std::string text);
+  void displayCharString(GLfloat x, GLfloat y, GLfloat z, const std::string text,
                          GLfloat r, GLfloat g, GLfloat b);
   void displayPoint(GLfloat x, GLfloat y, int colour);
   void displayInstruments();
@@ -111,12 +111,12 @@ public:
   void displayPointInInstrumentSpace(TaoInstrument &instr, float instrx,
                                      float instry, float instrz);
   void label(TaoInstrument &instr, float x, float y, GLfloat labelXOffset,
-             GLfloat labelYOffset, char *caption, GLfloat r, GLfloat g,
+             GLfloat labelYOffset, const std::string caption, GLfloat r, GLfloat g,
              GLfloat b);
   void label(TaoInstrument &instr, float x, GLfloat labelXOffset,
-             GLfloat yOffset, char *caption, GLfloat r, GLfloat g, GLfloat b);
+             GLfloat yOffset, const std::string caption, GLfloat r, GLfloat g, GLfloat b);
   void label(TaoInstrument &instr, float x, float y, float z,
-             GLfloat labelXOffset, GLfloat labelYOffset, char *caption,
+             GLfloat labelXOffset, GLfloat labelYOffset, const std::string caption,
              GLfloat r, GLfloat g, GLfloat b);
   void displayAccessPoint(TaoInstrument &instr, int i, int j);
   void displayAccessPoint(TaoAccessPoint &p);

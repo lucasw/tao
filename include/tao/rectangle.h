@@ -32,7 +32,7 @@ class DLLEXPORT TaoRectangle : public TaoInstrument {
 public:
   TaoRectangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
                float decay);
-  TaoRectangle(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &xpitch,
+  TaoRectangle(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &xpitch,
                const TaoPitch &ypitch,
                float decay);
   inline TaoCell &at(float x, float y) {

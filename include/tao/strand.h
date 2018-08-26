@@ -31,7 +31,7 @@
 class DLLEXPORT TaoString : public TaoInstrument {
 public:
   TaoString(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay);
-  TaoString(std::shared_ptr<Tao> tao, const char *name, const TaoPitch &pitch, float decay);
+  TaoString(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &pitch, float decay);
   void createTheMaterial();
 };
 

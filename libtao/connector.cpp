@@ -36,7 +36,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao) :
 
 TaoConnector::~TaoConnector() {}
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName) :
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
     accessPoint2(tao) {
@@ -51,7 +51,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName) 
 // Constructors for case where both ends are connected to access points on
 // instruments.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap1,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
                            TaoAccessPoint &ap2) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
@@ -64,7 +64,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, 
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap1,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
                            TaoAccessPoint &ap2, float connectionStrength) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
@@ -83,7 +83,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, 
 // anchor point might be a constant or might be some time varying signal derived
 // elsewhere in the script.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
                            float anchor) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
@@ -96,7 +96,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, 
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, TaoAccessPoint &ap,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
                            float anchor, float connectionStrength) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
@@ -115,7 +115,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, 
 // anchor point might be a constant or might be some time varying signal derived
 // elsewhere in the script.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, float anchor,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
                            TaoAccessPoint &ap) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),
@@ -128,7 +128,7 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, 
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const char *connectorName, float anchor,
+TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
                            TaoAccessPoint &ap, float connectionStrength) :
     TaoDevice(tao, connectorName),
     accessPoint1(tao),

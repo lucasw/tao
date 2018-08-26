@@ -29,20 +29,20 @@ class DLLEXPORT TaoPitch {
 public:
   TaoPitch();
   ~TaoPitch();
-  TaoPitch(const char *name);
+  TaoPitch(const std::string name);
   TaoPitch(float pitch);
   enum TaoPitchFormat { oct, frq, pch };
   TaoPitch(float value, TaoPitchFormat format);
   TaoPitch(const TaoPitch &);
   TaoPitch &operator=(const TaoPitch &);
   float asPitch() const;
-  const char *asName() const;
+  const std::string asName() const;
   float asOctave() const;
   float asFrequency() const;
 
 private:
   void createName();
-  char *name;
+  std::string name;
   double pitchVersion;
   double octaveVersion;
   double frequencyVersion;

@@ -27,7 +27,6 @@ extern "C" {
 #include <tao/graphics_engine.h>
 #include <tao/instrument.h>
 #include <stdio.h>
-#include <string.h>
 #include <string>
 
 // Global just for use in glut
@@ -266,9 +265,6 @@ void TaoGraphicsEngine::rotateAndTranslate() {
 }
 
 void TaoGraphicsEngine::display() {
-  int len, i;
-  char *string;
-
   displayInstruments();
   displayDevices();
 
@@ -380,9 +376,7 @@ void TaoGraphicsEngine::calculateOriginForRotations() {
 void TaoGraphicsEngine::mainLoop() { glutMainLoop(); }
 
 void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
-                                          char *string) {
-  int len, i;
-
+                                          const std::string text) {
   if (tao_->synthesisEngine.tick % refreshRate != 0)
     return;
   if (!this->active)
@@ -390,14 +384,13 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
 
   glColor3f(0.0, 0.0, 0.0);
   glRasterPos3f(x, y, z);
-  len = (int)strlen(string);
-  for (i = 0; i < len; i++) {
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[i]);
+  for (size_t i = 0; i < text.size(); i++) {
+    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
   }
 }
 
 void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
-                                          char *string, GLfloat r, GLfloat g,
+                                          const std::string text, GLfloat r, GLfloat g,
                                           GLfloat b) {
   int len, i;
 
@@ -408,9 +401,8 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
 
   glColor3f(r, g, b);
   glRasterPos3f(x, y, z);
-  len = (int)strlen(string);
-  for (i = 0; i < len; i++) {
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[i]);
+  for (i = 0; i < text.size(); i++) {
+    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
   }
 }
 
@@ -663,7 +655,7 @@ void TaoGraphicsEngine::displayPointInInstrumentSpace(TaoInstrument &instr,
 
 void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float y,
                               float labelXOffset, float labelYOffset,
-                              char *caption, GLfloat r, GLfloat g, GLfloat b) {
+                              const std::string caption, GLfloat r, GLfloat g, GLfloat b) {
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x, y);
 
@@ -680,7 +672,7 @@ void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float y,
 }
 
 void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float labelXOffset,
-                              float labelYOffset, char *caption, GLfloat r,
+                              float labelYOffset, const std::string caption, GLfloat r,
                               GLfloat g, GLfloat b) {
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x);
@@ -699,7 +691,7 @@ void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float labelXOffset,
 
 void TaoGraphicsEngine::label(TaoInstrument &instr, float x, float y, float z,
                               float labelXOffset, float labelYOffset,
-                              char *caption, GLfloat r, GLfloat g, GLfloat b) {
+                              const std::string caption, GLfloat r, GLfloat g, GLfloat b) {
   GLfloat worldx, worldy, worldz;
   TaoAccessPoint &p = instr.point(x, y);
 
