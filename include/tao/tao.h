@@ -47,7 +47,9 @@ public:
   void setScoreDuration(float duration);
   void executeScore();
   void masterTick();
-  void main(int argc, char *argv[]);
+  void run();
+
+  // TODO(lucasw) what are these for?
   inline void initStartAndEnd() {
     stackPointer++;
     startStack[stackPointer] = start;

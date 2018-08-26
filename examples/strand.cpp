@@ -48,14 +48,21 @@ float taoScoreDuration() { return 5.0f; }
 void taoScore() {
   mtao->initStartAndEnd();
 
-  if (mtao->synthesisEngine.tick <= (long)((mtao->newEnd = 0.001) *
-                     mtao->synthesisEngine.modelSampleRate) &&
-      mtao->synthesisEngine.tick >= (long)((mtao->newStart = 0.0) *
-                     mtao->synthesisEngine.modelSampleRate)) {
+  bool apply_force = true;
+
+  if (apply_force) {
+
+    #if 0
+    std::cout << mtao->synthesisEngine.tick << " "
+        << mtao->newStart << " " << mtao->newEnd << ", "
+        << mtao->start << " " << mtao->end << std::endl;
+    #endif
+
+    const int nsamples = 26000;
+    float force = 1.0 - float(mtao->synthesisEngine.tick % nsamples) / float(nsamples);
+
     mtao->pushStartAndEnd1();
-    (*tau_string)(0.1f).applyForce(
-        ((mtao->synthesisEngine.time - mtao->start) / (mtao->end - mtao->start) * (0.0f - 1.0f) +
-         1.0f));
+    (*tau_string)(0.1f).applyForce(force);
     mtao->popStartAndEnd();
   }
 
@@ -74,10 +81,19 @@ main(int argc, char *argv[]) {
 
   output.reset(new TaoOutput(mtao, "output", "strand_output", 1));
 
+  for (int i = 0; i < argc; ++i) {
+    std::cout << argv[i] << std::endl;
+  }
+  if ((argc > 1) && (std::string(argv[1]) == "-g"))
+  {
+    mtao->graphics_engine_.reset(new TaoGraphicsEngine(mtao));
+    glutInit(&argc, argv);
+  }
+
   mtao->initStartAndEnd();
   mtao->audioRateFunc(taoAudioRate);
   mtao->initFunc(taoInit);
   mtao->scoreDurationFunc(taoScoreDuration);
   mtao->scoreFunc(taoScore);
-  mtao->main(argc, argv);
+  mtao->run();
 }

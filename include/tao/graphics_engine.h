@@ -80,7 +80,8 @@ public:
 
   void activate();
   void deactivate();
-  void init(int argc, char *argv[]);
+  //  or TAO_JAGGED;
+  void init(const std::string win_name="tao_synth", int lineMode=TAO_ANTIALIAS);
   void reshape(int w, int h);
   void mouse(int button, int state, int x, int y);
   void motion(int x, int y);
@@ -135,7 +136,6 @@ private:
   enum { TAO_PERSPECTIVE, TAO_ORTHO, TAO_ANTIALIAS, TAO_JAGGED };
   int projectionMode;
   int displayInstrumentNames, displayDeviceNames;
-  int lineMode;
   int lastMouseX, lastMouseY, zoomInitialMouseY;
   int drag;
   int dolly;

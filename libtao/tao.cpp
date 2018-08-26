@@ -122,37 +122,14 @@ void Tao::masterTick() {
   }
 }
 
-void Tao::main(int argc, char *argv[]) {
-  int option;
+void Tao::run() {
 
-  while (1) {
-    option = getopt(argc, argv, "gs:");
-    if (option == EOF)
-      break;
-
-    switch (option) {
-    case 'g': {
-      // graphics_engine_.reset(new TaoGraphicsEngine(shared_from_this()));
-      // TODO(lucasw) if 'this' is already a shared_ptr then this
-      // one will be separate
-      std::shared_ptr<Tao> stao(this);
-      graphics_engine_.reset(new TaoGraphicsEngine(stao));
-      graphics_engine_->activate();
-      synthesisEngine.pause();
-      break;
-    }
-    case 's': {
-      audioRate = atoi((char *)optarg);
-      std::cerr << "audioRate=" << audioRate << std::endl;
-      break;
-    }
-    default:
-      break;
-    }
-  }
-
-  if (graphics_engine_ && graphics_engine_->active) {
-    graphics_engine_->init(argc, argv);
+  // it's up to the caller to create the graphics engine 
+  if (graphics_engine_)
+  {
+    graphics_engine_->activate();
+    synthesisEngine.pause();
+    graphics_engine_->init();
   }
 
   setAudioSampleRate(); // These overloaded functions with no arguments only
@@ -179,9 +156,9 @@ void Tao::main(int argc, char *argv[]) {
     graphics_engine_->calculateOriginForRotations();
     graphics_engine_->mainLoop();
   }
-
-  else
+  else {
     while (1) {
       masterTick();
     }
+  }
 }

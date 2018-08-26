@@ -183,28 +183,10 @@ void TaoGraphicsEngine::activate() { active = 1; };
 
 void TaoGraphicsEngine::deactivate() { active = 0; }
 
-void TaoGraphicsEngine::init(int argc, char *argv[]) {
-  int option;
-
-  while (1) {
-    option = getopt(argc, argv, "l:");
-    if (option == EOF)
-      break;
-
-    switch (option) {
-    case 'l':
-      if (*optarg == 's')
-        lineMode = TAO_ANTIALIAS;
-      else
-        lineMode = TAO_JAGGED;
-      break;
-    }
-  }
-
-  glutInit(&argc, argv);
+void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
   glutInitWindowSize(1280, 720);
-  winId = glutCreateWindow(argv[0]);
+  winId = glutCreateWindow(win_name.c_str());
 
   glutReshapeFunc(::tao_reshape);
   glutKeyboardFunc(::tao_keyboard);
