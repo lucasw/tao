@@ -122,8 +122,6 @@ void Tao::masterTick() {
   }
 }
 
-// void taoMasterTick() { tao.masterTick(); }
-
 void Tao::main(int argc, char *argv[]) {
   int option;
 

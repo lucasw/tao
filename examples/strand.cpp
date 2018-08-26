@@ -34,21 +34,14 @@
 
 static std::shared_ptr<Tao> mtao;
 
-// Audio rate: <sample_rate> ;
-
 int taoAudioRate() { return 44100; }
 
-// Declarations
-
 static std::shared_ptr<TaoString> tau_string;
-
-// Init: <statements> ...
+static std::shared_ptr<TaoOutput> output;
 
 void taoInit() {
   tau_string->lockEnds();
 }
-
-// Score <duration> : <statements> ...
 
 float taoScoreDuration() { return 5.0f; }
 
@@ -66,6 +59,10 @@ void taoScore() {
     mtao->popStartAndEnd();
   }
 
+  // TODO(lucasw) if output only has one channel, what does L and R do?
+  output->chL((*tau_string)(0.2));
+  output->chR((*tau_string)(0.8));
+
   mtao->popStartAndEnd();
 }
 
@@ -74,6 +71,9 @@ main(int argc, char *argv[]) {
   const float decay = 20.0;
   tau_string.reset(new TaoString(mtao, "tau_string",
       TaoPitch(200.0f, TaoPitch::frq), decay));
+
+  output.reset(new TaoOutput(mtao, "output", "strand_output", 1));
+
   mtao->initStartAndEnd();
   mtao->audioRateFunc(taoAudioRate);
   mtao->initFunc(taoInit);
@@ -81,5 +81,3 @@ main(int argc, char *argv[]) {
   mtao->scoreFunc(taoScore);
   mtao->main(argc, argv);
 }
-
-// End of C++ program generated from script "tau_string.tao"
