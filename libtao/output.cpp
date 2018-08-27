@@ -34,12 +34,8 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao) : TaoDevice(tao) {}
 TaoOutput::~TaoOutput() {
   delete outputfile;
   delete displayStream;
-  delete[] buffer;
-  delete[] samples;
 
   displayStream = NULL;
-  buffer = NULL;
-  samples = NULL;
   outputfile = NULL;
 }
 
@@ -48,11 +44,10 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao,
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
-  numChannels = channels;
   displayString = "";
-  buffer = new float[buffersize];
+  buffer.resize(buffersize);
   next = NULL;
-  samples = new float[numChannels];
+  samples.resize(channels);
   maxSample = 0.0;
   outputfile = new std::ofstream;
   // why are we initialising the stream with an empty string?
@@ -78,11 +73,10 @@ TaoOutput::TaoOutput(std::shared_ptr<Tao> tao,
   deviceType = TaoDevice::OUTPUT;
   index = 0;
   first_write = 1;
-  numChannels = channels;
   displayString = "";
-  buffer = new float[buffersize];
+  buffer.resize(buffersize);
   next = NULL;
-  samples = new float[numChannels];
+  samples.resize(channels);
   maxSample = 0.0;
   outputfile = new std::ofstream;
   // why are we initialising the stream with an empty string?
@@ -106,8 +100,14 @@ void TaoOutput::update() {
   if (tao_->synthesisEngine.tick % tao_->synthesisEngine.throwAway)
     return; // Throw away samples
 
-  if (index < buffersize) {
-    if (numChannels == 2) {
+  for (size_t i = 0; i < samples.size(); ++i) {
+    if (index < buffer.size()) {
+      buffer[index++] = samples[i];
+      if (samples[i] > maxSample)
+        maxSample = samples[i];
+    }
+  #if 0
+    if (samples.size() == 2) {
       buffer[index++] = samples[0];
       if (samples[0] > maxSample)
         maxSample = samples[0];
@@ -115,28 +115,30 @@ void TaoOutput::update() {
       if (samples[1] > maxSample)
         maxSample = samples[1];
     }
-    if (numChannels == 1) {
+    if (samples.size() == 1) {
       buffer[index++] = samples[0];
       if (samples[0] > maxSample)
         maxSample = samples[0];
     }
-  }
+  #endif
 
-  if (index == buffersize) {
-    if (first_write) {
-      first_write = 0;
-      outputfile->open(fullfilename, std::ios::out);
-      outputfile->write("TAO OUTPUT FILE", 15);
-      outputfile->write((char *)&tao_->synthesisEngine.audioSampleRate,
-                        (int)sizeof(int));
-      outputfile->write((char *)&numChannels, (int)sizeof(int));
+    if (index == buffersize) {
+      if (first_write) {
+        first_write = 0;
+        outputfile->open(fullfilename, std::ios::out);
+        outputfile->write("TAO OUTPUT FILE", 15);
+        outputfile->write((char *)&tao_->synthesisEngine.audioSampleRate,
+                          (int)sizeof(int));
+        const size_t numChannels = samples.size();
+        outputfile->write((char *)&numChannels, (int)sizeof(int));
+        outputfile->close();
+      }
+
+      outputfile->open(fullfilename, std::ios::app);
+      outputfile->write((char *)(&buffer[0]), (int)(buffersize * sizeof(float)));
       outputfile->close();
+      index = 0;
     }
-
-    outputfile->open(fullfilename, std::ios::app);
-    outputfile->write((char *)buffer, (int)(buffersize * sizeof(float)));
-    outputfile->close();
-    index = 0;
   }
 }
 
@@ -152,11 +154,12 @@ void TaoOutput::display() {
 
   *displayStream << name;
 
-  if (numChannels == 1) {
+  // TODO(lucasw) for loop through all samples
+  if (samples.size() == 1) {
     *displayStream << " 1:    " << samples[0] << "   Max:     " << maxSample
                    << std::ends;
   }
-  if (numChannels == 2) {
+  if (samples.size() == 2) {
     *displayStream << " 1:    " << samples[0] << "   2:    " << samples[1]
                    << "   Max:     " << maxSample << std::ends;
   }

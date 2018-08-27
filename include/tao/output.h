@@ -22,6 +22,7 @@
 #include <tao/device.h>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #ifdef WIN32
 #define DLLEXPORT __declspec(dllexport)
@@ -44,12 +45,13 @@ public:
   ~TaoOutput();
   TaoOutput(std::shared_ptr<Tao> tao, const std::string filename, size_t channels);
   TaoOutput(std::shared_ptr<Tao> tao, const std::string outputName, const std::string filename, size_t channels);
-  inline void ch1(float value) { samples[0] = value; }
-  inline void ch2(float value) { samples[1] = value; }
-  inline void ch3(float value) { samples[2] = value; }
-  inline void ch4(float value) { samples[3] = value; }
-  inline void chL(float value) { samples[0] = value; }
-  inline void chR(float value) { samples[1] = value; }
+  inline void ch(const float value, const size_t index) {
+    if (index < samples.size())
+      samples[index] = value;
+    // else throw?
+  }
+  inline void chL(const float value) { ch(value, 0); }
+  inline void chR(const float value) { ch(value, 1); }
   void update();
   void display();
 
@@ -57,11 +59,10 @@ private:
   static const int buffersize;
   int first_write;
   int index;
-  size_t numChannels;
-  float *buffer;
+  std::vector<float> buffer;
   std::string fullfilename;
   std::ofstream *outputfile;
-  float *samples;
+  std::vector<float> samples;
   float maxSample;
   std::string displayString;
   std::ostringstream *displayStream;
