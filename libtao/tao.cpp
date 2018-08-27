@@ -24,12 +24,6 @@
 // long &Tick = tao.synthesisEngine.tick;
 
 Tao::Tao() {
-  start = 0.0;
-  end = 0.0;
-  newStart = 0.0;
-  newEnd = 0.0;
-  stackPointer = 0;
-
   scoreFunctionPtr = NULL;
   durationFunctionPtr = NULL;
   initFunctionPtr = NULL;
@@ -75,8 +69,6 @@ void Tao::setScoreDuration() {
     synthesisEngine.scoreDuration = duration;
     synthesisEngine.numSamples =
         (long)(duration * synthesisEngine.modelSampleRate);
-    startStack[0] = 0.0;
-    endStack[0] = duration;
   }
 }
 
@@ -84,8 +76,6 @@ void Tao::setScoreDuration(float duration) {
   synthesisEngine.scoreDuration = duration;
   synthesisEngine.numSamples =
       (long)(duration * synthesisEngine.modelSampleRate);
-  startStack[0] = 0.0;
-  endStack[0] = duration;
 }
 
 void Tao::executeScore() {

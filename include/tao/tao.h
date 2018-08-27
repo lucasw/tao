@@ -46,38 +46,6 @@ public:
   void masterTick();
   void run();
 
-  // TODO(lucasw) what are these for?
-  inline void initStartAndEnd() {
-    stackPointer++;
-    startStack[stackPointer] = start;
-    endStack[stackPointer] = end;
-    start = startStack[0];
-    end = endStack[0];
-  }
-
-  inline void pushStartAndEnd1() {
-    stackPointer++;
-    startStack[stackPointer] = start;
-    endStack[stackPointer] = end;
-    start = newStart;
-    end = newEnd;
-  }
-
-  inline void pushStartAndEnd2() {
-    stackPointer++;
-    startStack[stackPointer] = start;
-    endStack[stackPointer] = end;
-  }
-
-  inline void popStartAndEnd() {
-    start = startStack[stackPointer];
-    end = endStack[stackPointer];
-    stackPointer--;
-  }
-
-  float start, end;
-  float newStart, newEnd;
-
   TaoSynthEngine synthesisEngine;
   std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
 
@@ -88,9 +56,6 @@ private:
   int (*audioRateFunctionPtr)(void);
   int audioRate;
   float scoreDuration;
-  float startStack[30];
-  float endStack[30];
-  int stackPointer;
 
   // using std::enable_shared_from_this<Tao>::shared_from_this;
 
