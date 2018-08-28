@@ -45,13 +45,13 @@ public:
   long tick;
   long numSamples;
   float scoreDuration;
-  int audioSampleRate;
+  float audioSampleRate;
   const int throwAway;
-  int modelSampleRate;
+  float modelSampleRate;
   float Decay2VelocityMultiplierConst;
   float Hz2CellConst;
 
-  TaoSynthEngine();
+  TaoSynthEngine(const float audio_rate);
   void pause();
   void unpause();
   int isActive();
@@ -59,7 +59,7 @@ public:
   void Tick();
   unsigned int getTime();
   void seedRandomNumGen();
-  void setAudioRate(int audioRate);
+  void setAudioRate(const float audioRate);
   void makeTheInstruments();
   void addInstrument(TaoInstrument &instr);
   void removeInstrument(TaoInstrument &instr);

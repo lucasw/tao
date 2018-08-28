@@ -23,21 +23,17 @@
 // float &Time = tao.synthesisEngine.time;
 // long &Tick = tao.synthesisEngine.tick;
 
-Tao::Tao() {
+Tao::Tao(const float audio_rate) :
+    audioRate(audio_rate),
+    synthesisEngine(audio_rate) {
   scoreFunctionPtr = NULL;
   durationFunctionPtr = NULL;
   initFunctionPtr = NULL;
-  audioRateFunctionPtr = NULL;
 
-  setAudioSampleRate(44100);
   setScoreDuration(10.0);
 }
 
 void Tao::seedRandomNumGen() { synthesisEngine.seedRandomNumGen(); }
-
-void Tao::audioRateFunc(int (*functionPtr)(void)) {
-  audioRateFunctionPtr = functionPtr;
-}
 
 void Tao::initFunc(void (*functionPtr)(void)) { initFunctionPtr = functionPtr; }
 
@@ -49,12 +45,7 @@ void Tao::scoreFunc(void (*functionPtr)(void)) {
   scoreFunctionPtr = functionPtr;
 }
 
-void Tao::setAudioSampleRate(int sr) { synthesisEngine.setAudioRate(sr); }
-
-void Tao::setAudioSampleRate() {
-  if (audioRateFunctionPtr)
-    synthesisEngine.setAudioRate((*audioRateFunctionPtr)());
-}
+void Tao::setAudioSampleRate(const float sr) { synthesisEngine.setAudioRate(sr); }
 
 void Tao::initInstrumentsAndDevices() {
   if (initFunctionPtr)
@@ -72,7 +63,7 @@ void Tao::setScoreDuration() {
   }
 }
 
-void Tao::setScoreDuration(float duration) {
+void Tao::setScoreDuration(const float duration) {
   synthesisEngine.scoreDuration = duration;
   synthesisEngine.numSamples =
       (long)(duration * synthesisEngine.modelSampleRate);
@@ -122,17 +113,7 @@ void Tao::run() {
     graphics_engine_->init();
   }
 
-  setAudioSampleRate(); // These overloaded functions with no arguments only
-  setScoreDuration();   // have an effect if Tao is used in script mode
-                        // since the process of translating a script auto-
-                        // matically defines two functions which return the
-                        // audio sample rate and score duration respectively.
-                        // These functions if they exist are registered as
-                        // pointers via the functions audioRateFunc() and
-                        // scoreDurationFunc(). If these pointers are NULL
-                        // (as they will be if Tao is being used in C++ mode)
-                        // then the values of audioSampleRate and scoreDuration
-                        // are left untouched.
+  setScoreDuration();
 
   std::cout << "Sample rate=" << synthesisEngine.audioSampleRate << " Hz"
             << std::endl;

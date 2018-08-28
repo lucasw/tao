@@ -30,13 +30,13 @@ extern long random();
 
 extern TaoSynthEngine taoSynthesisEngine;
 
-TaoSynthEngine::TaoSynthEngine() : throwAway(2) {
+TaoSynthEngine::TaoSynthEngine(const float audio_rate) : throwAway(2) {
   active = TRUE;
   instrumentList = NULL;
   deviceList = NULL;
   time = 0.0;
   tick = 0;
-  setAudioRate(44100);
+  setAudioRate(audio_rate);
 }
 
 void TaoSynthEngine::pause() { active = FALSE; }
@@ -59,11 +59,11 @@ unsigned int TaoSynthEngine::getTime() { return 0u; }
 
 void TaoSynthEngine::seedRandomNumGen() { srand(getTime()); }
 
-void TaoSynthEngine::setAudioRate(int audioRate) {
+void TaoSynthEngine::setAudioRate(const float audioRate) {
   audioSampleRate = audioRate;
   modelSampleRate = audioRate * throwAway;
-  Decay2VelocityMultiplierConst = (float)(.00012 * 44100.0) / (float)audioRate;
-  Hz2CellConst = 24000.0f * (float)audioRate / 44100.0f;
+  Decay2VelocityMultiplierConst = (.00012 * 44100.0) / audioRate;
+  Hz2CellConst = 24000.0f * audioRate / 44100.0f;
 }
 
 void TaoSynthEngine::makeTheInstruments() {

@@ -127,8 +127,9 @@ void TaoOutput::update() {
         first_write = 0;
         outputfile->open(fullfilename, std::ios::out);
         outputfile->write("TAO OUTPUT FILE", 15);
-        outputfile->write((char *)&tao_->synthesisEngine.audioSampleRate,
-                          (int)sizeof(int));
+        int audio_rate = tao_->synthesisEngine.audioSampleRate;
+        outputfile->write((char *)&audio_rate,
+                          (int)sizeof(audio_rate));
         const size_t numChannels = samples.size();
         outputfile->write((char *)&numChannels, (int)sizeof(int));
         outputfile->close();

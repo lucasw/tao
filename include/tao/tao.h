@@ -31,17 +31,15 @@ class Tao { // : std::enable_shared_from_this<Tao> {
   friend class TaoOutput; // necessary because a TaoOutput object must
                           // be able to find out the audio sample rate
 public:
-  Tao();
+  Tao(const float audio_rate = 44100.0f);
   void seedRandomNumGen();
-  void audioRateFunc(int (*functionPtr)(void));
   void initFunc(void (*functionPtr)(void));
   void scoreDurationFunc(float (*functionPtr)(void));
   void scoreFunc(void (*functionPtr)(void));
-  void setAudioSampleRate();
-  void setAudioSampleRate(int sr);
+  void setAudioSampleRate(const float sr);
   void initInstrumentsAndDevices();
   void setScoreDuration();
-  void setScoreDuration(float duration);
+  void setScoreDuration(const float duration);
   void executeScore();
   void masterTick();
   void run();
@@ -53,8 +51,8 @@ private:
   void (*scoreFunctionPtr)(void); // User supplied functions
   void (*initFunctionPtr)(void);
   float (*durationFunctionPtr)(void);
-  int (*audioRateFunctionPtr)(void);
-  int audioRate;
+  // TODO(lucasw) should audio rate be able to change dynamically?
+  float audioRate;
   float scoreDuration;
 
   // using std::enable_shared_from_this<Tao>::shared_from_this;
