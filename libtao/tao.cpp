@@ -92,6 +92,7 @@ void Tao::run() {
     graphics_engine_->activate();
     synthesisEngine.pause();
     graphics_engine_->init();
+    graphics_engine_->calculateOriginForRotations();
   }
 
   std::cout << "Sample rate=" << synthesisEngine.audioSampleRate << " Hz"
@@ -101,13 +102,9 @@ void Tao::run() {
 
   seedRandomNumGen();
 
-  if (graphics_engine_ && graphics_engine_->active) {
-    graphics_engine_->calculateOriginForRotations();
-    graphics_engine_->mainLoop();
-  }
-  else {
-    while (1) {
-      masterTick();
-    }
+  while (1) {
+    masterTick();
+    if (graphics_engine_ && graphics_engine_->active)
+      graphics_engine_->display();
   }
 }

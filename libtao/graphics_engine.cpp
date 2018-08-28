@@ -20,6 +20,8 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <GL/glu.h>
+#include <iostream>
 #include <tao/tao.h>
 #include <tao/access_point.h>
 #include <tao/cell.h>
@@ -29,7 +31,6 @@ extern "C" {
 #include <stdio.h>
 #include <string>
 
-// Global just for use in glut
 static std::shared_ptr<Tao> tao;
 
 // These variables are declared extern by the getopt() function, which
@@ -41,12 +42,7 @@ extern int optind, opterr, optopt;
 
 // The following global functions are registered callbacks for OpenGL.
 
-void tao_master_tick() {
-  if (!tao)
-    return;
-  tao->masterTick();
-}
-
+#if 0
 void tao_visibility(int state) {
   if (!tao)
     return;
@@ -59,22 +55,6 @@ void tao_visibility(int state) {
     glutIdleFunc(tao_master_tick);
     tao->graphics_engine_->active = TRUE;
   }
-}
-
-void tao_mouse(int button, int state, int x, int y) {
-  if (!tao)
-    return;
-  if (!tao->graphics_engine_)
-    return;
-  tao->graphics_engine_->mouse(button, state, x, y);
-}
-
-void tao_motion(int x, int y) {
-  if (!tao)
-    return;
-  if (!tao->graphics_engine_)
-    return;
-  tao->graphics_engine_->motion(x, y);
 }
 
 void tao_display() {
@@ -101,57 +81,77 @@ void tao_special(int key, int x, int y) {
   x, y; // referenced to get rid of compiler warning
 
   switch (key) {
-  case GLUT_KEY_UP:
-    tao->graphics_engine_->globalMagnification *= 1.1f;
-    break;
+}
+#endif
 
-  case GLUT_KEY_DOWN:
-    tao->graphics_engine_->globalMagnification /= 1.1f;
-    break;
-
-  case GLUT_KEY_RIGHT:
-    if (tao->graphics_engine_->refreshRate == 1 &&
-        !tao->synthesisEngine.isActive()) {
-      tao->synthesisEngine.unpause();
-      glutIdleFunc(tao_master_tick);
-    } else {
-      if (tao->graphics_engine_->refreshRate < 65536) {
-        tao->graphics_engine_->refreshRate *= 2;
-      }
-    }
-    break;
-
-  case GLUT_KEY_LEFT:
-    if (tao->graphics_engine_->refreshRate != 1)
-      tao->graphics_engine_->refreshRate /= 2;
-    else {
-      if (tao->synthesisEngine.isActive()) {
-        tao->synthesisEngine.pause();
-      }
-    }
-    break;
+void tao_mouse(GLFWwindow* window, int button, int action, int mods) {
+  TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
+  if (!tge)
+  {
+    throw std::runtime_error("glfw get graphics engine user pointer");
   }
+  tge->mouse(button, action, mods);
 }
 
-void tao_keyboard(unsigned char key, int x, int y) {
-  if (!tao)
-    return;
-  if (!tao->graphics_engine_)
-    return;
-  x, y; // referenced to get rid of compiler warning
+void tao_motion(GLFWwindow* window, double x, double y) {
+  TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
+  if (!tge)
+  {
+    throw std::runtime_error("glfw get graphics engine user pointer");
+  }
+  tge->motion(x, y);
+}
+
+void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
+  TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
+  if (!tge)
+  {
+    throw std::runtime_error("glfw get graphics engine user pointer");
+  }
 
   switch (key) {
   case 27:
     exit(0);
 
   case 'i':
-    tao->graphics_engine_->displayInstrumentNames =
-        tao->graphics_engine_->displayInstrumentNames ? 0 : 1;
+    tge->displayInstrumentNames =
+        tge->displayInstrumentNames ? 0 : 1;
     break;
 
   case 'd':
-    tao->graphics_engine_->displayDeviceNames =
-        tao->graphics_engine_->displayDeviceNames ? 0 : 1;
+    tge->displayDeviceNames =
+        tge->displayDeviceNames ? 0 : 1;
+    break;
+
+  case GLFW_KEY_UP:
+    tge->globalMagnification *= 1.1f;
+    break;
+
+  case GLFW_KEY_DOWN:
+    tge->globalMagnification /= 1.1f;
+    break;
+
+  case GLFW_KEY_RIGHT:
+    if (tge->refreshRate == 1 &&
+        !tao->synthesisEngine.isActive()) {
+      tao->synthesisEngine.unpause();
+      // glutIdleFunc(tao_master_tick);
+    } else {
+      if (tge->refreshRate < 65536) {
+        tge->refreshRate *= 2;
+      }
+    }
+    break;
+
+  case GLFW_KEY_LEFT:
+    if (tge->refreshRate != 1)
+      tge->refreshRate /= 2;
+    else {
+      if (tao->synthesisEngine.isActive()) {
+        tao->synthesisEngine.pause();
+      }
+    }
     break;
   }
 }
@@ -182,22 +182,43 @@ void TaoGraphicsEngine::activate() { active = 1; };
 
 void TaoGraphicsEngine::deactivate() { active = 0; }
 
-void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-  glutInitWindowSize(1280, 720);
-  winId = glutCreateWindow(win_name.c_str());
+static void glfw_error(int error, const char* text)
+{
+  std::cerr << error << " " << text << std::endl;
+}
 
-  glutReshapeFunc(::tao_reshape);
-  glutKeyboardFunc(::tao_keyboard);
-  glutSpecialFunc(::tao_special);
-  glutMouseFunc(::tao_mouse);
-  glutMotionFunc(::tao_motion);
-  glutDisplayFunc(::tao_display);
-  glutVisibilityFunc(::tao_visibility);
+TaoGraphicsEngine::~TaoGraphicsEngine()
+{
+  glfwTerminate();
+}
+
+void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
+  glfwSetErrorCallback(glfw_error);
+  if (!glfwInit())
+  {
+    throw std::runtime_error("glfw couldn't init");
+  }
+
+  window_.reset(glfwCreateWindow(1280, 720, win_name.c_str(), NULL, NULL),
+      [](GLFWwindow* w) { glfwDestroyWindow(w); } );
+  if (!window_)
+  {
+    throw std::runtime_error("glfw couldn't make window");
+  }
+
+  glfwMakeContextCurrent(window_.get());
+
+  glfwSetWindowUserPointer(window_.get(), this);
+  glfwSetKeyCallback(window_.get(), tao_keyboard);
+  glfwSetMouseButtonCallback(window_.get(), tao_mouse);
+  glfwSetCursorPosCallback(window_.get(), tao_motion);
+
+  // std::cout << "OpenGL shader language version: "
+  //     << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
   glClearColor(0.7, 0.7, 0.7, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
-  glutSwapBuffers();
+  swapBuffers();
   glClear(GL_COLOR_BUFFER_BIT);
 
   if (lineMode == TAO_ANTIALIAS) {
@@ -291,29 +312,26 @@ void TaoGraphicsEngine::display() {
 void TaoGraphicsEngine::flushGraphics() { glFlush(); }
 
 void TaoGraphicsEngine::swapBuffers() {
-  // cout << "Swapping buffers\n";
-
-  glutSwapBuffers();
+  glfwSwapBuffers(window_.get());
 }
 
-void TaoGraphicsEngine::mouse(int button, int state, int x, int y) {
-  if (state == GLUT_DOWN) {
+void TaoGraphicsEngine::mouse(int button, int action, int mods) {
+  if (action == GLFW_PRESS) {
     switch (button) {
-    case GLUT_LEFT_BUTTON:
+    case GLFW_MOUSE_BUTTON_LEFT:
       drag = TRUE;
       break;
-    case GLUT_MIDDLE_BUTTON:
+    case GLFW_MOUSE_BUTTON_MIDDLE:
       dolly = TRUE;
       break;
-    case GLUT_RIGHT_BUTTON:
+    case GLFW_MOUSE_BUTTON_RIGHT:
       rotate = TRUE;
       break;
     }
 
     // refreshRateToRestore=refreshRate;
     // refreshRate=1;
-    lastMouseX = x;
-    lastMouseY = y;
+    glfwGetCursorPos(window_.get(), &lastMouseX, &lastMouseY);
   } else {
     drag = FALSE;
     dolly = FALSE;
@@ -333,7 +351,7 @@ void TaoGraphicsEngine::setInstrDisplayResolution() {
     jstep = 1;
 }
 
-void TaoGraphicsEngine::motion(int x, int y) {
+void TaoGraphicsEngine::motion(double x, double y) {
   if (drag == TRUE) {
     xOffset += x - lastMouseX;
     yOffset -= y - lastMouseY;
@@ -373,8 +391,6 @@ void TaoGraphicsEngine::calculateOriginForRotations() {
   scaleBy = 20.0 / (maxWorldX - minWorldX);
 }
 
-void TaoGraphicsEngine::mainLoop() { glutMainLoop(); }
-
 void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
                                           const std::string text) {
   if (tao_->synthesisEngine.tick % refreshRate != 0)
@@ -385,7 +401,7 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
   glColor3f(0.0, 0.0, 0.0);
   glRasterPos3f(x, y, z);
   for (size_t i = 0; i < text.size(); i++) {
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
+    // glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
   }
 }
 
@@ -402,7 +418,7 @@ void TaoGraphicsEngine::displayCharString(GLfloat x, GLfloat y, GLfloat z,
   glColor3f(r, g, b);
   glRasterPos3f(x, y, z);
   for (i = 0; i < text.size(); i++) {
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
+    // glutBitmapCharacter(GLUT_BITMAP_8_BY_13, text[i]);
   }
 }
 

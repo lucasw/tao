@@ -19,21 +19,10 @@
 #ifndef TAOGRAPHICSENGINE_H
 #define TAOGRAPHICSENGINE_H
 
-#include <memory>
-
-#ifndef HAVE_OSX
-#include <GL/glut.h>
-#else
-#include <GLUT/glut.h>
-#endif
-
-#ifdef WIN32
-#include <strstrea.h>
-#else
-#include <sstream>
-#endif
-
+#include <GLFW/glfw3.h>
 #include <iomanip>
+#include <memory>
+#include <sstream>
 
 #ifdef WIN32
 #define DLLEXPORT __declspec(dllexport)
@@ -50,13 +39,12 @@ class TaoConnector;
 class TaoStop;
 class TaoOutput;
 
-// The following functions are registered as OpenGL callback functions
-
-void tao_mouse(int button, int state, int x, int y);
-void tao_keyboard(unsigned int key, int x, int y);
-void tao_motion(int x, int y);
-void tao_display();
-void tao_reshape(int w, int h);
+// The following functions are registered as GLFW callback functions
+void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
+void tao_mouse(GLFWwindow* window, int button, int action, int mods);
+void tao_motion(GLFWwindow* window, double x, double y);
+// void tao_display();
+// void tao_reshape(int w, int h);
 
 class DLLEXPORT TaoGraphicsEngine {
   friend class Tao;
@@ -67,24 +55,23 @@ class DLLEXPORT TaoGraphicsEngine {
   friend class TaoConnector;
   friend class TaoStop;
   friend class TaoOutput;
-  friend void tao_visibility(int state);
-  friend void tao_mouse(int button, int state, int x, int y);
-  friend void tao_motion(int x, int y);
-  friend void tao_display();
-  friend void tao_reshape(int w, int h);
-  friend void tao_keyboard(unsigned char key, int x, int y);
-  friend void tao_special(int key, int x, int y);
+  friend void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
+  friend void tao_mouse(GLFWwindow* window, int button, int action, int mods);
+  friend void tao_motion(GLFWwindow* window, double x, double y);
+  // friend void tao_display();
+  // friend void tao_reshape(int w, int h);
 
 public:
   TaoGraphicsEngine(std::shared_ptr<Tao> ptao);
+  ~TaoGraphicsEngine();
 
   void activate();
   void deactivate();
   //  or TAO_JAGGED;
   void init(const std::string win_name="tao_synth", int lineMode=TAO_ANTIALIAS);
   void reshape(int w, int h);
-  void mouse(int button, int state, int x, int y);
-  void motion(int x, int y);
+  void mouse(int button, int action, int mods);
+  void motion(double x, double y);
   void setInstrDisplayResolution();
   void calculateOriginForRotations();
   void clearBackBuffer();
@@ -124,7 +111,9 @@ public:
 private:
   std::shared_ptr<Tao> tao_;
   int active;
-  int winId;
+
+  std::shared_ptr<GLFWwindow> window_;
+
   int viewportWidth, viewportHeight;
   GLfloat xOffset, yOffset, zOffset, xAngle, yAngle, zAngle;
   int jstep;
@@ -136,7 +125,8 @@ private:
   enum { TAO_PERSPECTIVE, TAO_ORTHO, TAO_ANTIALIAS, TAO_JAGGED };
   int projectionMode;
   int displayInstrumentNames, displayDeviceNames;
-  int lastMouseX, lastMouseY, zoomInitialMouseY;
+  double lastMouseX, lastMouseY, zoomInitialMouseY;
+  // TODO(lucasw) convert to bools
   int drag;
   int dolly;
   int rotate;

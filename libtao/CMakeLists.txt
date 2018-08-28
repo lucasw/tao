@@ -29,4 +29,4 @@ add_library(${PROJECT_NAME} SHARED
   triangle.cpp
 )
 # -lX11 -lXmu -lXi -lGL -lGLU -lpthread -lglut -laudiofile
-target_link_libraries(${PROJECT_NAME} GL GLU glut)
+target_link_libraries(${PROJECT_NAME} GL GLU glfw)
