@@ -1,31 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////
-// This is the translated version of script "tau_string.tao".
-//
-// It contains automatically generated definitions for the following functions
-// which are required by the Tao library in order to produce a complete
-// executable:
-//
-//   int    taoAudioRate()	- returns the audio sampling rate in Hz.
-//   float  taoScoreDuration()	- returns the duration of the score
-//				  in seconds.
-//   void   taoInit()		- this function is called just before execution
-//				  of the score and contains user specified code
-//				  for initialising variable values, devices,
-//				  instruments and connections.
-//   void   taoScore()		- this function is called once on every tick of
-//				  the synthesis engine and contains all the code
-//				  representing the user's time-domain inter-
-//				  actions with the instruments and devices.
-//
-// The `main()' function defined at the end of this generated file registers
-// the functions described above with the top level object `tao' (an instance
-// of class `Tao'), and then invokes the member function `mtao->main()'. This
-// function enters the main synthesis engine loop which calculates the number
-// of ticks specified by the score duration, and updates the graphics window
-// (if graphics mode is on). It only exits if the graphics window is closed, if
-// the ESC key is pressed whilst the graphics window has the mouse focus, if
-// CTRL-C is pressed in the shell window from which Tao was invoked, or the
-// `performance' reaches its natural conclusion.
+// Demonstrate a single string/strand
 //////////////////////////////////////////////////////////////////////////////////
 
 #include <tao/taodefs.h>
@@ -37,25 +11,22 @@ static std::shared_ptr<Tao> mtao;
 static std::shared_ptr<TaoString> tau_string;
 static std::shared_ptr<TaoOutput> output;
 
-void taoInit() {
-  tau_string->lockEnds();
-}
-
-float taoScoreDuration() { return 5.0f; }
-
-float pos = 0.1;
+static float pos = 0.1;
+static float mag = 1.0;
 void taoScore() {
   bool apply_force = true;
 
-  float mag = 1.0;
   pos += 0.000001;
   if (apply_force) {
     const int nsamples = 16000;
     float force = mag * (1.0 - float(mtao->synthesisEngine.tick % nsamples) / float(nsamples));
     (*tau_string)(pos).applyForce(force);
-    mag *= 1.00001;
+    mag *= 1.000001;
   }
 
+  // TODO(lwalter) output should be configured and then passed to tao which will
+  // process it itself?  Or is there a desire for the user to move around where the sample
+  // is extracted from?
   // TODO(lucasw) if output only has one channel, then chR goes nowhere
   output->chL((*tau_string)(0.2));
   output->chR((*tau_string)(0.5));
@@ -81,8 +52,9 @@ main(int argc, char *argv[]) {
     glutInit(&argc, argv);
   }
 
-  mtao->initFunc(taoInit);
-  mtao->scoreDurationFunc(taoScoreDuration);
+  mtao->setScoreDuration(5.0);
+  tau_string->lockEnds();
+
   mtao->scoreFunc(taoScore);
   mtao->run();
 }

@@ -28,14 +28,11 @@ Tao::Tao(const float audio_rate) :
     synthesisEngine(audio_rate) {
   scoreFunctionPtr = NULL;
   durationFunctionPtr = NULL;
-  initFunctionPtr = NULL;
 
   setScoreDuration(10.0);
 }
 
 void Tao::seedRandomNumGen() { synthesisEngine.seedRandomNumGen(); }
-
-void Tao::initFunc(void (*functionPtr)(void)) { initFunctionPtr = functionPtr; }
 
 void Tao::scoreDurationFunc(float (*functionPtr)(void)) {
   durationFunctionPtr = functionPtr;
@@ -46,22 +43,6 @@ void Tao::scoreFunc(void (*functionPtr)(void)) {
 }
 
 void Tao::setAudioSampleRate(const float sr) { synthesisEngine.setAudioRate(sr); }
-
-void Tao::initInstrumentsAndDevices() {
-  if (initFunctionPtr)
-    (*initFunctionPtr)();
-}
-
-void Tao::setScoreDuration() {
-  float duration;
-
-  if (durationFunctionPtr) {
-    duration = (*durationFunctionPtr)();
-    synthesisEngine.scoreDuration = duration;
-    synthesisEngine.numSamples =
-        (long)(duration * synthesisEngine.modelSampleRate);
-  }
-}
 
 void Tao::setScoreDuration(const float duration) {
   synthesisEngine.scoreDuration = duration;
@@ -113,15 +94,12 @@ void Tao::run() {
     graphics_engine_->init();
   }
 
-  setScoreDuration();
-
   std::cout << "Sample rate=" << synthesisEngine.audioSampleRate << " Hz"
             << std::endl;
   std::cout << "Score duration=" << synthesisEngine.scoreDuration << " seconds"
             << std::endl;
 
   seedRandomNumGen();
-  initInstrumentsAndDevices();
 
   if (graphics_engine_ && graphics_engine_->active) {
     graphics_engine_->calculateOriginForRotations();
