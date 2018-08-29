@@ -85,6 +85,7 @@ void tao_special(int key, int x, int y) {
 #endif
 
 void tao_mouse(GLFWwindow* window, int button, int action, int mods) {
+  // std::cout << "mouse " << button << " " << action << " " << mods << "\n";
   TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
   if (!tge)
   {
@@ -94,6 +95,7 @@ void tao_mouse(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void tao_motion(GLFWwindow* window, double x, double y) {
+  // std::cout << "motion " << x << " " << y << "\n";
   TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
   if (!tge)
   {
@@ -103,7 +105,7 @@ void tao_motion(GLFWwindow* window, double x, double y) {
 }
 
 void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
+  // std::cout << "key " << key << " " << scancode << " " << action << " " << mods << "\n";
   TaoGraphicsEngine* tge = static_cast<TaoGraphicsEngine*>(glfwGetWindowUserPointer(window));
   if (!tge)
   {
@@ -228,8 +230,38 @@ void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
     glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
   }
 
+#if 0
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+#endif
+
+    // glfw test
+    while (!glfwWindowShouldClose(window_.get()))
+    {
+        float ratio;
+        int width, height;
+        glfwGetFramebufferSize(window_.get(), &width, &height);
+        ratio = width / (float) height;
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
+        glBegin(GL_TRIANGLES);
+        glColor3f(1.f, 0.f, 0.f);
+        glVertex3f(-0.6f, -0.4f, 0.f);
+        glColor3f(0.f, 1.f, 0.f);
+        glVertex3f(0.6f, -0.4f, 0.f);
+        glColor3f(0.f, 0.f, 1.f);
+        glVertex3f(0.f, 0.6f, 0.f);
+        glEnd();
+        glfwSwapBuffers(window_.get());
+        glfwPollEvents();
+    }
+    return;
 
   /*
       static float fog_color[] = {0.7, 0.75, 0.78, 1.0};

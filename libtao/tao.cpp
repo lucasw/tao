@@ -92,6 +92,9 @@ void Tao::run() {
     graphics_engine_->activate();
     synthesisEngine.pause();
     graphics_engine_->init();
+    // temp glfw test
+    return;
+
     graphics_engine_->calculateOriginForRotations();
   }
 
