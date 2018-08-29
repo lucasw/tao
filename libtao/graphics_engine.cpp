@@ -286,6 +286,7 @@ void TaoGraphicsEngine::rotateAndTranslate() {
 }
 
 void TaoGraphicsEngine::display() {
+  glfwPollEvents();
   displayInstruments();
   displayDevices();
 

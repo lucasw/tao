@@ -104,7 +104,5 @@ void Tao::run() {
 
   while (1) {
     masterTick();
-    if (graphics_engine_ && graphics_engine_->active)
-      graphics_engine_->display();
   }
 }
