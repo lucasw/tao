@@ -79,8 +79,10 @@ void Tao::masterTick() {
       (synthesisEngine.tick % graphics_engine_->refreshRate == 0)) {
     graphics_engine_->display();
     graphics_engine_->popModelViewMatrix();
-    graphics_engine_->swapBuffers();
-    graphics_engine_->flushGraphics();
+
+    if (glfwWindowShouldClose(graphics_engine_->window_.get())) {
+      graphics_engine_->deactivate();
+    }
   }
 }
 
@@ -92,9 +94,6 @@ void Tao::run() {
     graphics_engine_->activate();
     synthesisEngine.pause();
     graphics_engine_->init();
-    // temp glfw test
-    return;
-
     graphics_engine_->calculateOriginForRotations();
   }
 

@@ -119,19 +119,23 @@ void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mod
   case 'i':
     tge->displayInstrumentNames =
         tge->displayInstrumentNames ? 0 : 1;
+    std::cout << "display device names: " << tge->displayDeviceNames << "\n";
     break;
 
   case 'd':
     tge->displayDeviceNames =
         tge->displayDeviceNames ? 0 : 1;
+    std::cout << "display device names: " << tge->displayDeviceNames << "\n";
     break;
 
   case GLFW_KEY_UP:
     tge->globalMagnification *= 1.1f;
+    std::cout << "magnification: " << tge->globalMagnification << "\n";
     break;
 
   case GLFW_KEY_DOWN:
     tge->globalMagnification /= 1.1f;
+    std::cout << "magnification: " << tge->globalMagnification << "\n";
     break;
 
   case GLFW_KEY_RIGHT:
@@ -144,6 +148,8 @@ void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mod
         tge->refreshRate *= 2;
       }
     }
+    std::cout << "refresh rate: " << tge->refreshRate << " "
+        << tao->synthesisEngine.isActive() << "\n";
     break;
 
   case GLFW_KEY_LEFT:
@@ -154,6 +160,8 @@ void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mod
         tao->synthesisEngine.pause();
       }
     }
+    std::cout << "refresh rate: " << tge->refreshRate << " "
+        << tao->synthesisEngine.isActive() << "\n";
     break;
   }
 }
@@ -178,6 +186,7 @@ TaoGraphicsEngine::TaoGraphicsEngine(std::shared_ptr<Tao> ptao) : tao_(ptao) {
   displayInstrumentNames = 1;
   displayDeviceNames = 1;
   setInstrDisplayResolution();
+  std::cout << "Using graphics " << viewportWidth << " " << viewportHeight << "\n";
 }
 
 void TaoGraphicsEngine::activate() { active = 1; };
@@ -230,38 +239,10 @@ void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
     glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
   }
 
-#if 0
+#if 1
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 #endif
-
-    // glfw test
-    while (!glfwWindowShouldClose(window_.get()))
-    {
-        float ratio;
-        int width, height;
-        glfwGetFramebufferSize(window_.get(), &width, &height);
-        ratio = width / (float) height;
-        glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-        glBegin(GL_TRIANGLES);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex3f(-0.6f, -0.4f, 0.f);
-        glColor3f(0.f, 1.f, 0.f);
-        glVertex3f(0.6f, -0.4f, 0.f);
-        glColor3f(0.f, 0.f, 1.f);
-        glVertex3f(0.f, 0.6f, 0.f);
-        glEnd();
-        glfwSwapBuffers(window_.get());
-        glfwPollEvents();
-    }
-    return;
 
   /*
       static float fog_color[] = {0.7, 0.75, 0.78, 1.0};
@@ -278,6 +259,8 @@ void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
   active = TRUE;
 
   flushGraphics();
+
+  std::cout << "initialized graphics\n";
 }
 
 void TaoGraphicsEngine::reshape(int w, int h) {
@@ -318,13 +301,43 @@ void TaoGraphicsEngine::rotateAndTranslate() {
 }
 
 void TaoGraphicsEngine::display() {
-  glfwPollEvents();
-  displayInstruments();
-  displayDevices();
-
   timestream << std::setw(0) << std::setprecision(4)
              << std::setiosflags(std::ios::fixed);
   timestream << "Time=" << tao_->synthesisEngine.time << " seconds";
+
+  float ratio;
+  int width, height;
+  glfwGetFramebufferSize(window_.get(), &width, &height);
+  ratio = width / (float) height;
+  glViewport(0, 0, width, height);
+  // glfw test
+  // glClear(GL_COLOR_BUFFER_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  const float sc = 100.0;
+  glOrtho(-ratio * sc, ratio * sc, -sc , sc, sc, -sc);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  #if 1
+  glPushMatrix();
+  glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
+  glBegin(GL_TRIANGLES);
+  glColor3f(1.f * sc, 0.f, 0.f);
+  glVertex3f(-0.6f * sc, -0.4f * sc, 0.f);
+  glColor3f(0.f, 1.f * sc, 0.f);
+  glVertex3f(0.6f * sc, -0.4f * sc, 0.f);
+  glColor3f(0.f, 0.f, 1.f * sc);
+  glVertex3f(0.f, 0.6f * sc, 0.f);
+  glEnd();
+  glPopMatrix();
+  #endif
+
+  displayInstruments();
+  displayDevices();
+
+  swapBuffers();
+  flushGraphics();
+  glfwPollEvents();
 
   /*  THIS DOESN'T WORK AND NEVER HAS!!
 

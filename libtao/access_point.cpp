@@ -213,6 +213,7 @@ float TaoAccessPoint::getVelocity() {
     break;
   }
 
+  // TODO(lucasw) needs to be in a display()
   if (tao_->graphics_engine_ && tao_->graphics_engine_->active)
     tao_->graphics_engine_->displayAccessPoint(*this);
 
