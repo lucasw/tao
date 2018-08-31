@@ -166,25 +166,25 @@ void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mod
   }
 }
 
-TaoGraphicsEngine::TaoGraphicsEngine(std::shared_ptr<Tao> ptao) : tao_(ptao) {
+TaoGraphicsEngine::TaoGraphicsEngine(std::shared_ptr<Tao> ptao) :
+    tao_(ptao),
+    active(FALSE),
+    viewportWidth(1280),
+    viewportHeight(720),
+    xOffset(-1.0),
+    yOffset(-9.0),
+    zOffset(-40.0),
+    xAngle(-251.0),
+    yAngle(0.0),
+    zAngle(-31.0),
+    globalMagnification(1.0),
+    refreshRate(1),  // refresh graphics window on every time step of synthesis engine
+    drag(FALSE),
+    dolly(FALSE),
+    rotate(FALSE),
+    displayInstrumentNames(1),
+    displayDeviceNames(1) {
   tao = ptao;
-  active = FALSE;
-  viewportWidth = 1280;
-  viewportHeight = 720;
-  xOffset = 0.0;
-  yOffset = 0.0;
-  zOffset = -400.0;
-  xAngle = -136.0;
-  yAngle = 0.0;
-  zAngle = -182.0;
-  globalMagnification = 1.0;
-  refreshRate = 1; // refresh graphics window on every time step of
-                   // synthesis engine
-  drag = FALSE;
-  dolly = FALSE;
-  rotate = FALSE;
-  displayInstrumentNames = 1;
-  displayDeviceNames = 1;
   setInstrDisplayResolution();
   std::cout << "Using graphics " << viewportWidth << " " << viewportHeight << "\n";
 }
@@ -305,6 +305,7 @@ void TaoGraphicsEngine::display() {
              << std::setiosflags(std::ios::fixed);
   timestream << "Time=" << tao_->synthesisEngine.time << " seconds";
 
+  glPushMatrix();
   float ratio;
   int width, height;
   glfwGetFramebufferSize(window_.get(), &width, &height);
@@ -329,6 +330,7 @@ void TaoGraphicsEngine::display() {
   glColor3f(0.f, 0.f, 1.f * sc);
   glVertex3f(0.f, 0.6f * sc, 0.f);
   glEnd();
+  glPopMatrix();
   glPopMatrix();
   #endif
 
@@ -403,6 +405,9 @@ void TaoGraphicsEngine::motion(double x, double y) {
     yOffset -= y - lastMouseY;
     lastMouseX = x;
     lastMouseY = y;
+
+    std::cout << xOffset << ", " << yOffset << ", " << zOffset
+        << ", angles " << xAngle << ", " << zAngle << "\n";
   }
 
   if (dolly == TRUE) {
