@@ -6,65 +6,84 @@
 #include <cmath>
 #include <iostream>
 
-static std::shared_ptr<Tao> mtao;
+class StrandExample
+{
+public:
+  StrandExample(const bool use_graphics) :
+      pos(0.1),
+      mag(1.0) {
 
-static std::shared_ptr<TaoString> tau_string;
-static std::shared_ptr<TaoOutput> output;
+    const float audio_rate = 44100.0f;
+    tao.reset(new Tao(audio_rate));
+    const float decay = 20.0;
+    strand.reset(new TaoString(tao, "strand",
+        TaoPitch(150.0f, TaoPitch::frq), decay));
 
-static float pos = 0.1;
-static float mag = 1.0;
-void taoScore() {
-  if (!mtao->synthesisEngine.isActive())
-    return;
+    // need two channels if going to use stereo L and R
+    const size_t num_channels = 2;
+    output.reset(new TaoOutput(tao, "output", "strand_output", num_channels));
 
-  const int nsamples = 44100;
-  int samples_second = mtao->synthesisEngine.tick % nsamples;
+    if (use_graphics)
+      tao->graphics_engine_.reset(new TaoGraphicsEngine(tao));
 
-  if (samples_second == 0)
-    std::cout << "time: " << mtao->synthesisEngine.time << "\n";
-
-  bool apply_force = true;
-
-  pos += 0.000001;
-  if (apply_force) {
-    float force = mag * (1.0 - float(samples_second) / float(nsamples));
-    (*tau_string)(pos).applyForce(force);
-    mag *= 1.000001;
+    tao->setScoreDuration(5.0);
+    strand->lockEnds();
+    tao->init();
   }
 
-  // TODO(lwalter) output should be configured and then passed to tao which will
-  // process it itself?  Or is there a desire for the user to move around where the sample
-  // is extracted from?
-  // TODO(lucasw) if output only has one channel, then chR goes nowhere
-  output->chL((*tau_string)(0.2));
-  output->chR((*tau_string)(0.5));
-}
+  void spin() {
+    while (true) {
+      score();
+      tao->runOnce();
+    }
+  }
+
+  void score() {
+    if (!tao->synthesisEngine.isActive())
+      return;
+
+    const int nsamples = 44100;
+    int samples_second = tao->synthesisEngine.tick % nsamples;
+
+    if (samples_second == 0)
+      std::cout << "time: " << tao->synthesisEngine.time << "\n";
+
+    bool apply_force = true;
+
+    pos += 0.000001;
+    if (apply_force) {
+      float force = mag * (1.0 - float(samples_second) / float(nsamples));
+      (*strand)(pos).applyForce(force);
+      mag *= 1.000001;
+    }
+
+    // TODO(lwalter) output should be configured and then passed to tao which will
+    // process it itself?  Or is there a desire for the user to move around where the sample
+    // is extracted from?
+    // TODO(lucasw) if output only has one channel, then chR goes nowhere
+    output->chL((*strand)(0.2));
+    output->chR((*strand)(0.5));
+  }
+
+private:
+  std::shared_ptr<Tao> tao;
+  std::shared_ptr<TaoString> strand;
+  std::shared_ptr<TaoOutput> output;
+
+  float pos;
+  float mag;
+};
 
 main(int argc, char *argv[]) {
-  const float audio_rate = 44100.0f;
-  mtao.reset(new Tao(audio_rate));
-  const float decay = 20.0;
-  tau_string.reset(new TaoString(mtao, "tau_string",
-      TaoPitch(150.0f, TaoPitch::frq), decay));
-
-  // need two channels if going to use stereo L and R
-  const size_t num_channels = 2;
-  output.reset(new TaoOutput(mtao, "output", "strand_output", num_channels));
-
+  bool use_graphics = false;
   for (int i = 0; i < argc; ++i) {
     std::cout << argv[i] << std::endl;
   }
   if ((argc > 1) && (std::string(argv[1]) == "-g"))
   {
-    mtao->graphics_engine_.reset(new TaoGraphicsEngine(mtao));
+    use_graphics = true;
   }
 
-  mtao->setScoreDuration(5.0);
-  tau_string->lockEnds();
-  mtao->init();
-
-  while (true) {
-    taoScore();
-    mtao->runOnce();
-  }
+  StrandExample strand_example(use_graphics);
+  strand_example.spin();
 }
