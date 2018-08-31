@@ -45,7 +45,7 @@ void TaoSynthEngine::unpause() { active = TRUE; }
 
 int TaoSynthEngine::isActive() { return active; }
 
-int TaoSynthEngine::done() { return (tick > numSamples); }
+int TaoSynthEngine::done() { return ((numSamples > 0) && (tick > numSamples)); }
 
 void TaoSynthEngine::Tick() {
   if (!active)

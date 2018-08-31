@@ -33,7 +33,6 @@ class Tao { // : std::enable_shared_from_this<Tao> {
 public:
   Tao(const float audio_rate = 44100.0f);
   void seedRandomNumGen();
-  void scoreDurationFunc(float (*functionPtr)(void));
   void setAudioSampleRate(const float sr);
   void setScoreDuration(const float duration);
   void executeScore();
@@ -45,7 +44,6 @@ public:
   std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
 
 private:
-  float (*durationFunctionPtr)(void);
   // TODO(lucasw) should audio rate be able to change dynamically?
   float audioRate;
   float scoreDuration;

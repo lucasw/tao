@@ -26,16 +26,10 @@
 Tao::Tao(const float audio_rate) :
     audioRate(audio_rate),
     synthesisEngine(audio_rate) {
-  durationFunctionPtr = NULL;
-
-  setScoreDuration(10.0);
+  setScoreDuration(0.0);
 }
 
 void Tao::seedRandomNumGen() { synthesisEngine.seedRandomNumGen(); }
-
-void Tao::scoreDurationFunc(float (*functionPtr)(void)) {
-  durationFunctionPtr = functionPtr;
-}
 
 void Tao::setAudioSampleRate(const float sr) { synthesisEngine.setAudioRate(sr); }
 

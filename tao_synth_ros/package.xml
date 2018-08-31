@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package>
+  <name>tao_synth_ros</name>
+  <version>0.0.1</version>
+  <description>Use the Tao physical sound synthesis library to create
+    instruments and apply forces them through ros topics and services.
+  </description>
+
+  <maintainer email="wsacul@gmail.com">Lucas Walter</maintainer>
+
+  <license>BSD 3.0</license>
+
+  <url type="website">https://github.com/lucasw/tao_synth_ros</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>nodelet</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+
+  <export>
+    <!-- nodelet plugin="${prefix}/nodelet_tao_synth_ros.xml" /-->
+  </export>
+
+</package>
