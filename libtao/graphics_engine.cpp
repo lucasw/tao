@@ -303,7 +303,34 @@ void TaoGraphicsEngine::rotateAndTranslate() {
 
 void drawGrid()
 {
-  // TODO(lucasw)
+  const size_t rows = 32;
+  const size_t cols = 32;
+  const float start = -20.0;
+  const float step_size = 7.0;
+  const float steps = 32;
+  const float z_offset = -20;
+
+  glBegin(GL_LINES);
+  for (size_t i = 0; i < steps; ++i) {
+    glColor3f(1.0, 1.0, 1.0);
+    const float x = start + step_size * i;
+    float y = start;
+    const float z = z_offset;
+    glVertex3f(x, y, z);
+    y = start + (steps - 1) * step_size;
+    glVertex3f(x, y, z);
+  }
+  for (size_t i = 0; i < steps; ++i) {
+    glColor3f(1.0, 1.0, 1.0);
+    float x = start;
+    const float y = start + step_size * i;
+    const float z = z_offset;
+    glVertex3f(x, y, z);
+    x = start + (steps - 1) * step_size;
+    glVertex3f(x, y, z);
+  }
+
+  glEnd();
 }
 
 void TaoGraphicsEngine::display() {
@@ -325,6 +352,7 @@ void TaoGraphicsEngine::display() {
   const float sc = 50.0;
   gluPerspective(15.0, ratio, 10.0, 2000.0);
   // glOrtho(-ratio * sc, ratio * sc, -sc , sc, -200.0, 1000.0);
+  drawGrid();
   #if 0
   glPushMatrix();
   glMatrixMode(GL_MODELVIEW);
