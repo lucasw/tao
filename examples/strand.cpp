@@ -14,12 +14,20 @@ static std::shared_ptr<TaoOutput> output;
 static float pos = 0.1;
 static float mag = 1.0;
 void taoScore() {
+  if (!mtao->synthesisEngine.isActive())
+    return;
+
+  const int nsamples = 44100;
+  int samples_second = mtao->synthesisEngine.tick % nsamples;
+
+  if (samples_second == 0)
+    std::cout << "time: " << mtao->synthesisEngine.time << "\n";
+
   bool apply_force = true;
 
   pos += 0.000001;
   if (apply_force) {
-    const int nsamples = 16000;
-    float force = mag * (1.0 - float(mtao->synthesisEngine.tick % nsamples) / float(nsamples));
+    float force = mag * (1.0 - float(samples_second) / float(nsamples));
     (*tau_string)(pos).applyForce(force);
     mag *= 1.000001;
   }
@@ -53,7 +61,10 @@ main(int argc, char *argv[]) {
 
   mtao->setScoreDuration(5.0);
   tau_string->lockEnds();
+  mtao->init();
 
-  mtao->scoreFunc(taoScore);
-  mtao->run();
+  while (true) {
+    taoScore();
+    mtao->runOnce();
+  }
 }

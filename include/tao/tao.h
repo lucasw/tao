@@ -34,12 +34,12 @@ public:
   Tao(const float audio_rate = 44100.0f);
   void seedRandomNumGen();
   void scoreDurationFunc(float (*functionPtr)(void));
-  void scoreFunc(void (*functionPtr)(void));
   void setAudioSampleRate(const float sr);
   void setScoreDuration(const float duration);
   void executeScore();
-  void masterTick();
+  void init();
   void run();
+  void runOnce();
 
   TaoSynthEngine synthesisEngine;
   std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
@@ -54,7 +54,5 @@ private:
   // using std::enable_shared_from_this<Tao>::shared_from_this;
 
 };
-
-void taoMasterTick();
 
 #endif
