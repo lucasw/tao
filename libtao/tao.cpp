@@ -26,7 +26,6 @@
 Tao::Tao(const float audio_rate) :
     audioRate(audio_rate),
     synthesisEngine(audio_rate) {
-  scoreFunctionPtr = NULL;
   durationFunctionPtr = NULL;
 
   setScoreDuration(10.0);
@@ -46,10 +45,11 @@ void Tao::setScoreDuration(const float duration) {
       (long)(duration * synthesisEngine.modelSampleRate);
 }
 
-void Tao::runOnce() {
+void Tao::preUpdate() {
   if (synthesisEngine.done())
     exit(0);
 
+  synthesisEngine.calculateInstrumentForces();
 
   // TODO(lucasw) if all the graphics engine code can be removed
   // from the other files then this pre-update code can go away
@@ -59,7 +59,9 @@ void Tao::runOnce() {
     graphics_engine_->pushModelViewMatrix();
     graphics_engine_->rotateAndTranslate();
   }
+}
 
+void Tao::postUpdate() {
   synthesisEngine.updateDevices();
   synthesisEngine.calculateInstrumentPositions();
   synthesisEngine.Tick();
@@ -73,7 +75,6 @@ void Tao::runOnce() {
       graphics_engine_->deactivate();
     }
   }
-  synthesisEngine.calculateInstrumentForces();
 }
 
 void Tao::init() {
@@ -93,10 +94,4 @@ void Tao::init() {
             << std::endl;
 
   seedRandomNumGen();
-}
-
-void Tao::run() {
-  while (1) {
-    runOnce();
-  }
 }

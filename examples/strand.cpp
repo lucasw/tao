@@ -33,8 +33,9 @@ public:
 
   void spin() {
     while (true) {
+      tao->preUpdate();
       score();
-      tao->runOnce();
+      tao->postUpdate();
     }
   }
 
@@ -53,6 +54,7 @@ public:
     pos += 0.000001;
     if (apply_force) {
       float force = mag * (1.0 - float(samples_second) / float(nsamples));
+      // This should create a graphics point
       (*strand)(pos).applyForce(force);
       mag *= 1.000001;
     }
@@ -61,6 +63,7 @@ public:
     // process it itself?  Or is there a desire for the user to move around where the sample
     // is extracted from?
     // TODO(lucasw) if output only has one channel, then chR goes nowhere
+    // TODO(lucaw) These should create graphics points
     output->chL((*strand)(0.2));
     output->chR((*strand)(0.5));
   }

@@ -38,14 +38,13 @@ public:
   void setScoreDuration(const float duration);
   void executeScore();
   void init();
-  void run();
-  void runOnce();
+  void preUpdate();
+  void postUpdate();
 
   TaoSynthEngine synthesisEngine;
   std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
 
 private:
-  void (*scoreFunctionPtr)(void); // User supplied functions
   float (*durationFunctionPtr)(void);
   // TODO(lucasw) should audio rate be able to change dynamically?
   float audioRate;
