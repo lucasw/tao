@@ -173,7 +173,7 @@ TaoGraphicsEngine::TaoGraphicsEngine(std::shared_ptr<Tao> ptao) :
     viewportHeight(720),
     xOffset(-1.0),
     yOffset(-9.0),
-    zOffset(-40.0),
+    zOffset(-400.0),
     xAngle(-251.0),
     yAngle(0.0),
     zAngle(-31.0),
@@ -264,6 +264,7 @@ void TaoGraphicsEngine::init(const std::string win_name, int lineMode) {
 }
 
 void TaoGraphicsEngine::reshape(int w, int h) {
+  std::cout << "reshape " << w << " " << h << "\n";
   viewportWidth = w;
   viewportHeight = h;
   setInstrDisplayResolution();
@@ -300,12 +301,18 @@ void TaoGraphicsEngine::rotateAndTranslate() {
   glTranslatef(-translateX, -translateY, 0.0);
 }
 
+void drawGrid()
+{
+  // TODO(lucasw)
+}
+
 void TaoGraphicsEngine::display() {
   timestream << std::setw(0) << std::setprecision(4)
              << std::setiosflags(std::ios::fixed);
   timestream << "Time=" << tao_->synthesisEngine.time << " seconds";
 
   glPushMatrix();
+  // TODO(lucasw) make use of reshape() instead of this temp code
   float ratio;
   int width, height;
   glfwGetFramebufferSize(window_.get(), &width, &height);
@@ -315,24 +322,26 @@ void TaoGraphicsEngine::display() {
   // glClear(GL_COLOR_BUFFER_BIT);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  const float sc = 100.0;
-  glOrtho(-ratio * sc, ratio * sc, -sc , sc, sc, -sc);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  #if 1
+  const float sc = 50.0;
+  gluPerspective(15.0, ratio, 10.0, 2000.0);
+  // glOrtho(-ratio * sc, ratio * sc, -sc , sc, -200.0, 1000.0);
+  #if 0
   glPushMatrix();
-  glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-  glBegin(GL_TRIANGLES);
-  glColor3f(1.f * sc, 0.f, 0.f);
-  glVertex3f(-0.6f * sc, -0.4f * sc, 0.f);
-  glColor3f(0.f, 1.f * sc, 0.f);
-  glVertex3f(0.6f * sc, -0.4f * sc, 0.f);
+  glMatrixMode(GL_MODELVIEW);
+  glBegin(GL_TRIANGLE_STRIP);
+  const float zoff = -20.0f;
+  glColor3f(1.f * sc, 0.f, zoff);
+  glVertex3f(-sc, -sc, zoff);
+  glColor3f(0.f, 1.f * sc, zoff);
+  glVertex3f(sc, -sc, zoff);
   glColor3f(0.f, 0.f, 1.f * sc);
-  glVertex3f(0.f, 0.6f * sc, 0.f);
+  glVertex3f(-sc, sc, zoff);
+  glColor3f(0.f, 0.f, 0.8f * sc);
+  glVertex3f(sc, sc, zoff);
   glEnd();
   glPopMatrix();
-  glPopMatrix();
   #endif
+  glPopMatrix();
 
   displayInstruments();
   displayDevices();
