@@ -1,0 +1,4 @@
+set(tao_synth_VERSION 0.0.1)
+@PACKAGE_INIT@
+set_and_check(tao_synth_INCLUDE_DIR   "@CMAKE_INSTALL_PREFIX@/include" )
+set_and_check(tao_synth_LIBRARIES   "@CMAKE_INSTALL_PREFIX@/lib/libtao_synth.so" )
