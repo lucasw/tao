@@ -12,7 +12,7 @@
 class TaoSynthRos
 {
 public:
-  TaoSynthRos(const bool use_graphics) :
+  TaoSynthRos() :
       pos_(0.1),
       force_(0.0)
   {
@@ -26,6 +26,8 @@ public:
     const size_t num_channels = 2;
     output_.reset(new TaoOutput(tao_, "output", "strand_output", num_channels));
 
+    bool use_graphics = true;
+    ros::param::get("~use_graphics", use_graphics);
     if (use_graphics)
       tao_->graphics_engine_.reset(new TaoGraphicsEngine(tao_));
 
@@ -90,8 +92,8 @@ public:
     // is extracted from?
     // TODO(lucasw) if output only has one channel, then chR goes nowhere
     // TODO(lucaw) These should create graphics points
-    output_->chL((*strand_)(0.2));
-    output_->chR((*strand_)(0.5));
+    output_->chL((*strand_)(0.13));
+    output_->chR((*strand_)(0.58));
   }
 
 private:
@@ -109,18 +111,7 @@ private:
 
 main(int argc, char *argv[]) {
   ros::init(argc, argv, "tao_synth");
-
-  bool use_graphics = true;
-  for (int i = 0; i < argc; ++i)
-  {
-    std::cout << argv[i] << std::endl;
-  }
-  if ((argc > 1) && (std::string(argv[1]) == "-g"))
-  {
-    use_graphics = true;
-  }
-
-  TaoSynthRos tao_synth_ros(use_graphics);
+  TaoSynthRos tao_synth_ros;
   ros::spin();
   // strand_example.spin();
 }
