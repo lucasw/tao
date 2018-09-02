@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,11 +28,12 @@
 #define DLLEXPORT
 #endif
 
-class DLLEXPORT TaoString : public TaoInstrument {
+namespace tao {
+class DLLEXPORT String : public Instrument {
 public:
-  TaoString(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay);
-  TaoString(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &pitch, float decay);
+  String(std::shared_ptr<Manager> manager, const Pitch &pitch, float decay);
+  String(std::shared_ptr<Manager> manager, const std::string name, const Pitch &pitch, float decay);
   void createTheMaterial();
 };
-
+}
 #endif

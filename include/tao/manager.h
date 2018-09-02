@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,12 @@ extern "C" {
 #include <tao/graphics_engine.h>
 #include <tao/synth_engine.h>
 
-class Tao { // : std::enable_shared_from_this<Tao> {
-  friend class TaoOutput; // necessary because a TaoOutput object must
+namespace tao {
+class Manager { // : std::enable_shared_from_this<Manager> {
+  friend class Output; // necessary because a Output object must
                           // be able to find out the audio sample rate
 public:
-  Tao(const float audio_rate = 44100.0f);
+  Manager(const float audio_rate = 44100.0f);
   void seedRandomNumGen();
   void setAudioSampleRate(const float sr);
   void setScoreDuration(const float duration);
@@ -40,16 +41,16 @@ public:
   void preUpdate();
   void postUpdate();
 
-  TaoSynthEngine synthesisEngine;
-  std::shared_ptr<TaoGraphicsEngine> graphics_engine_;
+  SynthEngine synthesisEngine;
+  std::shared_ptr<GraphicsEngine> graphics_engine_;
 
 private:
   // TODO(lucasw) should audio rate be able to change dynamically?
   float audioRate;
   float scoreDuration;
 
-  // using std::enable_shared_from_this<Tao>::shared_from_this;
+  // using std::enable_shared_from_this<Manager>::shared_from_this;
 
 };
-
+}
 #endif

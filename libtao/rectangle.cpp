@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,21 +19,22 @@
 #include <tao/rectangle.h>
 #include <tao/instrument.h>
 
-TaoRectangle::TaoRectangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
-                           const TaoPitch &ypitch,
+using namespace tao;
+Rectangle::Rectangle(std::shared_ptr<Manager> manager, const Pitch &xpitch,
+                           const Pitch &ypitch,
                            float decay)
-    : TaoInstrument(tao, xpitch, ypitch, decay) {
+    : Instrument(manager, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-TaoRectangle::TaoRectangle(std::shared_ptr<Tao> tao, const std::string name,
-                           const TaoPitch &xpitch,
-                           const TaoPitch &ypitch, float decay)
-    : TaoInstrument(tao, name, xpitch, ypitch, decay) {
+Rectangle::Rectangle(std::shared_ptr<Manager> manager, const std::string name,
+                           const Pitch &xpitch,
+                           const Pitch &ypitch, float decay)
+    : Instrument(manager, name, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-void TaoRectangle::createTheMaterial() {
+void Rectangle::createTheMaterial() {
   register int j;
 
   int xsize = xmax + 1, ysize = ymax + 1;

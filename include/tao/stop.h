@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,18 +30,19 @@
 #define DLLEXPORT
 #endif
 
-class DLLEXPORT TaoStop : public TaoDevice {
+namespace tao {
+class DLLEXPORT Stop : public Device {
 public:
-  TaoStop(std::shared_ptr<Tao> tao, const std::string stopName);
-  ~TaoStop();
-  TaoStop &dampModeOn();
-  TaoStop &dampModeOff();
-  TaoStop &setAmount(float amount);
-  TaoStop &setDamping(float damping);
-  void operator()(TaoAccessPoint &a);
-  void operator()(TaoInstrument &instr, float x);
-  void operator()(TaoInstrument &instr, float x, float y);
-  void operator()(TaoString &string, TaoPitch &stoppedPitch);
+  Stop(std::shared_ptr<Manager> manager, const std::string stopName);
+  ~Stop();
+  Stop &dampModeOn();
+  Stop &dampModeOff();
+  Stop &setAmount(float amount);
+  Stop &setDamping(float damping);
+  void operator()(AccessPoint &a);
+  void operator()(Instrument &instr, float x);
+  void operator()(Instrument &instr, float x, float y);
+  void operator()(String &string, Pitch &stoppedPitch);
   void update();
   void display();
 
@@ -51,5 +52,5 @@ private:
   int dampMode;
   float amount;
 };
-
+}
 #endif

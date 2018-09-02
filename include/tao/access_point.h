@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,14 +27,6 @@
 #define DLLEXPORT
 #endif
 
-class Tao;
-class TaoCell;
-class TaoInstrument;
-class TaoGraphicsEngine;
-class TaoDevice;
-class TaoBow;
-class TaoOutput;
-
 #ifndef NULL
 #define NULL 0
 #endif
@@ -61,37 +53,47 @@ class TaoOutput;
 #define TAOABC_ 14
 #define TAOABCD 15
 
-class DLLEXPORT TaoAccessPoint {
-  friend class TaoInstrument;
-  friend class TaoGraphicsEngine;
-  friend class TaoDevice;
-  friend class TaoBow;
-  friend class TaoHammer;
-  friend class TaoMicrophone;
-  friend class TaoConnector;
-  friend class TaoStop;
+namespace tao {
+
+class Manager;
+class Cell;
+class Instrument;
+class GraphicsEngine;
+class Device;
+class Bow;
+class Output;
+
+class DLLEXPORT AccessPoint {
+  friend class Instrument;
+  friend class GraphicsEngine;
+  friend class Device;
+  friend class Bow;
+  friend class Hammer;
+  friend class Microphone;
+  friend class Connector;
+  friend class Stop;
   friend int main(int argc, char *argv[]);
 
 public:
-  TaoAccessPoint(std::shared_ptr<Tao> tao);
+  AccessPoint(std::shared_ptr<Manager> manager);
   float getForce();
   void setForce(float f);
   float getVelocity();
   float getPosition();
   float getMass();
-  TaoInstrument &getInstrument();
+  Instrument &getInstrument();
   void applyForce(float f);
   void clear();
   operator float();
-  static void connect(TaoAccessPoint &p1, TaoAccessPoint &p2,
+  static void connect(AccessPoint &p1, AccessPoint &p2,
                       float connectionStrength);
-  static void collide(TaoAccessPoint &p1, TaoAccessPoint &p2,
+  static void collide(AccessPoint &p1, AccessPoint &p2,
                       float connectionStrength);
-  static void ground(TaoAccessPoint &p, float connectionStrength);
+  static void ground(AccessPoint &p, float connectionStrength);
 
 private:
-  std::shared_ptr<Tao> tao_;
-  TaoInstrument *instrument; // target instrument
+  std::shared_ptr<Manager> manager_;
+  Instrument *instrument; // target instrument
   float x, y;                // normalised instrument coordinates
   float cellx, celly;        // real x and y coords in terms of
   // cell positions (i.e. 0..xmax and
@@ -100,9 +102,10 @@ private:
   // X_ = cellx - (int)cellx
   // Y_ = celly - (int)celly
   // X = 1-X_     Y=1-Y_
-  TaoCell *cella, *cellb, *cellc, *celld; // four cells nearest (*this).at(x,y)
+  Cell *cella, *cellb, *cellc, *celld; // four cells nearest (*this).at(x,y)
   // a=bottom left, b=bottom right
   // c=top left, d=top right
 };
 
+}  // namespace tao
 #endif

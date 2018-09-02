@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,11 +17,12 @@
  */
 
 #include <tao/stop.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/instrument.h>
 
-TaoStop::TaoStop(std::shared_ptr<Tao> tao, const std::string stopName) : TaoDevice(tao, stopName) {
-  deviceType = TaoDevice::STOP;
+using namespace tao;
+Stop::Stop(std::shared_ptr<Manager> manager, const std::string stopName) : Device(manager, stopName) {
+  deviceType = Device::STOP;
   maxDampingCoefficient = 0.95f;
   currentDampingCoefficient = 0.0f;
   dampMode = 0;
@@ -30,37 +31,37 @@ TaoStop::TaoStop(std::shared_ptr<Tao> tao, const std::string stopName) : TaoDevi
   addToSynthesisEngine();
 }
 
-TaoStop::~TaoStop() {}
+Stop::~Stop() {}
 
-TaoStop &TaoStop::dampModeOn() {
+Stop &Stop::dampModeOn() {
   dampMode = 1;
   return *this;
 }
-TaoStop &TaoStop::dampModeOff() {
+Stop &Stop::dampModeOff() {
   dampMode = 0;
   return *this;
 }
 
-TaoStop &TaoStop::setAmount(float amount) {
+Stop &Stop::setAmount(float amount) {
   this->amount = amount;
   setDamping(1.0 - (1.0 - maxDampingCoefficient) * amount);
   return *this;
 }
 
-TaoStop &TaoStop::setDamping(float damping) {
+Stop &Stop::setDamping(float damping) {
   currentDampingCoefficient = damping;
   return *this;
 }
 
-void TaoStop::operator()(TaoAccessPoint &a) { apply(a); }
+void Stop::operator()(AccessPoint &a) { apply(a); }
 
-void TaoStop::operator()(TaoInstrument &instr, float x) { apply(instr(x)); }
+void Stop::operator()(Instrument &instr, float x) { apply(instr(x)); }
 
-void TaoStop::operator()(TaoInstrument &instr, float x, float y) {
+void Stop::operator()(Instrument &instr, float x, float y) {
   apply(instr(x, y));
 }
 
-void TaoStop::operator()(TaoString &string, TaoPitch &stoppedPitch) {
+void Stop::operator()(String &string, Pitch &stoppedPitch) {
   float fundamentalFreq, stoppedFreq, effectiveStringLength, stopPosition;
 
   fundamentalFreq = string.xpitch.asFrequency();
@@ -70,7 +71,7 @@ void TaoStop::operator()(TaoString &string, TaoPitch &stoppedPitch) {
   apply(string(stopPosition));
 }
 
-void TaoStop::update() {
+void Stop::update() {
   static float last_x = 0.0;
 
   if (!active)
@@ -78,7 +79,7 @@ void TaoStop::update() {
   if (!targetInstrument)
     return;
 
-  if (dampMode == 1 && tao_->synthesisEngine.tick % 100 == 0) {
+  if (dampMode == 1 && manager_->synthesisEngine.tick % 100 == 0) {
     targetInstrument->resetDamping(0, last_x);
     targetInstrument->setDamping(0, interfacePoint.x,
                                  currentDampingCoefficient);
@@ -86,29 +87,29 @@ void TaoStop::update() {
 
   last_x = interfacePoint.x;
 
-  TaoAccessPoint::ground(interfacePoint, 2.0 * amount);
+  AccessPoint::ground(interfacePoint, 2.0 * amount);
 }
 
-void TaoStop::display() {
-  if (!tao_->graphics_engine_)
+void Stop::display() {
+  if (!manager_->graphics_engine_)
     return;
-  if (!tao_->graphics_engine_->active || !active || !targetInstrument)
+  if (!manager_->graphics_engine_->active || !active || !targetInstrument)
     return;
-  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
+  if (manager_->synthesisEngine.tick % manager_->graphics_engine_->refreshRate != 0)
     return;
 
-  TaoInstrument &instr = interfacePoint.getInstrument();
+  Instrument &instr = interfacePoint.getInstrument();
   GLfloat x, y, z;
 
-  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
+  manager_->graphics_engine_->displayAccessPoint(interfacePoint);
 
-  if (tao_->graphics_engine_->displayDeviceNames) {
+  if (manager_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(interfacePoint.getPosition() * instr.getMagnification() *
-                      tao_->graphics_engine_->globalMagnification +
+                      manager_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    manager_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

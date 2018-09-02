@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,30 +16,29 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <iostream>
 #include <stdio.h>
 
-// float &Time = tao.synthesisEngine.time;
-// long &Tick = tao.synthesisEngine.tick;
+using namespace tao;
 
-Tao::Tao(const float audio_rate) :
+Manager::Manager(const float audio_rate) :
     audioRate(audio_rate),
     synthesisEngine(audio_rate) {
   setScoreDuration(0.0);
 }
 
-void Tao::seedRandomNumGen() { synthesisEngine.seedRandomNumGen(); }
+void Manager::seedRandomNumGen() { synthesisEngine.seedRandomNumGen(); }
 
-void Tao::setAudioSampleRate(const float sr) { synthesisEngine.setAudioRate(sr); }
+void Manager::setAudioSampleRate(const float sr) { synthesisEngine.setAudioRate(sr); }
 
-void Tao::setScoreDuration(const float duration) {
+void Manager::setScoreDuration(const float duration) {
   synthesisEngine.scoreDuration = duration;
   synthesisEngine.numSamples =
       (long)(duration * synthesisEngine.modelSampleRate);
 }
 
-void Tao::preUpdate() {
+void Manager::preUpdate() {
   if (synthesisEngine.done())
     exit(0);
 
@@ -55,7 +54,7 @@ void Tao::preUpdate() {
   }
 }
 
-void Tao::postUpdate() {
+void Manager::postUpdate() {
   synthesisEngine.updateDevices();
   synthesisEngine.calculateInstrumentPositions();
   synthesisEngine.Tick();
@@ -71,7 +70,7 @@ void Tao::postUpdate() {
   }
 }
 
-void Tao::init() {
+void Manager::init() {
 
   // it's up to the caller to create the graphics engine 
   if (graphics_engine_)

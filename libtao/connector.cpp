@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* Manager - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,16 +17,17 @@
  */
 
 #include <tao/connector.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/cell.h>
 #include <tao/instrument.h>
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao) :
-    TaoDevice(tao),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+using namespace tao;
+Connector::Connector(std::shared_ptr<Manager> manager) :
+    Device(manager),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   anchorPoint1 = 0.0;
   anchorPoint2 = 0.0;
   strength = 1.0;
@@ -34,13 +35,13 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao) :
   addToSynthesisEngine();
 }
 
-TaoConnector::~TaoConnector() {}
+Connector::~Connector() {}
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   anchorPoint1 = 0.0;
   anchorPoint2 = 0.0;
   strength = 1.0;
@@ -51,12 +52,12 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
 // Constructors for case where both ends are connected to access points on
 // instruments.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
-                           TaoAccessPoint &ap2) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap1,
+                           AccessPoint &ap2) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   accessPoint1 = ap1;
   accessPoint2 = ap2;
   strength = 1.0;
@@ -64,12 +65,12 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
-                           TaoAccessPoint &ap2, float connectionStrength) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap1,
+                           AccessPoint &ap2, float connectionStrength) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   accessPoint1 = ap1;
   accessPoint2 = ap2;
   strength = connectionStrength;
@@ -83,12 +84,13 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
 // anchor point might be a constant or might be some time varying signal derived
 // elsewhere in the script.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
-                           float anchor) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName,
+                     AccessPoint &ap,
+                     float anchor) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   accessPoint1 = ap;
   anchorPoint2 = anchor;
   strength = 1.0;
@@ -96,12 +98,13 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
-                           float anchor, float connectionStrength) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName,
+                     AccessPoint &ap,
+                     float anchor, float connectionStrength) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   accessPoint1 = ap;
   anchorPoint2 = anchor;
   strength = connectionStrength;
@@ -115,12 +118,12 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
 // anchor point might be a constant or might be some time varying signal derived
 // elsewhere in the script.
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
-                           TaoAccessPoint &ap) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName, float anchor,
+                           AccessPoint &ap) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   anchorPoint1 = anchor;
   accessPoint2 = ap;
   strength = 1.0;
@@ -128,12 +131,12 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
   addToSynthesisEngine();
 }
 
-TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
-                           TaoAccessPoint &ap, float connectionStrength) :
-    TaoDevice(tao, connectorName),
-    accessPoint1(tao),
-    accessPoint2(tao) {
-  deviceType = TaoDevice::CONNECTOR;
+Connector::Connector(std::shared_ptr<Manager> manager, const std::string connectorName, float anchor,
+                           AccessPoint &ap, float connectionStrength) :
+    Device(manager, connectorName),
+    accessPoint1(manager),
+    accessPoint2(manager) {
+  deviceType = Device::CONNECTOR;
   anchorPoint1 = anchor;
   accessPoint2 = ap;
   strength = connectionStrength;
@@ -141,19 +144,19 @@ TaoConnector::TaoConnector(std::shared_ptr<Tao> tao, const std::string connector
   addToSynthesisEngine();
 }
 
-// The TaoConnector::operator() functions are used to adjust the access/anchor
+// The Connector::operator() functions are used to adjust the access/anchor
 // points of a connector during a performance. The arguments represent the newly
 // calculate access points or anchor values. The first two functions represent
 // the case where both ends of the connector are connected to access points on
 // instruments.
 
-void TaoConnector::operator()(TaoAccessPoint &a1, TaoAccessPoint &a2) {
+void Connector::operator()(AccessPoint &a1, AccessPoint &a2) {
   accessPoint1 = a1;
   accessPoint2 = a2;
   strength = 1.0;
 }
 
-void TaoConnector::operator()(TaoAccessPoint &a1, TaoAccessPoint &a2,
+void Connector::operator()(AccessPoint &a1, AccessPoint &a2,
                               float connectionStrength) {
   accessPoint1 = a1;
   accessPoint2 = a2;
@@ -165,14 +168,14 @@ void TaoConnector::operator()(TaoAccessPoint &a1, TaoAccessPoint &a2,
 // is connected to an access point but the second end is connected to an anchor
 // point (a numerical value rather than a position on an instrument).
 
-void TaoConnector::operator()(TaoAccessPoint &ap, float anchor) {
+void Connector::operator()(AccessPoint &ap, float anchor) {
   accessPoint1 = ap;
   accessPoint2.clear();
   anchorPoint2 = anchor;
   strength = 1.0;
 }
 
-void TaoConnector::operator()(TaoAccessPoint &ap, float anchor,
+void Connector::operator()(AccessPoint &ap, float anchor,
                               float connectionStrength) {
   accessPoint1 = ap;
   accessPoint2.clear();
@@ -185,14 +188,14 @@ void TaoConnector::operator()(TaoAccessPoint &ap, float anchor,
 // is connected to an anchor point but the second end is connected to an access
 // point.
 
-void TaoConnector::operator()(float anchor, TaoAccessPoint &ap) {
+void Connector::operator()(float anchor, AccessPoint &ap) {
   accessPoint1.clear();
   anchorPoint1 = anchor;
   accessPoint2 = ap;
   strength = 1.0;
 }
 
-void TaoConnector::operator()(float anchor, TaoAccessPoint &ap,
+void Connector::operator()(float anchor, AccessPoint &ap,
                               float connectionStrength) {
   accessPoint1.clear();
   anchorPoint1 = anchor;
@@ -200,7 +203,7 @@ void TaoConnector::operator()(float anchor, TaoAccessPoint &ap,
   strength = connectionStrength;
 }
 
-void TaoConnector::update() {
+void Connector::update() {
   if (accessPoint1.instrument && accessPoint2.instrument)
     this->updateAccessToAccess();
   else if (accessPoint1.instrument && !accessPoint2.instrument)
@@ -209,7 +212,7 @@ void TaoConnector::update() {
     this->updateAnchorToAccess();
 }
 
-void TaoConnector::updateAccessToAccess() {
+void Connector::updateAccessToAccess() {
   static float eaa, eab, eac, ead;
   static float eba, ebb, ebc, ebd;
   static float eca, ecb, ecc, ecd;
@@ -303,7 +306,7 @@ void TaoConnector::updateAccessToAccess() {
     accessPoint2.celld->force += (-fad - fbd - fcd - fdd) * strength;
 }
 
-void TaoConnector::updateAccessToAnchor() {
+void Connector::updateAccessToAnchor() {
   static float elasticities[2][2];
 
   elasticities[0][0] = accessPoint1.X * accessPoint1.Y;
@@ -325,7 +328,7 @@ void TaoConnector::updateAccessToAnchor() {
                                  elasticities[1][1] * strength;
 }
 
-void TaoConnector::updateAnchorToAccess() {
+void Connector::updateAnchorToAccess() {
   static float elasticities[2][2];
 
   elasticities[0][0] = accessPoint2.X * accessPoint2.Y;
@@ -347,48 +350,48 @@ void TaoConnector::updateAnchorToAccess() {
                                  elasticities[1][1] * strength;
 }
 
-void TaoConnector::display() {
-  if (!tao_->graphics_engine_)
+void Connector::display() {
+  if (!manager_->graphics_engine_)
     return;
-  if (!tao_->graphics_engine_->active)
+  if (!manager_->graphics_engine_->active)
     return;
-  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
+  if (manager_->synthesisEngine.tick % manager_->graphics_engine_->refreshRate != 0)
     return;
 
-  TaoInstrument &instr1 = accessPoint1.getInstrument();
+  Instrument &instr1 = accessPoint1.getInstrument();
   GLfloat x1;
   GLfloat y1;
   GLfloat z1;
-  TaoInstrument &instr2 = accessPoint2.getInstrument();
+  Instrument &instr2 = accessPoint2.getInstrument();
   GLfloat x2;
   GLfloat y2;
   GLfloat z2;
 
   if (accessPoint1.instrument) {
-    if (tao_->graphics_engine_->displayDeviceNames) {
+    if (manager_->graphics_engine_->displayDeviceNames) {
       x1 = (GLfloat)(instr1.getWorldX() + accessPoint1.cellx);
       z1 = (GLfloat)(accessPoint1.getPosition() * instr1.getMagnification() *
-                         tao_->graphics_engine_->globalMagnification +
+                         manager_->graphics_engine_->globalMagnification +
                      2.0);
       y1 = (GLfloat)(instr1.getWorldY() + accessPoint1.celly);
 
-      tao_->graphics_engine_->displayCharString(x1, y1, z1, this->name, 1.0, 1.0,
+      manager_->graphics_engine_->displayCharString(x1, y1, z1, this->name, 1.0, 1.0,
                                            1.0);
     }
-    tao_->graphics_engine_->displayAccessPoint(accessPoint1);
+    manager_->graphics_engine_->displayAccessPoint(accessPoint1);
   }
 
   if (accessPoint2.instrument) {
-    if (tao_->graphics_engine_->displayDeviceNames) {
+    if (manager_->graphics_engine_->displayDeviceNames) {
       x2 = (GLfloat)(instr2.getWorldX() + accessPoint2.cellx);
       z2 = (GLfloat)(accessPoint2.getPosition() * instr2.getMagnification() *
-                         tao_->graphics_engine_->globalMagnification +
+                         manager_->graphics_engine_->globalMagnification +
                      2.0);
       y2 = (GLfloat)(instr2.getWorldY() + accessPoint2.celly);
 
-      tao_->graphics_engine_->displayCharString(x2, y2, z2, this->name, 1.0, 1.0,
+      manager_->graphics_engine_->displayCharString(x2, y2, z2, this->name, 1.0, 1.0,
                                            1.0);
     }
-    tao_->graphics_engine_->displayAccessPoint(accessPoint2);
+    manager_->graphics_engine_->displayAccessPoint(accessPoint2);
   }
 }

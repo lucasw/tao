@@ -14,40 +14,40 @@ public:
       mag(1.0) {
 
     const float audio_rate = 44100.0f;
-    tao.reset(new Tao(audio_rate));
+    manager_.reset(new tao::Manager(audio_rate));
     const float decay = 20.0;
-    strand.reset(new TaoString(tao, "strand",
-        TaoPitch(150.0f, TaoPitch::frq), decay));
+    strand.reset(new tao::String(manager_, "strand",
+        tao::Pitch(150.0f, tao::Pitch::frq), decay));
 
     // need two channels if going to use stereo L and R
     const size_t num_channels = 2;
-    output.reset(new TaoOutput(tao, "output", "strand_output", num_channels));
+    output.reset(new tao::Output(manager_, "output", "strand_output", num_channels));
 
     if (use_graphics)
-      tao->graphics_engine_.reset(new TaoGraphicsEngine(tao));
+      manager_->graphics_engine_.reset(new tao::GraphicsEngine(manager_));
 
-    tao->setScoreDuration(1.0);
+    manager_->setScoreDuration(1.0);
     strand->lockEnds();
-    tao->init();
+    manager_->init();
   }
 
   void spin() {
     while (true) {
-      tao->preUpdate();
+      manager_->preUpdate();
       score();
-      tao->postUpdate();
+      manager_->postUpdate();
     }
   }
 
   void score() {
-    if (!tao->synthesisEngine.isActive())
+    if (!manager_->synthesisEngine.isActive())
       return;
 
     const int nsamples = 44100;
-    int samples_second = tao->synthesisEngine.tick % nsamples;
+    int samples_second = manager_->synthesisEngine.tick % nsamples;
 
     if (samples_second == 0)
-      std::cout << "time: " << tao->synthesisEngine.time << "\n";
+      std::cout << "time: " << manager_->synthesisEngine.time << "\n";
 
     bool apply_force = true;
 
@@ -70,9 +70,9 @@ public:
   }
 
 private:
-  std::shared_ptr<Tao> tao;
-  std::shared_ptr<TaoString> strand;
-  std::shared_ptr<TaoOutput> output;
+  std::shared_ptr<tao::Manager> manager_;
+  std::shared_ptr<tao::String> strand;
+  std::shared_ptr<tao::Output> output;
 
   float pos;
   float mag;

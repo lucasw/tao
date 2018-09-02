@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,17 +20,18 @@
 #include <tao/instrument.h>
 #include <cmath>
 
-TaoCircle::TaoCircle(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay)
-    : TaoInstrument(tao, pitch, pitch, decay) {
+using namespace tao;
+Circle::Circle(std::shared_ptr<Manager> manager, const Pitch &pitch, float decay)
+    : Instrument(manager, pitch, pitch, decay) {
   createTheMaterial();
 }
 
-TaoCircle::TaoCircle(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &pitch, float decay)
-    : TaoInstrument(tao, name, pitch, pitch, decay) {
+Circle::Circle(std::shared_ptr<Manager> manager, const std::string name, const Pitch &pitch, float decay)
+    : Instrument(manager, name, pitch, pitch, decay) {
   createTheMaterial();
 }
 
-void TaoCircle::createTheMaterial() {
+void Circle::createTheMaterial() {
   register int j;
   float x, y, radius;
   int local_xmax, offset;
@@ -56,6 +57,6 @@ void TaoCircle::createTheMaterial() {
     rows[j].cells.resize(xsize); // create `xsize' new cells
   }
 
-  initialiseCells(); // from base class TaoInstrument
+  initialiseCells(); // from base class Instrument
   linkCells();
 }

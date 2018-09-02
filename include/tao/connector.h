@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,38 +28,39 @@
 #define DLLEXPORT
 #endif
 
-class DLLEXPORT TaoConnector : public TaoDevice {
+namespace tao {
+class DLLEXPORT Connector : public Device {
 public:
-  TaoConnector(std::shared_ptr<Tao> tao);
-  ~TaoConnector();
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
-               TaoAccessPoint &ap2);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap1,
-               TaoAccessPoint &ap2, float connectionStrength);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
+  Connector(std::shared_ptr<Manager> tao);
+  ~Connector();
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName);
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap1,
+               AccessPoint &ap2);
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap1,
+               AccessPoint &ap2, float connectionStrength);
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap,
                float anchor);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, TaoAccessPoint &ap,
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, AccessPoint &ap,
                float anchor,
                float connectionStrength);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
-               TaoAccessPoint &ap);
-  TaoConnector(std::shared_ptr<Tao> tao, const std::string connectorName, float anchor,
-               TaoAccessPoint &ap,
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, float anchor,
+               AccessPoint &ap);
+  Connector(std::shared_ptr<Manager> manager, const std::string connectorName, float anchor,
+               AccessPoint &ap,
                float connectionStrength);
-  void operator()(TaoAccessPoint &ap1, TaoAccessPoint &ap2);
-  void operator()(TaoAccessPoint &ap1, TaoAccessPoint &ap2,
+  void operator()(AccessPoint &ap1, AccessPoint &ap2);
+  void operator()(AccessPoint &ap1, AccessPoint &ap2,
                   float connectionStrength);
-  void operator()(TaoAccessPoint &ap, float anchor);
-  void operator()(TaoAccessPoint &ap, float anchor, float connectionStrength);
-  void operator()(float anchor, TaoAccessPoint &ap);
-  void operator()(float anchor, TaoAccessPoint &ap, float connectionStrength);
+  void operator()(AccessPoint &ap, float anchor);
+  void operator()(AccessPoint &ap, float anchor, float connectionStrength);
+  void operator()(float anchor, AccessPoint &ap);
+  void operator()(float anchor, AccessPoint &ap, float connectionStrength);
   void update();
 
   void display();
 
 private:
-  TaoAccessPoint accessPoint1, accessPoint2;
+  AccessPoint accessPoint1, accessPoint2;
   float anchorPoint1, anchorPoint2; // If one or both ends of the connector
   // are connected to constants rather
   // than real access points, these
@@ -70,5 +71,5 @@ private:
   void updateAccessToAnchor();
   void updateAnchorToAccess();
 };
-
+}
 #endif

@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,9 +58,10 @@ extern "C" {
 //	    8.5	    ->
 //////////////////////////////////////////////////////////////////////////////
 
-TaoPitch::TaoPitch() {}
+using namespace tao;
+Pitch::Pitch() {}
 
-TaoPitch::TaoPitch(const std::string pitchName) {
+Pitch::Pitch(const std::string pitchName) {
   double octave, semitone, frequency, value;
   int isFlat = 0, isSharp = 0;
   int charno = 0;
@@ -153,7 +154,7 @@ TaoPitch::TaoPitch(const std::string pitchName) {
   this->octaveVersion = octave + semitone * 100.0 / 12.0;
 }
 
-TaoPitch::TaoPitch(float pitch) {
+Pitch::Pitch(float pitch) {
   double octave, semitone;
 
   if (pitch == 0.0) {
@@ -172,7 +173,7 @@ TaoPitch::TaoPitch(float pitch) {
   createName();
 }
 
-TaoPitch::TaoPitch(float value, TaoPitchFormat format) {
+Pitch::Pitch(float value, PitchFormat format) {
   double octave, semitone, frequency, fraction;
 
   if (format == pch) {
@@ -204,16 +205,16 @@ TaoPitch::TaoPitch(float value, TaoPitchFormat format) {
   createName();
 }
 
-TaoPitch::TaoPitch(const TaoPitch &p) {
+Pitch::Pitch(const Pitch &p) {
   name = p.name;
   pitchVersion = p.pitchVersion;
   octaveVersion = p.octaveVersion;
   frequencyVersion = p.frequencyVersion;
 }
 
-TaoPitch::~TaoPitch() { }
+Pitch::~Pitch() { }
 
-TaoPitch &TaoPitch::operator=(const TaoPitch &p) {
+Pitch &Pitch::operator=(const Pitch &p) {
   name = p.name;
   pitchVersion = p.pitchVersion;
   octaveVersion = p.octaveVersion;
@@ -222,12 +223,12 @@ TaoPitch &TaoPitch::operator=(const TaoPitch &p) {
   return *this;
 }
 
-float TaoPitch::asPitch() const { return (float)pitchVersion; }
-float TaoPitch::asOctave() const { return (float)octaveVersion; }
-float TaoPitch::asFrequency() const { return (float)frequencyVersion; }
-const std::string TaoPitch::asName() const { return name; }
+float Pitch::asPitch() const { return (float)pitchVersion; }
+float Pitch::asOctave() const { return (float)octaveVersion; }
+float Pitch::asFrequency() const { return (float)frequencyVersion; }
+const std::string Pitch::asName() const { return name; }
 
-void TaoPitch::createName() {
+void Pitch::createName() {
   double octave, semitone, fraction;
   int wholesemi;
   int fractsemi;

@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/bow.h>
 #include <tao/cell.h>
@@ -43,6 +43,7 @@
 #define msecs / 1000.0
 #define samples / 44100.0
 
+#if 0
 #define FromTo(a, b)                                                           \
   if (Tick <=                                                                  \
           (long)((tao.newEnd = (b)) * tao.synthesisEngine.modelSampleRate) &&  \
@@ -81,7 +82,7 @@
 #define newline '\n' << std::flush
 #define sameline '\r' << std::flush
 #define Flag int
-#define Position TaoCell &
+#define Position Cell &
 
 #define Score(duration)                                                        \
   float taoScoreDuration() { return duration; }                                \
@@ -89,6 +90,7 @@
 
 extern float &Time;
 extern long &Tick;
+#endif
 
 extern int randomi(int low, int high);
 extern float randomf(float low, float high);

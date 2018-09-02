@@ -25,10 +25,10 @@ public:
       update_period_(0.01)
   {
     ros::param::get("~audio_rate", audio_rate_);
-    tao_.reset(new Tao(audio_rate_));
+    manager_.reset(new tao::Manager(audio_rate_));
     const float decay = 20.0;
-    strand_.reset(new TaoString(tao_, "strand",
-        TaoPitch(150.0f, TaoPitch::frq), decay));
+    strand_.reset(new tao::String(manager_, "strand",
+        tao::Pitch(150.0f, tao::Pitch::frq), decay));
 
     ros::param::get("~force", force_);
 
@@ -36,7 +36,7 @@ public:
     const size_t num_channels = 1;
     ros::param::get("~write_output", write_output_);
     if (write_output_)
-      output_.reset(new TaoOutput(tao_, "output", "strand_output", num_channels));
+      output_.reset(new tao::Output(manager_, "output", "strand_output", num_channels));
     ros::param::get("~max_time", max_time_);
 
     // TODO(lucasw) using graphics messes with the timing of synth updates,
@@ -44,10 +44,10 @@ public:
     bool use_graphics = false;
     ros::param::get("~use_graphics", use_graphics);
     if (use_graphics)
-      tao_->graphics_engine_.reset(new TaoGraphicsEngine(tao_));
+      manager_->graphics_engine_.reset(new tao::GraphicsEngine(manager_));
 
     strand_->lockEnds();
-    tao_->init();
+    manager_->init();
 
     ros::param::get("~samples_per_msg", samples_per_msg_);
 
@@ -80,9 +80,9 @@ public:
 
   void spinOnce()
   {
-    tao_->preUpdate();
+    manager_->preUpdate();
     score();
-    tao_->postUpdate();
+    manager_->postUpdate();
   }
 
   void update(const ros::TimerEvent& event)
@@ -105,16 +105,16 @@ public:
 
   void score()
   {
-    if (!tao_->synthesisEngine.isActive())
+    if (!manager_->synthesisEngine.isActive())
       return;
 
-    int samples_second = tao_->synthesisEngine.tick % static_cast<int>(audio_rate_);
+    int samples_second = manager_->synthesisEngine.tick % static_cast<int>(audio_rate_);
 
-    if ((max_time_ > 0.0) && (tao_->synthesisEngine.time > max_time_))
+    if ((max_time_ > 0.0) && (manager_->synthesisEngine.time > max_time_))
       ros::shutdown();
 
     // if (samples_second == 0)
-    //   std::cout << "time: " << tao_->synthesisEngine.time << "\n";
+    //   std::cout << "time: " << manager_->synthesisEngine.time << "\n";
 
     if (force_ != 0.0)
     {
@@ -153,7 +153,7 @@ public:
     displayInstrument(strand_);
   }
 
-  void displayInstrument(std::shared_ptr<TaoInstrument> instr) {
+  void displayInstrument(std::shared_ptr<tao::Instrument> instr) {
     if (!instr)
       return;
 
@@ -331,9 +331,9 @@ private:
   ros::Timer timer_;
   float max_time_;
 
-  std::shared_ptr<Tao> tao_;
-  std::shared_ptr<TaoString> strand_;
-  std::shared_ptr<TaoOutput> output_;
+  std::shared_ptr<tao::Manager> manager_;
+  std::shared_ptr<tao::String> strand_;
+  std::shared_ptr<tao::Output> output_;
   bool write_output_;
 
   float audio_rate_;
@@ -342,7 +342,7 @@ private:
 };
 
 main(int argc, char *argv[]) {
-  ros::init(argc, argv, "tao_synth");
+  ros::init(argc, argv, "manager_synth");
   TaoSynthRos tao_synth_ros;
   ros::spin();
   // strand_example.spin();

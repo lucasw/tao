@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,25 +27,26 @@
 #define DLLEXPORT
 #endif
 
-class DLLEXPORT TaoHammer : public TaoDevice {
+namespace tao {
+class DLLEXPORT Hammer : public Device {
 public:
-  TaoHammer(std::shared_ptr<Tao> tao);
-  TaoHammer(std::shared_ptr<Tao> tao, const std::string hammerName);
+  Hammer(std::shared_ptr<Manager> manager);
+  Hammer(std::shared_ptr<Manager> manager, const std::string hammerName);
   void update();
   void display();
   void reset();
   void drop();
-  void operator()(TaoAccessPoint &a);
-  void operator()(TaoInstrument &instr, float x);
-  void operator()(TaoInstrument &instr, float x, float y);
-  TaoHammer &setMass(float m);
-  TaoHammer &setPosition(float p);
-  TaoHammer &setInitVelocity(float v);
-  TaoHammer &setGravity(float g);
-  TaoHammer &setHeight(float h);
-  TaoHammer &setDamping(float d);
-  TaoHammer &setHardness(float h);
-  TaoHammer &setMaxImpacts(int maxImpacts);
+  void operator()(AccessPoint &a);
+  void operator()(Instrument &instr, float x);
+  void operator()(Instrument &instr, float x, float y);
+  Hammer &setMass(float m);
+  Hammer &setPosition(float p);
+  Hammer &setInitVelocity(float v);
+  Hammer &setGravity(float g);
+  Hammer &setHeight(float h);
+  Hammer &setDamping(float d);
+  Hammer &setHardness(float h);
+  Hammer &setMaxImpacts(int maxImpacts);
   float getMass();
   float getPosition();
   float getVelocity();
@@ -58,8 +59,8 @@ public:
   int getMaxImpacts();
 
 private:
-  enum TaoHammerMode { contact, nocontact };
-  TaoHammerMode mode;
+  enum HammerMode { contact, nocontact };
+  HammerMode mode;
   float height;
   float position;
   float initVelocity;
@@ -74,5 +75,5 @@ private:
   int numImpacts;
   int maxImpacts;
 };
-
+}
 #endif

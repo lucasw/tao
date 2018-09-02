@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,9 +28,9 @@ extern int random();
 extern long random();
 #endif
 
-extern TaoSynthEngine taoSynthesisEngine;
+using namespace tao;
 
-TaoSynthEngine::TaoSynthEngine(const float audio_rate) : throwAway(2) {
+SynthEngine::SynthEngine(const float audio_rate) : throwAway(2) {
   active = TRUE;
   instrumentList = NULL;
   deviceList = NULL;
@@ -39,15 +39,15 @@ TaoSynthEngine::TaoSynthEngine(const float audio_rate) : throwAway(2) {
   setAudioRate(audio_rate);
 }
 
-void TaoSynthEngine::pause() { active = FALSE; }
+void SynthEngine::pause() { active = FALSE; }
 
-void TaoSynthEngine::unpause() { active = TRUE; }
+void SynthEngine::unpause() { active = TRUE; }
 
-int TaoSynthEngine::isActive() { return active; }
+int SynthEngine::isActive() { return active; }
 
-int TaoSynthEngine::done() { return ((numSamples > 0) && (tick > numSamples)); }
+int SynthEngine::done() { return ((numSamples > 0) && (tick > numSamples)); }
 
-void TaoSynthEngine::Tick() {
+void SynthEngine::Tick() {
   if (!active)
     return;
 
@@ -55,19 +55,19 @@ void TaoSynthEngine::Tick() {
   time = (float)tick / (float)modelSampleRate;
 }
 
-unsigned int TaoSynthEngine::getTime() { return 0u; }
+unsigned int SynthEngine::getTime() { return 0u; }
 
-void TaoSynthEngine::seedRandomNumGen() { srand(getTime()); }
+void SynthEngine::seedRandomNumGen() { srand(getTime()); }
 
-void TaoSynthEngine::setAudioRate(const float audioRate) {
+void SynthEngine::setAudioRate(const float audioRate) {
   audioSampleRate = audioRate;
   modelSampleRate = audioRate * throwAway;
   Decay2VelocityMultiplierConst = (.00012 * 44100.0) / audioRate;
   Hz2CellConst = 24000.0f * audioRate / 44100.0f;
 }
 
-void TaoSynthEngine::makeTheInstruments() {
-  TaoInstrument *i = instrumentList;
+void SynthEngine::makeTheInstruments() {
+  Instrument *i = instrumentList;
 
   while (i) {
     i->createTheMaterial();
@@ -75,7 +75,7 @@ void TaoSynthEngine::makeTheInstruments() {
   }
 }
 
-void TaoSynthEngine::addInstrument(TaoInstrument &instr) {
+void SynthEngine::addInstrument(Instrument &instr) {
   if (instrumentList == NULL)
     instrumentList = &instr;
   else {
@@ -85,18 +85,18 @@ void TaoSynthEngine::addInstrument(TaoInstrument &instr) {
   currentInstrument = &instr;
 }
 
-void TaoSynthEngine::removeInstrument(TaoInstrument &instr) {
+void SynthEngine::removeInstrument(Instrument &instr) {
   if (instrumentList && instrumentList == &instr) {
     instrumentList = instrumentList->next;
     return;
   }
 
-  for (TaoInstrument *i = instrumentList; (i && i->next); i = i->next)
+  for (Instrument *i = instrumentList; (i && i->next); i = i->next)
     if (i->next == &instr)
       i->next = i->next->next;
 }
 
-void TaoSynthEngine::addInstrument(TaoInstrument *instr) {
+void SynthEngine::addInstrument(Instrument *instr) {
 #ifdef SYNTHENGINE_DEBUG
   std::cout << "before addInstrument, current=" << currentInstrument
             << " new=" << instr << std::endl;
@@ -116,18 +116,18 @@ void TaoSynthEngine::addInstrument(TaoInstrument *instr) {
 #endif
 }
 
-void TaoSynthEngine::removeInstrument(TaoInstrument *instr) {
+void SynthEngine::removeInstrument(Instrument *instr) {
   if (instrumentList && instrumentList == instr) {
     instrumentList = instrumentList->next;
     return;
   }
 
-  for (TaoInstrument *i = instrumentList; (i && i->next); i = i->next)
+  for (Instrument *i = instrumentList; (i && i->next); i = i->next)
     if (i->next == instr)
       i->next = i->next->next;
 }
 
-void TaoSynthEngine::addDevice(TaoDevice &device) {
+void SynthEngine::addDevice(Device &device) {
   if (deviceList == NULL)
     deviceList = &device;
   else
@@ -135,18 +135,18 @@ void TaoSynthEngine::addDevice(TaoDevice &device) {
   currentDevice = &device;
 }
 
-void TaoSynthEngine::removeDevice(TaoDevice &device) {
+void SynthEngine::removeDevice(Device &device) {
   if (deviceList && deviceList == &device) {
     deviceList = deviceList->next;
     return;
   }
 
-  for (TaoDevice *d = deviceList; (d && d->next); d = d->next)
+  for (Device *d = deviceList; (d && d->next); d = d->next)
     if (d->next == &device)
       d->next = d->next->next;
 }
 
-void TaoSynthEngine::addDevice(TaoDevice *device) {
+void SynthEngine::addDevice(Device *device) {
   if (deviceList == NULL)
     deviceList = device;
   else
@@ -154,21 +154,21 @@ void TaoSynthEngine::addDevice(TaoDevice *device) {
   currentDevice = device;
 }
 
-void TaoSynthEngine::removeDevice(TaoDevice *device) {
+void SynthEngine::removeDevice(Device *device) {
   if (deviceList && deviceList == device) {
     deviceList = deviceList->next;
     return;
   }
 
-  for (TaoDevice *d = deviceList; (d && d->next); d = d->next)
+  for (Device *d = deviceList; (d && d->next); d = d->next)
     if (d->next == device)
       d->next = d->next->next;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function names:
-//	calculateTaoInstrumentForces(),
-//	updateTaoInstrumentPositions(),
+//	calculateInstrumentForces(),
+//	updateInstrumentPositions(),
 //
 // Functionality:
 //	Cause all instruments to be updated by scanning the linked list
@@ -178,27 +178,27 @@ void TaoSynthEngine::removeDevice(TaoDevice *device) {
 //	i: current instrument.
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoSynthEngine::calculateInstrumentForces() {
+void SynthEngine::calculateInstrumentForces() {
   if (!active)
     return;
 
-  for (TaoInstrument *i = instrumentList; i; i = i->next)
+  for (Instrument *i = instrumentList; i; i = i->next)
     i->calculateForces(0, i->ymax);
 }
 
-void TaoSynthEngine::calculateInstrumentPositions() {
+void SynthEngine::calculateInstrumentPositions() {
   if (!active)
     return;
 
-  for (TaoInstrument *i = instrumentList; i; i = i->next)
+  for (Instrument *i = instrumentList; i; i = i->next)
     i->calculatePositions(0, i->ymax);
 }
 
-void TaoSynthEngine::updateDevices() {
+void SynthEngine::updateDevices() {
   if (!active)
     return;
 
-  for (TaoDevice *d = deviceList; d; d = d->next) {
+  for (Device *d = deviceList; d; d = d->next) {
     d->update();
   }
 }

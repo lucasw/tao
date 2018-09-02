@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,18 +20,19 @@
 #include <tao/instrument.h>
 #include <cassert>
 
-TaoString::TaoString(std::shared_ptr<Tao> tao, const TaoPitch &pitch, float decay)
-    : TaoInstrument(tao, pitch, TaoPitch(0.0), decay) {
+using namespace tao;
+String::String(std::shared_ptr<Manager> manager, const Pitch &pitch, float decay)
+    : Instrument(manager, pitch, Pitch(0.0), decay) {
   createTheMaterial();
 }
 
-TaoString::TaoString(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &pitch,
+String::String(std::shared_ptr<Manager> manager, const std::string name, const Pitch &pitch,
     float decay)
-    : TaoInstrument(tao, name, pitch, TaoPitch(0.0), decay) {
+    : Instrument(manager, name, pitch, Pitch(0.0), decay) {
   createTheMaterial();
 }
 
-void TaoString::createTheMaterial() {
+void String::createTheMaterial() {
   int xsize = xmax + 1, ysize = ymax + 1;
 
   rows.resize(ysize);

@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,24 +41,26 @@
 #define TAO_CELL_EAST 0x4000
 #define TAO_CELL_NEAST 0x8000
 
-class TaoInstrument;
-class TaoAccessPoint;
-class TaoConnector;
-class TaoGraphicsEngine;
+namespace tao
+{
+class Instrument;
+class AccessPoint;
+class Connector;
+class GraphicsEngine;
 
-class DLLEXPORT TaoCell {
-  friend class TaoInstrument;
-  friend class TaoAccessPoint;
-  friend class TaoConnector;
-  friend class TaoGraphicsEngine;
+class DLLEXPORT Cell {
+  friend class Instrument;
+  friend class AccessPoint;
+  friend class Connector;
+  friend class GraphicsEngine;
 
 public:
   operator float() { return position; }
 private:
   int mode;
-  TaoCell *north, *south, *east, *west;
-  TaoCell *neast, *nwest, *seast, *swest;
-  TaoCell *companion;
+  Cell *north, *south, *east, *west;
+  Cell *neast, *nwest, *seast, *swest;
+  Cell *companion;
   float mass, velocityMultiplier; // simulates losses
   float inverseMass;
   float position, velocity, force;
@@ -66,5 +68,5 @@ private:
   void bow(float f_bow, float v_bow);
   void lock() { mode |= TAO_CELL_LOCK_MODE; }
 };
-
+}
 #endif

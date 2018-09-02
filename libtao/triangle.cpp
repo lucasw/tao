@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,21 +19,22 @@
 #include <tao/triangle.h>
 #include <tao/instrument.h>
 
-TaoTriangle::TaoTriangle(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
-                         const TaoPitch &ypitch,
+using namespace tao;
+Triangle::Triangle(std::shared_ptr<Manager> manager, const Pitch &xpitch,
+                         const Pitch &ypitch,
                          float decay)
-    : TaoInstrument(tao, xpitch, ypitch, decay) {
+    : Instrument(manager, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-TaoTriangle::TaoTriangle(std::shared_ptr<Tao> tao, const std::string name,
-                         const TaoPitch &xpitch,
-                         const TaoPitch &ypitch, float decay)
-    : TaoInstrument(tao, name, xpitch, ypitch, decay) {
+Triangle::Triangle(std::shared_ptr<Manager> manager, const std::string name,
+                         const Pitch &xpitch,
+                         const Pitch &ypitch, float decay)
+    : Instrument(manager, name, xpitch, ypitch, decay) {
   createTheMaterial();
 }
 
-void TaoTriangle::createTheMaterial() {
+void Triangle::createTheMaterial() {
   register int j;
   float x;
   int local_xsize, local_xmax, offset;

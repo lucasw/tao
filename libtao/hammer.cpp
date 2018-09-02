@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,13 +17,14 @@
  */
 
 #include <tao/hammer.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/cell.h>
 #include <tao/instrument.h>
 
-TaoHammer::TaoHammer(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
-  deviceType = TaoDevice::HAMMER;
+using namespace tao;
+Hammer::Hammer(std::shared_ptr<Manager> manager) : Device(manager, "") {
+  deviceType = Device::HAMMER;
   mode = nocontact;
   mass = 10.0;
   height = 20.0;
@@ -39,9 +40,9 @@ TaoHammer::TaoHammer(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   addToSynthesisEngine();
 }
 
-TaoHammer::TaoHammer(std::shared_ptr<Tao> tao, const std::string hammerName) :
-    TaoDevice(tao, hammerName) {
-  deviceType = TaoDevice::HAMMER;
+Hammer::Hammer(std::shared_ptr<Manager> manager, const std::string hammerName) :
+    Device(manager, hammerName) {
+  deviceType = Device::HAMMER;
   mode = nocontact;
   mass = 10.0;
   height = 20.0;
@@ -59,27 +60,27 @@ TaoHammer::TaoHammer(std::shared_ptr<Tao> tao, const std::string hammerName) :
   addToSynthesisEngine();
 }
 
-void TaoHammer::reset() {
+void Hammer::reset() {
   position = height;
   velocity = initVelocity;
   force = 0.0;
   numImpacts = 0;
 }
 
-void TaoHammer::drop() {
+void Hammer::drop() {
   reset();
   activate();
 }
 
-void TaoHammer::operator()(TaoAccessPoint &a) { apply(a); }
+void Hammer::operator()(AccessPoint &a) { apply(a); }
 
-void TaoHammer::operator()(TaoInstrument &instr, float x) { apply(instr(x)); }
+void Hammer::operator()(Instrument &instr, float x) { apply(instr(x)); }
 
-void TaoHammer::operator()(TaoInstrument &instr, float x, float y) {
+void Hammer::operator()(Instrument &instr, float x, float y) {
   apply(instr(x, y));
 }
 
-void TaoHammer::update() {
+void Hammer::update() {
   if (!active)
     return;
   if (!targetInstrument)
@@ -110,74 +111,74 @@ void TaoHammer::update() {
   position += velocity;
 }
 
-TaoHammer &TaoHammer::setHeight(float h) {
+Hammer &Hammer::setHeight(float h) {
   height = h;
   return *this;
 }
-TaoHammer &TaoHammer::setMass(float m) {
+Hammer &Hammer::setMass(float m) {
   mass = m;
   return *this;
 }
-TaoHammer &TaoHammer::setPosition(float p) {
+Hammer &Hammer::setPosition(float p) {
   position = p;
   return *this;
 }
-TaoHammer &TaoHammer::setInitVelocity(float v) {
+Hammer &Hammer::setInitVelocity(float v) {
   initVelocity = v;
   return *this;
 }
-TaoHammer &TaoHammer::setGravity(float g) {
+Hammer &Hammer::setGravity(float g) {
   gravity = g;
   return *this;
 }
-TaoHammer &TaoHammer::setDamping(float d) {
+Hammer &Hammer::setDamping(float d) {
   damping = d;
   return *this;
 }
-TaoHammer &TaoHammer::setHardness(float h) {
+Hammer &Hammer::setHardness(float h) {
   hardness = h;
   return *this;
 }
-TaoHammer &TaoHammer::setMaxImpacts(int m) {
+Hammer &Hammer::setMaxImpacts(int m) {
   maxImpacts = m;
   return *this;
 }
 
-float TaoHammer::getHeight() { return height; }
-float TaoHammer::getMass() { return mass; }
-float TaoHammer::getPosition() { return position; }
-float TaoHammer::getVelocity() { return velocity; }
-float TaoHammer::getInitVelocity() { return initVelocity; }
-float TaoHammer::getGravity() { return gravity; }
-float TaoHammer::getDamping() { return damping; }
-float TaoHammer::getHardness() { return hardness; }
-int TaoHammer::numberOfImpacts() { return numImpacts; }
-int TaoHammer::getMaxImpacts() { return maxImpacts; }
+float Hammer::getHeight() { return height; }
+float Hammer::getMass() { return mass; }
+float Hammer::getPosition() { return position; }
+float Hammer::getVelocity() { return velocity; }
+float Hammer::getInitVelocity() { return initVelocity; }
+float Hammer::getGravity() { return gravity; }
+float Hammer::getDamping() { return damping; }
+float Hammer::getHardness() { return hardness; }
+int Hammer::numberOfImpacts() { return numImpacts; }
+int Hammer::getMaxImpacts() { return maxImpacts; }
 
-void TaoHammer::display() {
-  if (!tao_->graphics_engine_)
+void Hammer::display() {
+  if (!manager_->graphics_engine_)
     return;
-  if (!tao_->graphics_engine_->active || !active || !targetInstrument)
+  if (!manager_->graphics_engine_->active || !active || !targetInstrument)
     return;
-  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
+  if (manager_->synthesisEngine.tick % manager_->graphics_engine_->refreshRate != 0)
     return;
 
-  TaoInstrument &instr = interfacePoint.getInstrument();
+  Instrument &instr = interfacePoint.getInstrument();
   GLfloat x;
   GLfloat y;
   GLfloat z;
 
-  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
-  tao_->graphics_engine_->displayPointInInstrumentSpace(
+  manager_->graphics_engine_->displayAccessPoint(interfacePoint);
+  manager_->graphics_engine_->displayPointInInstrumentSpace(
       *targetInstrument, interfacePoint.x, interfacePoint.y, this->position);
 
-  if (tao_->graphics_engine_->displayDeviceNames) {
+  if (manager_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(this->position * instr.getMagnification() *
-                      tao_->graphics_engine_->globalMagnification +
+                      manager_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
+    manager_->graphics_engine_->displayCharString(x, y, z, this->name, 1.0, 1.0, 1.0);
   }
 }

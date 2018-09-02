@@ -25,6 +25,6 @@
 
   <node name="rviz" pkg="rviz" type="rviz"
       if="$(arg use_rviz)"
-      args="-d $(find tao_synth)/config/tao_synth.rviz" />
+      args="-d $(find tao_synth_ros)/config/tao_synth.rviz" />
 
 </launch>

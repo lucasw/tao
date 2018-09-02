@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,14 +30,15 @@
 #define DLLEXPORT
 #endif
 
-class Tao;
-class TaoInstrument;
-class TaoAccessPoint;
-class TaoBow;
-class TaoHammer;
-class TaoConnector;
-class TaoStop;
-class TaoOutput;
+namespace tao {
+class Manager;
+class Instrument;
+class AccessPoint;
+class Bow;
+class Hammer;
+class Connector;
+class Stop;
+class Output;
 
 // The following functions are registered as GLFW callback functions
 void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -46,15 +47,15 @@ void tao_motion(GLFWwindow* window, double x, double y);
 // void tao_display();
 // void tao_reshape(int w, int h);
 
-class DLLEXPORT TaoGraphicsEngine {
-  friend class Tao;
-  friend class TaoInstrument;
-  friend class TaoAccessPoint;
-  friend class TaoBow;
-  friend class TaoHammer;
-  friend class TaoConnector;
-  friend class TaoStop;
-  friend class TaoOutput;
+class DLLEXPORT GraphicsEngine {
+  friend class Manager;
+  friend class Instrument;
+  friend class AccessPoint;
+  friend class Bow;
+  friend class Hammer;
+  friend class Connector;
+  friend class Stop;
+  friend class Output;
   friend void tao_keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
   friend void tao_mouse(GLFWwindow* window, int button, int action, int mods);
   friend void tao_motion(GLFWwindow* window, double x, double y);
@@ -62,8 +63,8 @@ class DLLEXPORT TaoGraphicsEngine {
   // friend void tao_reshape(int w, int h);
 
 public:
-  TaoGraphicsEngine(std::shared_ptr<Tao> ptao);
-  ~TaoGraphicsEngine();
+  GraphicsEngine(std::shared_ptr<Manager> manager);
+  ~GraphicsEngine();
 
   void activate();
   void deactivate();
@@ -91,25 +92,26 @@ public:
   void displayPoint(GLfloat x, GLfloat y, int colour);
   void displayInstruments();
   void displayDevices();
-  void displayInstrument(TaoInstrument &instr);
-  float screenX(TaoInstrument &instr, float x, float y);
-  float screenY(TaoInstrument &instr, float x, float y);
-  float screenY(TaoInstrument &instr, float x, float y, float z);
-  void displayPointInInstrumentSpace(TaoInstrument &instr, float instrx,
+  void displayInstrument(Instrument &instr);
+  float screenX(Instrument &instr, float x, float y);
+  float screenY(Instrument &instr, float x, float y);
+  float screenY(Instrument &instr, float x, float y, float z);
+  void displayPointInInstrumentSpace(Instrument &instr, float instrx,
                                      float instry, float instrz);
-  void label(TaoInstrument &instr, float x, float y, GLfloat labelXOffset,
+  void label(Instrument &instr, float x, float y, GLfloat labelXOffset,
              GLfloat labelYOffset, const std::string caption, GLfloat r, GLfloat g,
              GLfloat b);
-  void label(TaoInstrument &instr, float x, GLfloat labelXOffset,
+  void label(Instrument &instr, float x, GLfloat labelXOffset,
              GLfloat yOffset, const std::string caption, GLfloat r, GLfloat g, GLfloat b);
-  void label(TaoInstrument &instr, float x, float y, float z,
+  void label(Instrument &instr, float x, float y, float z,
              GLfloat labelXOffset, GLfloat labelYOffset, const std::string caption,
              GLfloat r, GLfloat g, GLfloat b);
-  void displayAccessPoint(TaoInstrument &instr, int i, int j);
-  void displayAccessPoint(TaoAccessPoint &p);
+  void displayAccessPoint(Instrument &instr, int i, int j);
+  void displayAccessPoint(AccessPoint &p);
 
 private:
-  std::shared_ptr<Tao> tao_;
+  std::shared_ptr<Manager> manager_;
+  int displayInstrumentNames, displayDeviceNames;
   int active;
 
   std::shared_ptr<GLFWwindow> window_;
@@ -124,7 +126,6 @@ private:
   // representing the elapsed time.
   enum { TAO_PERSPECTIVE, TAO_ORTHO, TAO_ANTIALIAS, TAO_JAGGED };
   int projectionMode;
-  int displayInstrumentNames, displayDeviceNames;
   double lastMouseX, lastMouseY, zoomInitialMouseY;
   // TODO(lucasw) convert to bools
   int drag;
@@ -133,5 +134,5 @@ private:
   GLfloat minWorldX, maxWorldX, minWorldY, maxWorldY;
   GLfloat translateX, translateY, translateZ, scaleBy;
 };
-
+}
 #endif

@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  */
 
 #include <tao/instrument.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/cell.h>
 //#include <sys/types.h>
@@ -25,18 +25,22 @@
 #include <iostream>
 #include <string.h>
 
-float TaoInstrument::defaultMass = 3.5; // Set to optimum value for
+using namespace tao;
+
+float Instrument::defaultMass = 3.5; // Set to optimum value for
                                         // frequency response of
                                         // material. Leave well alone!!
 
-TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao) : tao_(tao), currentAccess(tao) {}
+Instrument::Instrument(std::shared_ptr<Manager> manager) : manager_(manager), currentAccess(manager) {}
 
-TaoInstrument::~TaoInstrument() {
+Instrument::~Instrument() {
 }
 
-TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
-                             const TaoPitch &ypitch,
-                             float decay) : tao_(tao), currentAccess(tao), name("") {
+Instrument::Instrument(std::shared_ptr<Manager> manager, const Pitch &xpitch,
+                             const Pitch &ypitch,
+                             float decay) :
+                             manager_(manager),
+                             currentAccess(manager), name("") {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -51,15 +55,15 @@ TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
   worldy = 0;          // ditto
   next = NULL;
 
-  tao_->synthesisEngine.addInstrument(this);
+  manager_->synthesisEngine.addInstrument(this);
 }
 
-TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao,
+Instrument::Instrument(std::shared_ptr<Manager> manager,
                              const std::string name,
-                             const TaoPitch &xpitch,
-                             const TaoPitch &ypitch,
+                             const Pitch &xpitch,
+                             const Pitch &ypitch,
                              float decay) :
-    tao_(tao), currentAccess(tao), name(name) {
+    manager_(manager), currentAccess(manager), name(name) {
   this->xpitch = xpitch;
   this->ypitch = ypitch;
   xfrequency = xpitch.asFrequency();
@@ -75,11 +79,11 @@ TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao,
   next = NULL;
 
 #ifdef INSTRUMENT_DEBUG
-  cout << "In TaoInstrument() tao_->synthesisEngine.add(" << this << ")"
+  cout << "In Instrument() manager_->synthesisEngine.add(" << this << ")"
        << " name=" << name << endl;
 #endif
 
-  tao_->synthesisEngine.addInstrument(this);
+  manager_->synthesisEngine.addInstrument(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -98,21 +102,21 @@ TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao,
 // blue marker at the appropriate location on the instrument in the graphics
 // window.
 
-TaoAccessPoint &TaoInstrument::operator()(float x, float y) {
-  TaoAccessPoint &p = currentAccess;
+AccessPoint &Instrument::operator()(float x, float y) {
+  AccessPoint &p = currentAccess;
 
   point(x, y);
   // TODO(lucasw) this needs to be in a display()
-  if (tao_->graphics_engine_)
-    tao_->graphics_engine_->displayAccessPoint(p);
+  if (manager_->graphics_engine_)
+    manager_->graphics_engine_->displayAccessPoint(p);
 
   return p;
 }
 
-TaoAccessPoint &TaoInstrument::operator()(float x) { return (*this)(x, 0.0); }
+AccessPoint &Instrument::operator()(float x) { return (*this)(x, 0.0); }
 
 //////////////////////////////////////////////////////////////////////////////////
-// A TaoAccessPoint object maintains a set of information used in this
+// A AccessPoint object maintains a set of information used in this
 // interpolation process.
 //
 //           * cellc        |     * celld           X, Y, X_ and Y_ are in the
@@ -120,7 +124,7 @@ TaoAccessPoint &TaoInstrument::operator()(float x) { return (*this)(x, 0.0); }
 //                          |
 //           - - - - - - - -o- - -                  cella, cellb, cellc and
 //           celld
-//                  X_      |  X                    are of type (TaoCell *) and
+//                  X_      |  X                    are of type (Cell *) and
 //                  are
 //                                                  the four nearest cells to
 //                                                  the
@@ -133,8 +137,8 @@ TaoAccessPoint &TaoInstrument::operator()(float x) { return (*this)(x, 0.0); }
 //
 //           * cella        |     * cellb
 
-TaoAccessPoint &TaoInstrument::point(float x, float y) {
-  TaoAccessPoint &p = currentAccess;
+AccessPoint &Instrument::point(float x, float y) {
+  AccessPoint &p = currentAccess;
 
 #ifdef INSTRUMENT_DEBUG
   cout << "Entering " << name << "(" << x << "," << y << ")" << endl;
@@ -264,7 +268,7 @@ TaoAccessPoint &TaoInstrument::point(float x, float y) {
   return p;
 }
 
-TaoAccessPoint &TaoInstrument::point(float x) { return this->point(x, 0.0); }
+AccessPoint &Instrument::point(float x) { return this->point(x, 0.0); }
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function name:
@@ -277,9 +281,9 @@ TaoAccessPoint &TaoInstrument::point(float x) { return this->point(x, 0.0); }
 //	at all.
 //////////////////////////////////////////////////////////////////////////////
 
-TaoCell &TaoInstrument::at(float x, float y) {
+Cell &Instrument::at(float x, float y) {
   if (x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) {
-    std::cerr << "Tao error: instrument coordinates out of range:" << std::endl;
+    std::cerr << "TaoSynth error: instrument coordinates out of range:" << std::endl;
     std::cerr << this->name << ".at(" << x << "," << y << ")" << std::endl;
     exit(0);
   }
@@ -287,54 +291,54 @@ TaoCell &TaoInstrument::at(float x, float y) {
   int i = (int)(xmax * x);
   int j = (int)(ymax * y);
   int offset = rows[j].offset;
-  TaoCell *c;
+  Cell *c;
 
   c = &rows[j].cells[i - offset];
 
   return *c;
 }
 
-void TaoInstrument::placeAbove(TaoInstrument &ref) {
+void Instrument::placeAbove(Instrument &ref) {
   worldx = ref.worldx;
   worldy = ref.worldy + ref.ymax + 5;
 }
 
-void TaoInstrument::placeBelow(TaoInstrument &ref) {
+void Instrument::placeBelow(Instrument &ref) {
   worldx = ref.worldx;
   worldy = ref.worldy - ymax - 5;
 }
 
-void TaoInstrument::placeRightOf(TaoInstrument &ref) {
+void Instrument::placeRightOf(Instrument &ref) {
   worldx = ref.worldx + ref.xmax + 5;
   worldy = ref.worldy;
 }
 
-void TaoInstrument::placeLeftOf(TaoInstrument &ref) {
+void Instrument::placeLeftOf(Instrument &ref) {
   worldx = ref.worldx - xmax - 5;
   worldy = ref.worldy;
 }
 
-void TaoInstrument::placeAbove(TaoInstrument &ref, int offsetInWorldCoords) {
+void Instrument::placeAbove(Instrument &ref, int offsetInWorldCoords) {
   worldx = ref.worldx;
   worldy = ref.worldy + ref.ymax + 5 + offsetInWorldCoords;
 }
 
-void TaoInstrument::placeBelow(TaoInstrument &ref, int offsetInWorldCoords) {
+void Instrument::placeBelow(Instrument &ref, int offsetInWorldCoords) {
   worldx = ref.worldx;
   worldy = ref.worldy - ymax - 5 + offsetInWorldCoords;
 }
 
-void TaoInstrument::placeRightOf(TaoInstrument &ref, int offsetInWorldCoords) {
+void Instrument::placeRightOf(Instrument &ref, int offsetInWorldCoords) {
   worldx = ref.worldx + ref.xmax + 5 + offsetInWorldCoords;
   worldy = ref.worldy;
 }
 
-void TaoInstrument::placeLeftOf(TaoInstrument &ref, int offsetInWorldCoords) {
+void Instrument::placeLeftOf(Instrument &ref, int offsetInWorldCoords) {
   worldx = ref.worldx - xmax - 5 + offsetInWorldCoords;
   worldy = ref.worldy;
 }
 
-void TaoInstrument::copyWorldPosition(TaoInstrument &instr) {
+void Instrument::copyWorldPosition(Instrument &instr) {
   worldx = instr.worldx;
   worldy = instr.worldy;
 }
@@ -371,14 +375,14 @@ void TaoInstrument::copyWorldPosition(TaoInstrument &instr) {
 //	c, north, south, east, west:
 //		     pointers to current cell and four of its neighbours.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows, ymax.
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoInstrument::linkCells() {
+void Instrument::linkCells() {
   register int i, j;
-  TaoCell *c;
+  Cell *c;
   int northoffset, southoffset, northi, southi;
   int thisxmax, northxmax, southxmax;
 
@@ -420,7 +424,7 @@ void TaoInstrument::linkCells() {
     }
   }
 
-  TaoCell *north, *south, *east, *west;
+  Cell *north, *south, *east, *west;
 
   for (j = 0; j <= ymax; j++) {
     for (i = 0; i <= rows[j].xmax; i++) {
@@ -494,12 +498,12 @@ void TaoInstrument::linkCells() {
 //		    and high the instrument is.
 //	c:	    pointer to current cell.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows, ymax.
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoInstrument::initialiseCells() {
-  TaoCell *c;
+void Instrument::initialiseCells() {
+  Cell *c;
   register int i, j;
   float intendedFreq, actualFreq, compensationFactor;
 
@@ -511,7 +515,7 @@ void TaoInstrument::initialiseCells() {
 #endif
 
   intendedFreq = xfrequency;
-  actualFreq = tao_->synthesisEngine.Hz2CellConst / (xmax + 1);
+  actualFreq = manager_->synthesisEngine.Hz2CellConst / (xmax + 1);
   compensationFactor =
       powf(4.0, log10f(actualFreq / intendedFreq) / log10f(2.0));
 
@@ -520,7 +524,7 @@ void TaoInstrument::initialiseCells() {
       c = &rows[j].cells[i];
       c->mode = 0x0000; // was TAO_CELL_BOW_STICK_MODE
       c->companion = NULL;
-      c->mass = TaoInstrument::defaultMass * compensationFactor;
+      c->mass = Instrument::defaultMass * compensationFactor;
       if (c->mass == 0.0f)
         c->inverseMass = 0.0f;
       else
@@ -568,16 +572,16 @@ void TaoInstrument::initialiseCells() {
 //		    keeps track of this sum and count keeps track of the
 //		    number of neighbours.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows, ymax.
 //////////////////////////////////////////////////////////////////////////////
 
 /*
-void TaoInstrument::calculateForces(int startRow, int endRow)
+void Instrument::calculateForces(int startRow, int endRow)
     {
     register i, j, count;
-    register TaoCell *c, *slave, *north, *south, *east, *west;
-    register TaoCell *neast, *nwest, *seast, *swest;
+    register Cell *c, *slave, *north, *south, *east, *west;
+    register Cell *neast, *nwest, *seast, *swest;
     static float myposition,  dp;
 
 #ifdef INSTRUMENT_DEBUG
@@ -621,10 +625,10 @@ this << std::endl;
    }
 */
 
-void TaoInstrument::calculateForces(int startRow, int endRow) {
+void Instrument::calculateForces(int startRow, int endRow) {
   register int i, j, count;
-  register TaoCell *c, *north, *south, *east, *west;
-  register TaoCell *neast, *nwest, *seast, *swest;
+  register Cell *c, *north, *south, *east, *west;
+  register Cell *neast, *nwest, *seast, *swest;
   static float dp;
 
   for (j = startRow; j <= endRow; j++)
@@ -681,11 +685,11 @@ void TaoInstrument::calculateForces(int startRow, int endRow) {
 }
 
 /*
-void TaoInstrument::calculateForces(int startRow, int endRow)
+void Instrument::calculateForces(int startRow, int endRow)
     {
     register int i, j;
-    static TaoCell *c, *slave, *north, *south, *east, *west;
-    static TaoCell *neast, *nwest, *seast, *swest;
+    static Cell *c, *slave, *north, *south, *east, *west;
+    static Cell *neast, *nwest, *seast, *swest;
 
     static float cellPosition,  distance;
     static float *cellForce;
@@ -773,15 +777,15 @@ void TaoInstrument::calculateForces(int startRow, int endRow)
 //	i, j:	    j=row number and i=cell number in chosen row.
 //	c:	    pointer to current cell.
 //
-// TaoInstrument class member variable:
+// Instrument class member variable:
 //	rows.
 //////////////////////////////////////////////////////////////////////////////
 
 /*
-void TaoInstrument::calculatePositions(int startRow, int endRow)
+void Instrument::calculatePositions(int startRow, int endRow)
     {
     static int i, j;
-    static TaoCell *c;
+    static Cell *c;
 
     for (j=startRow;j<=endRow;j++)
         for (i=0, c=rows[j].cells;i<=rows[j].xmax; i++, c++)
@@ -802,9 +806,9 @@ void TaoInstrument::calculatePositions(int startRow, int endRow)
     }
 */
 
-void TaoInstrument::calculatePositions(int startRow, int endRow) {
+void Instrument::calculatePositions(int startRow, int endRow) {
   static int i, j;
-  static TaoCell *c;
+  static Cell *c;
 
   for (j = startRow; j <= endRow; j++)
     for (i = 0; i <= rows[j].xmax; i++) {
@@ -821,14 +825,14 @@ void TaoInstrument::calculatePositions(int startRow, int endRow) {
     }
 }
 
-TaoInstrument &TaoInstrument::setMagnification(float m) {
+Instrument &Instrument::setMagnification(float m) {
   amplification = m;
   return *this;
 }
 
-float TaoInstrument::getMagnification() { return amplification; }
+float Instrument::getMagnification() { return amplification; }
 
-TaoInstrument &TaoInstrument::setDamping(float x1, float x2, float y1, float y2,
+Instrument &Instrument::setDamping(float x1, float x2, float y1, float y2,
                                          float damping) {
   float tmp;
   int i1, i2, j1, j2, imin, imax;
@@ -864,7 +868,7 @@ TaoInstrument &TaoInstrument::setDamping(float x1, float x2, float y1, float y2,
   return *this;
 }
 
-TaoInstrument &TaoInstrument::setDamping(float left, float right,
+Instrument &Instrument::setDamping(float left, float right,
                                          float damping) {
   float tmp;
   int i1, i2, imin, imax;
@@ -891,7 +895,7 @@ TaoInstrument &TaoInstrument::setDamping(float left, float right,
   return *this;
 }
 
-TaoInstrument &TaoInstrument::setDamping(float position, float damping) {
+Instrument &Instrument::setDamping(float position, float damping) {
   int i;
 
   i = (int)(position * rows[0].xmax);
@@ -901,12 +905,12 @@ TaoInstrument &TaoInstrument::setDamping(float position, float damping) {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::setDamping(float damping) {
+Instrument &Instrument::setDamping(float damping) {
   setDamping(0.0, 1.0, 0.0, 1.0, damping);
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDamping(float x1, float x2, float y1,
+Instrument &Instrument::resetDamping(float x1, float x2, float y1,
                                            float y2) {
   float tmp;
   int i1, i2, j1, j2, imin, imax;
@@ -941,7 +945,7 @@ TaoInstrument &TaoInstrument::resetDamping(float x1, float x2, float y1,
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDamping(float left, float right) {
+Instrument &Instrument::resetDamping(float left, float right) {
   float tmp;
   int i1, i2, imin, imax;
   register int i;
@@ -966,7 +970,7 @@ TaoInstrument &TaoInstrument::resetDamping(float left, float right) {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDamping(float position) {
+Instrument &Instrument::resetDamping(float position) {
   int i;
 
   i = (int)(position * rows[0].xmax);
@@ -975,7 +979,7 @@ TaoInstrument &TaoInstrument::resetDamping(float position) {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDamping() {
+Instrument &Instrument::resetDamping() {
   resetDamping(0.0, 1.0, 0.0, 1.0);
 }
 
@@ -996,23 +1000,23 @@ TaoInstrument &TaoInstrument::resetDamping() {
 // Returns:
 //	A reference to the cell for whom the function was invoked.
 //
-// TaoInstrument class member functions:
+// Instrument class member functions:
 //	setDamping(float x1, float x2, float y1, float y2, damping),
 //	decay2velocityMultiplier(float decay).
 //////////////////////////////////////////////////////////////////////////////
 
-TaoInstrument &TaoInstrument::setDecay(float x1, float x2, float y1, float y2,
+Instrument &Instrument::setDecay(float x1, float x2, float y1, float y2,
                                        float decay) {
   setDamping(x1, x2, y1, y2, decay2velocityMultiplier(decay));
   return *this;
 }
 
-TaoInstrument &TaoInstrument::setDecay(float left, float right, float decay) {
+Instrument &Instrument::setDecay(float left, float right, float decay) {
   setDamping(left, right, 0.0, 0.0, decay2velocityMultiplier(decay));
   return *this;
 }
 
-TaoInstrument &TaoInstrument::setDecay(float decay) {
+Instrument &Instrument::setDecay(float decay) {
   setDamping(0.0, 1.0, 0.0, 1.0, decay2velocityMultiplier(decay));
   return *this;
 }
@@ -1030,25 +1034,25 @@ TaoInstrument &TaoInstrument::setDecay(float decay) {
 // Returns:
 //	A reference to the cell for whom the function was invoked.
 //
-// TaoInstrument class member variable:
+// Instrument class member variable:
 //	defaultVelocityMultiplier.
 //
-// TaoInstrument class member function:
+// Instrument class member function:
 //	setDamping(float x1, float x2, float y1, float y2, damping).
 //////////////////////////////////////////////////////////////////////////////
 
-TaoInstrument &TaoInstrument::resetDecay(float x1, float x2, float y1,
+Instrument &Instrument::resetDecay(float x1, float x2, float y1,
                                          float y2) {
   resetDamping(x1, x2, y1, y2);
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDecay(float left, float right) {
+Instrument &Instrument::resetDecay(float left, float right) {
   resetDamping(left, right);
   return *this;
 }
 
-TaoInstrument &TaoInstrument::resetDecay() {
+Instrument &Instrument::resetDecay() {
   resetDamping(0.0, 1.0, 0.0, 1.0);
   return *this;
 }
@@ -1066,11 +1070,11 @@ TaoInstrument &TaoInstrument::resetDecay() {
 // Local variables:
 //	i, j:	    j=row number, i=cell number in that row.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows.
 //////////////////////////////////////////////////////////////////////////////
 
-TaoInstrument &TaoInstrument::lock(float x, float y) {
+Instrument &Instrument::lock(float x, float y) {
   int i, j;
 
   j = (int)(y * ymax);
@@ -1099,11 +1103,11 @@ TaoInstrument &TaoInstrument::lock(float x, float y) {
 //			    for the instrument in question.
 //	i, j:		    j=row number, i=cell number.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows.
 //////////////////////////////////////////////////////////////////////////////
 
-TaoInstrument &TaoInstrument::lock(float x1, float x2, float y1, float y2) {
+Instrument &Instrument::lock(float x1, float x2, float y1, float y2) {
   int i1, i2, j1, j2, imin, imax;
   register int i, j;
 
@@ -1145,11 +1149,11 @@ TaoInstrument &TaoInstrument::lock(float x1, float x2, float y1, float y2) {
 // Local variables:
 //	i, j:		    j=row number, i=cell number.
 //
-// TaoInstrument class member variables:
+// Instrument class member variables:
 //	rows.
 //////////////////////////////////////////////////////////////////////////////
 
-TaoInstrument &TaoInstrument::lockLeft() {
+Instrument &Instrument::lockLeft() {
   register int j;
 
   for (j = 0; j <= ymax; j++)
@@ -1159,7 +1163,7 @@ TaoInstrument &TaoInstrument::lockLeft() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockRight() {
+Instrument &Instrument::lockRight() {
   register int j;
 
   for (j = 0; j <= ymax; j++)
@@ -1169,7 +1173,7 @@ TaoInstrument &TaoInstrument::lockRight() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockTop() {
+Instrument &Instrument::lockTop() {
   register int i;
 
   for (i = 0; i <= rows[ymax].xmax; i++)
@@ -1178,7 +1182,7 @@ TaoInstrument &TaoInstrument::lockTop() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockBottom() {
+Instrument &Instrument::lockBottom() {
   register int i;
 
   for (i = 0; i <= rows[0].xmax; i++)
@@ -1187,13 +1191,13 @@ TaoInstrument &TaoInstrument::lockBottom() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockPerimeter() {
+Instrument &Instrument::lockPerimeter() {
   register int j;
 
   lockTop();
   lockBottom();
 
-  perimeterLocked = 1; // This is only used by TaoGraphicsEngine to decide
+  perimeterLocked = 1; // This is only used by GraphicsEngine to decide
                        // the most aesthetically pleasing way to render the
                        // locked cells. Having little black blobs all the way
                        // around the edge of an instrument looks ugly.
@@ -1206,7 +1210,7 @@ TaoInstrument &TaoInstrument::lockPerimeter() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockCorners() {
+Instrument &Instrument::lockCorners() {
   lock(0.0, 0.0);
   lock(1.0, 0.0);
   lock(0.0, 1.0);
@@ -1214,7 +1218,7 @@ TaoInstrument &TaoInstrument::lockCorners() {
   return *this;
 }
 
-TaoInstrument &TaoInstrument::lockEnds() {
+Instrument &Instrument::lockEnds() {
   lockLeft();
   lockRight();
   return *this;
@@ -1222,14 +1226,14 @@ TaoInstrument &TaoInstrument::lockEnds() {
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function names:
-//	glue(TaoInstrument &i1, float x1, float y1,	// glue 2D to 2D
-//		TaoInstrument &i2, float x2, float y2)
-//	glue(TaoInstrument &i1, float x1, float y1,	// glue 2D to 1D
-//		TaoInstrument &i2, float x2)
-//	glue(TaoInstrument &i1, float x1,			// glue 1D to 2D
-//		TaoInstrument &i2, float x2, float y2)
-//	glue(TaoInstrument &i1, float x1,			// glue 1D to 1D
-//		TaoInstrument &i2, float x2)
+//	glue(Instrument &i1, float x1, float y1,	// glue 2D to 2D
+//		Instrument &i2, float x2, float y2)
+//	glue(Instrument &i1, float x1, float y1,	// glue 2D to 1D
+//		Instrument &i2, float x2)
+//	glue(Instrument &i1, float x1,			// glue 1D to 2D
+//		Instrument &i2, float x2, float y2)
+//	glue(Instrument &i1, float x1,			// glue 1D to 1D
+//		Instrument &i2, float x2)
 //
 // Functionality:
 //	Given two instruments and sets of coordinates for selecting two
@@ -1238,77 +1242,77 @@ TaoInstrument &TaoInstrument::lockEnds() {
 // Return:
 //	A reference to the cell for whom the function was invoked.
 //
-// TaoInstrument class member function:
-//	glueCells(TaoCell *c1, TaoCell *c2).
+// Instrument class member function:
+//	glueCells(Cell *c1, Cell *c2).
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoInstrument::glue(TaoInstrument &i1, float x1, float y1,
-                         TaoInstrument &i2, float x2, float y2) {
-  static TaoCell *c1, *c2;
+void Instrument::glue(Instrument &i1, float x1, float y1,
+                         Instrument &i2, float x2, float y2) {
+  static Cell *c1, *c2;
 
   c1 = &i1.at(x1, y1);
   c2 = &i2.at(x2, y2);
 
-  TaoInstrument::glueCells(c1, c2);
-  TaoInstrument::glueCells(c1->east, c2->east);
-  TaoInstrument::glueCells(c1->west, c2->west);
-  TaoInstrument::glueCells(c1->north, c2->north);
-  TaoInstrument::glueCells(c1->south, c2->south);
-  TaoInstrument::glueCells(c1->neast, c2->neast);
-  TaoInstrument::glueCells(c1->nwest, c2->nwest);
-  TaoInstrument::glueCells(c1->seast, c2->seast);
-  TaoInstrument::glueCells(c1->swest, c2->swest);
+  Instrument::glueCells(c1, c2);
+  Instrument::glueCells(c1->east, c2->east);
+  Instrument::glueCells(c1->west, c2->west);
+  Instrument::glueCells(c1->north, c2->north);
+  Instrument::glueCells(c1->south, c2->south);
+  Instrument::glueCells(c1->neast, c2->neast);
+  Instrument::glueCells(c1->nwest, c2->nwest);
+  Instrument::glueCells(c1->seast, c2->seast);
+  Instrument::glueCells(c1->swest, c2->swest);
 }
 
-void TaoInstrument::glue(TaoInstrument &i1, float x1, float y1,
-                         TaoInstrument &i2, float x2) {
-  static TaoCell *c1, *c2;
+void Instrument::glue(Instrument &i1, float x1, float y1,
+                         Instrument &i2, float x2) {
+  static Cell *c1, *c2;
 
   c1 = &i1.at(x1, y1);
   c2 = &i2.at(x2, 0.0);
 
-  TaoInstrument::glueCells(c1, c2);
-  TaoInstrument::glueCells(c1->east, c2->east);
-  TaoInstrument::glueCells(c1->west, c2->west);
+  Instrument::glueCells(c1, c2);
+  Instrument::glueCells(c1->east, c2->east);
+  Instrument::glueCells(c1->west, c2->west);
 }
 
-void TaoInstrument::glue(TaoInstrument &i1, float x1, TaoInstrument &i2,
+void Instrument::glue(Instrument &i1, float x1, Instrument &i2,
                          float x2, float y2) {
-  static TaoCell *c1, *c2;
+  static Cell *c1, *c2;
 
   c1 = &i1.at(x1, 0.0);
   c2 = &i2.at(x2, y2);
 
-  TaoInstrument::glueCells(c1, c2);
-  TaoInstrument::glueCells(c1->east, c2->east);
-  TaoInstrument::glueCells(c1->west, c2->west);
+  Instrument::glueCells(c1, c2);
+  Instrument::glueCells(c1->east, c2->east);
+  Instrument::glueCells(c1->west, c2->west);
   if (x1 < 0.5)
     i1.placeAt(i2.worldx + i2.xmax + 10, (int)(i2.worldy + i2.ymax * y2));
   else
     i1.placeAt(i2.worldx - i1.xmax - 10, (int)(i2.worldy + i2.ymax * y2));
 }
 
-void TaoInstrument::glue(TaoInstrument &i1, float x1, TaoInstrument &i2,
+void Instrument::glue(Instrument &i1, float x1, Instrument &i2,
                          float x2) {
-  static TaoCell *c1, *c2;
+  static Cell *c1, *c2;
 
   c1 = &i1.at(x1, 0.0);
   c2 = &i2.at(x2, 0.0);
 
-  TaoInstrument::glueCells(c1, c2);
-  TaoInstrument::glueCells(c1->east, c2->east);
-  TaoInstrument::glueCells(c1->west, c2->west);
+  Instrument::glueCells(c1, c2);
+  Instrument::glueCells(c1->east, c2->east);
+  Instrument::glueCells(c1->west, c2->west);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function name:
-//	glueCells(TaoCell *c1, TaoCell *c2)
+//	glueCells(Cell *c1, Cell *c2)
 //
 // Functionality:
 //	Given pointers to two cells, glues the cells together.
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoInstrument::glueCells(TaoCell *c1, TaoCell *c2) {
+void Instrument::glueCells(Cell *c1, Cell *c2) {
   if (!c1 || !c2)
     return;
 
@@ -1320,8 +1324,8 @@ void TaoInstrument::glueCells(TaoCell *c1, TaoCell *c2) {
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function name:
-//	join(TaoInstrument &i1, float x1, float y1,
-//	     TaoInstrument &i2, float x2, float y2)
+//	join(Instrument &i1, float x1, float y1,
+//	     Instrument &i2, float x2, float y2)
 //
 // Functionality:
 //	Joins two pieces of material with straight edges by effectively
@@ -1346,31 +1350,31 @@ void TaoInstrument::glueCells(TaoCell *c1, TaoCell *c2) {
 //	possible to construct cylindrical and toroidal instruments from a
 //	rectangular sheet.
 //
-// TaoInstrument class member function:
-//	joinLeftToLeft(TaoCell &cell1, TaoCell &cell2),
-//	joinLeftToRight(TaoCell &cell1, TaoCell &cell2),
-//	joinRightToLeft(TaoCell &cell1, TaoCell &cell2),
-//	joinRightToRight(TaoCell &cell1, TaoCell &cell2),
-//	joinBottomToBottom(TaoCell &cell1, TaoCell &cell2),
-//	joinBottomToTop(TaoCell &cell1, TaoCell &cell2),
-//	joinTopToBottom(TaoCell &cell1, TaoCell &cell2),
-//	joinTopToTop(TaoCell &cell1, TaoCell &cell2),
+// Instrument class member function:
+//	joinLeftToLeft(Cell &cell1, Cell &cell2),
+//	joinLeftToRight(Cell &cell1, Cell &cell2),
+//	joinRightToLeft(Cell &cell1, Cell &cell2),
+//	joinRightToRight(Cell &cell1, Cell &cell2),
+//	joinBottomToBottom(Cell &cell1, Cell &cell2),
+//	joinBottomToTop(Cell &cell1, Cell &cell2),
+//	joinTopToBottom(Cell &cell1, Cell &cell2),
+//	joinTopToTop(Cell &cell1, Cell &cell2),
 //////////////////////////////////////////////////////////////////////////////
 
 /* this is the old version
 
-void TaoInstrument::join(TaoInstrument &i1, float x1, float y1,
-                      TaoInstrument &i2, float x2, float y2)
+void Instrument::join(Instrument &i1, float x1, float y1,
+                      Instrument &i2, float x2, float y2)
     {
     if (x1==0.0f)
         {
         if (x2==0.0f)
             {
-            TaoInstrument::joinLeftToLeft(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinLeftToLeft(i1.at(x1, y1), i2.at(x2, y2));
             }
         else if (x2==1.0f)
             {
-            TaoInstrument::joinLeftToRight(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinLeftToRight(i1.at(x1, y1), i2.at(x2, y2));
             i2.worldx=i1.worldx-(i2.xmax+1);
             i2.worldy=(int)(i1.worldy+i1.ymax*y1-i2.ymax*y2);
             }
@@ -1379,24 +1383,24 @@ void TaoInstrument::join(TaoInstrument &i1, float x1, float y1,
         {
         if (x2==0.0f)
             {
-            TaoInstrument::joinRightToLeft(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinRightToLeft(i1.at(x1, y1), i2.at(x2, y2));
             i2.worldx=i1.worldx+(i1.xmax+1);
             i2.worldy=(int)(i1.worldy+i1.ymax*y1-i2.ymax*y2);
             }
         else if (x2==1.0f)
             {
-            TaoInstrument::joinRightToRight(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinRightToRight(i1.at(x1, y1), i2.at(x2, y2));
             }
         }
     else if (y1==0.0f)
         {
         if (y2==0.0f)
             {
-            TaoInstrument::joinBottomToBottom(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinBottomToBottom(i1.at(x1, y1), i2.at(x2, y2));
             }
         else if (y2==1.0f)
             {
-            TaoInstrument::joinBottomToTop(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinBottomToTop(i1.at(x1, y1), i2.at(x2, y2));
             i2.worldx=(int)(i1.worldx+i1.xmax*x1-i2.xmax*x2);
             i2.worldy=i1.worldy-(i2.ymax+1);
             }
@@ -1405,68 +1409,68 @@ void TaoInstrument::join(TaoInstrument &i1, float x1, float y1,
         {
         if (y2==0.0f)
             {
-            TaoInstrument::joinTopToBottom(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinTopToBottom(i1.at(x1, y1), i2.at(x2, y2));
             i2.worldx=(int)(i1.worldx+i1.xmax*x1-i2.xmax*x2);
             i2.worldy=i1.worldy+(i1.ymax+1);
             }
         else if (y2==1.0f)
             {
-            TaoInstrument::joinTopToTop(i1.at(x1, y1), i2.at(x2, y2));
+            Instrument::joinTopToTop(i1.at(x1, y1), i2.at(x2, y2));
             }
         }
     }
 */
 
-void TaoInstrument::join(TaoAccessPoint &a1, TaoAccessPoint &a2) {
+void Instrument::join(AccessPoint &a1, AccessPoint &a2) {
   float &x1 = a1.x, &y1 = a1.y, &x2 = a2.x, &y2 = a2.y;
-  TaoInstrument &i1 = *a1.instrument;
-  TaoInstrument &i2 = *a2.instrument;
+  Instrument &i1 = *a1.instrument;
+  Instrument &i2 = *a2.instrument;
 
   if (x1 == 0.0f) {
     if (x2 == 0.0f) {
-      TaoInstrument::joinLeftToLeft(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinLeftToLeft(i1.at(x1, y1), i2.at(x2, y2));
     } else if (x2 == 1.0f) {
-      TaoInstrument::joinLeftToRight(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinLeftToRight(i1.at(x1, y1), i2.at(x2, y2));
       i2.worldx = i1.worldx - (i2.xmax + 1);
       i2.worldy = (int)(i1.worldy + i1.ymax * y1 - i2.ymax * y2);
     }
   } else if (x1 == 1.0f) {
     if (x2 == 0.0f) {
-      TaoInstrument::joinRightToLeft(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinRightToLeft(i1.at(x1, y1), i2.at(x2, y2));
       i2.worldx = i1.worldx + (i1.xmax + 1);
       i2.worldy = (int)(i1.worldy + i1.ymax * y1 - i2.ymax * y2);
     } else if (x2 == 1.0f) {
-      TaoInstrument::joinRightToRight(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinRightToRight(i1.at(x1, y1), i2.at(x2, y2));
     }
   } else if (y1 == 0.0f) {
     if (y2 == 0.0f) {
-      TaoInstrument::joinBottomToBottom(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinBottomToBottom(i1.at(x1, y1), i2.at(x2, y2));
     } else if (y2 == 1.0f) {
-      TaoInstrument::joinBottomToTop(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinBottomToTop(i1.at(x1, y1), i2.at(x2, y2));
       i2.worldx = (int)(i1.worldx + i1.xmax * x1 - i2.xmax * x2);
       i2.worldy = i1.worldy - (i2.ymax + 1);
     }
   } else if (y1 == 1.0f) {
     if (y2 == 0.0f) {
-      TaoInstrument::joinTopToBottom(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinTopToBottom(i1.at(x1, y1), i2.at(x2, y2));
       i2.worldx = (int)(i1.worldx + i1.xmax * x1 - i2.xmax * x2);
       i2.worldy = i1.worldy + (i1.ymax + 1);
     } else if (y2 == 1.0f) {
-      TaoInstrument::joinTopToTop(i1.at(x1, y1), i2.at(x2, y2));
+      Instrument::joinTopToTop(i1.at(x1, y1), i2.at(x2, y2));
     }
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Member function names:
-//	joinLeftToLeft(TaoCell &cell1, TaoCell &cell2)
-//	joinLeftToRight(TaoCell &cell1, TaoCell &cell2)
-//	joinRightToLeft(TaoCell &cell1, TaoCell &cell2)
-//	joinRightToRight(TaoCell &cell1, TaoCell &cell2)
-//	joinBottomToBottom(TaoCell &cell1, TaoCell &cell2)
-//	joinBottomToTop(TaoCell &cell1, TaoCell &cell2)
-//	joinTopToBottom(TaoCell &cell1, TaoCell &cell2)
-//	joinTopToTop(TaoCell &cell1, TaoCell &cell2)
+//	joinLeftToLeft(Cell &cell1, Cell &cell2)
+//	joinLeftToRight(Cell &cell1, Cell &cell2)
+//	joinRightToLeft(Cell &cell1, Cell &cell2)
+//	joinRightToRight(Cell &cell1, Cell &cell2)
+//	joinBottomToBottom(Cell &cell1, Cell &cell2)
+//	joinBottomToTop(Cell &cell1, Cell &cell2)
+//	joinTopToBottom(Cell &cell1, Cell &cell2)
+//	joinTopToTop(Cell &cell1, Cell &cell2)
 //
 // Functionality:
 //	Join two pieces of material with straight edges by effectively
@@ -1477,8 +1481,8 @@ void TaoInstrument::join(TaoAccessPoint &a1, TaoAccessPoint &a2) {
 //	cells to migrate in the opposite direction.
 //////////////////////////////////////////////////////////////////////////////
 
-void TaoInstrument::joinLeftToLeft(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinLeftToLeft(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate northwards until a boundary is reached.
 
@@ -1530,8 +1534,8 @@ void TaoInstrument::joinLeftToLeft(TaoCell &cell1, TaoCell &cell2) {
     c2->nwest = c2->north->west;
 }
 
-void TaoInstrument::joinLeftToRight(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinLeftToRight(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate northwards until a boundary is reached.
 
@@ -1583,8 +1587,8 @@ void TaoInstrument::joinLeftToRight(TaoCell &cell1, TaoCell &cell2) {
     c2->neast = c2->north->east;
 }
 
-void TaoInstrument::joinRightToLeft(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinRightToLeft(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate northwards until a boundary is reached.
 
@@ -1636,8 +1640,8 @@ void TaoInstrument::joinRightToLeft(TaoCell &cell1, TaoCell &cell2) {
     c2->nwest = c2->north->west;
 }
 
-void TaoInstrument::joinRightToRight(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinRightToRight(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate northwards until a boundary is reached.
 
@@ -1689,8 +1693,8 @@ void TaoInstrument::joinRightToRight(TaoCell &cell1, TaoCell &cell2) {
     c2->neast = c2->north->east;
 }
 
-void TaoInstrument::joinBottomToBottom(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinBottomToBottom(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate eastwards until a boundary is reached
 
@@ -1742,8 +1746,8 @@ void TaoInstrument::joinBottomToBottom(TaoCell &cell1, TaoCell &cell2) {
     c2->seast = c2->east->south;
 }
 
-void TaoInstrument::joinBottomToTop(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinBottomToTop(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate eastwards until a boundary is reached
 
@@ -1795,8 +1799,8 @@ void TaoInstrument::joinBottomToTop(TaoCell &cell1, TaoCell &cell2) {
     c2->neast = c2->east->north;
 }
 
-void TaoInstrument::joinTopToBottom(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinTopToBottom(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate eastwards until a boundary is reached
 
@@ -1848,8 +1852,8 @@ void TaoInstrument::joinTopToBottom(TaoCell &cell1, TaoCell &cell2) {
     c2->seast = c2->east->south;
 }
 
-void TaoInstrument::joinTopToTop(TaoCell &cell1, TaoCell &cell2) {
-  TaoCell *c1 = &cell1, *c2 = &cell2;
+void Instrument::joinTopToTop(Cell &cell1, Cell &cell2) {
+  Cell *c1 = &cell1, *c2 = &cell2;
 
   // migrate eastwards until a boundary is reached
 
@@ -1901,12 +1905,12 @@ void TaoInstrument::joinTopToTop(TaoCell &cell1, TaoCell &cell2) {
     c2->nwest = c2->west->north;
 }
 
-float TaoInstrument::decay2velocityMultiplier(float decay) {
-  return (1.0 - (tao_->synthesisEngine.Decay2VelocityMultiplierConst / decay));
+float Instrument::decay2velocityMultiplier(float decay) {
+  return (1.0 - (manager_->synthesisEngine.Decay2VelocityMultiplierConst / decay));
 }
 
-int TaoInstrument::hertz2cells(float freq) {
+int Instrument::hertz2cells(float freq) {
   if (freq == 0.0)
     return 1;
-  return (int)(tao_->synthesisEngine.Hz2CellConst / freq);
+  return (int)(manager_->synthesisEngine.Hz2CellConst / freq);
 }

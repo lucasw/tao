@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,14 +17,15 @@
  */
 
 #include <tao/device.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/instrument.h>
 #include <string.h>
 
-TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) :
-    tao_(tao),
-    interfacePoint(tao),
+using namespace tao;
+Device::Device(std::shared_ptr<Manager> manager) :
+    manager_(manager),
+    interfacePoint(manager),
     name("anon") {
   targetInstrument = NULL;
   interfacePoint.clear();
@@ -34,39 +35,39 @@ TaoDevice::TaoDevice(std::shared_ptr<Tao> tao) :
   y = 0.0;
 }
 
-TaoDevice::~TaoDevice() {}
+Device::~Device() {}
 
-TaoDevice::TaoDevice(std::shared_ptr<Tao> tao, const std::string deviceName) :
-    tao_(tao), interfacePoint(tao), name(deviceName) {
+Device::Device(std::shared_ptr<Manager> manager, const std::string deviceName) :
+    manager_(manager), interfacePoint(manager), name(deviceName) {
   targetInstrument = NULL;
   active = 0;
   next = NULL;
 }
 
-std::string TaoDevice::getName() { return name; }
+std::string Device::getName() { return name; }
 
-float TaoDevice::getX() { return interfacePoint.x; }
+float Device::getX() { return interfacePoint.x; }
 
-float TaoDevice::getY() { return interfacePoint.y; }
+float Device::getY() { return interfacePoint.y; }
 
-void TaoDevice::apply(TaoAccessPoint &point) {
+void Device::apply(AccessPoint &point) {
   targetInstrument = &point.getInstrument();
   interfacePoint = point;
   activate();
 }
 
-void TaoDevice::remove() {
+void Device::remove() {
   targetInstrument = NULL;
   interfacePoint.clear();
   deactivate();
 }
 
-void TaoDevice::activate() { active = TRUE; }
+void Device::activate() { active = TRUE; }
 
-void TaoDevice::deactivate() { active = FALSE; }
+void Device::deactivate() { active = FALSE; }
 
-void TaoDevice::addToSynthesisEngine() { tao_->synthesisEngine.addDevice(this); }
+void Device::addToSynthesisEngine() { manager_->synthesisEngine.addDevice(this); }
 
-void TaoDevice::removeFromSynthesisEngine() {
-  tao_->synthesisEngine.removeDevice(this);
+void Device::removeFromSynthesisEngine() {
+  manager_->synthesisEngine.removeDevice(this);
 }

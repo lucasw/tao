@@ -758,19 +758,20 @@ static struct colors=
 {"LightGreen"144 238 144 }
 */
 
-class TaoRGBColor {
+namespace tao {
+class RGBColor {
 public:
-  TaoRGBColor(float red, float green, float blue) {
+  RGBColor(float red, float green, float blue) {
     this->red = red;
     this->green = green;
     this->blue = blue;
   }
-  TaoRGBColor(float greyLevel) {
+  RGBColor(float greyLevel) {
     this->red = greyLevel;
     this->green = greyLevel;
     this->blue = greyLevel;
   }
-  TaoRGBColor(const std::string colorName) {}
+  RGBColor(const std::string colorName) {}
   void setRed(float red) { this->red = red; }
   void setGreen(float green) { this->green = green; }
   void setBlue(float blue) { this->blue = blue; }
@@ -783,5 +784,5 @@ private:
   float green;
   float blue;
 };
-
+}
 #endif

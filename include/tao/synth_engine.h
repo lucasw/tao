@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,16 +30,17 @@
 #define DLLEXPORT
 #endif
 
-class TaoInstrument;
-class TaoDevice;
+namespace tao {
+class Instrument;
+class Device;
 
-class DLLEXPORT TaoSynthEngine {
-  friend class TaoGraphicsEngine;
-  friend class Tao;
+class DLLEXPORT SynthEngine {
+  friend class GraphicsEngine;
+  friend class Manager;
 
 public:
-  TaoInstrument *instrumentList, *currentInstrument;
-  TaoDevice *deviceList, *currentDevice;
+  Instrument *instrumentList, *currentInstrument;
+  Device *deviceList, *currentDevice;
 
   float time;
   long tick;
@@ -51,7 +52,7 @@ public:
   float Decay2VelocityMultiplierConst;
   float Hz2CellConst;
 
-  TaoSynthEngine(const float audio_rate);
+  SynthEngine(const float audio_rate);
   void pause();
   void unpause();
   int isActive();
@@ -61,14 +62,14 @@ public:
   void seedRandomNumGen();
   void setAudioRate(const float audioRate);
   void makeTheInstruments();
-  void addInstrument(TaoInstrument &instr);
-  void removeInstrument(TaoInstrument &instr);
-  void addInstrument(TaoInstrument *instr);
-  void removeInstrument(TaoInstrument *instr);
-  void addDevice(TaoDevice &device);
-  void removeDevice(TaoDevice &device);
-  void addDevice(TaoDevice *device);
-  void removeDevice(TaoDevice *device);
+  void addInstrument(Instrument &instr);
+  void removeInstrument(Instrument &instr);
+  void addInstrument(Instrument *instr);
+  void removeInstrument(Instrument *instr);
+  void addDevice(Device &device);
+  void removeDevice(Device &device);
+  void addDevice(Device *device);
+  void removeDevice(Device *device);
   void calculateInstrumentForces();
   void calculateInstrumentPositions();
   void updateDevices();
@@ -76,7 +77,7 @@ public:
 private:
   int active;
 };
-
+}
 extern int randomi(int low, int high);
 extern float randomf(float low, float high);
 

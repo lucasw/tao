@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,11 +16,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/cell.h>
 
-TaoAccessPoint::TaoAccessPoint(std::shared_ptr<Tao> tao) : tao_(tao) {
+using namespace tao;
+AccessPoint::AccessPoint(std::shared_ptr<Manager> manager_) :
+    manager_(manager_) {
   instrument = NULL;
   x = 0.0;
   y = 0.0;
@@ -33,7 +35,7 @@ TaoAccessPoint::TaoAccessPoint(std::shared_ptr<Tao> tao) : tao_(tao) {
   cella = cellb = cellc = celld = NULL;
 }
 
-float TaoAccessPoint::getForce() {
+float AccessPoint::getForce() {
   unsigned short cellFlags = 0;
   float a, b, c, d;
 
@@ -120,13 +122,13 @@ float TaoAccessPoint::getForce() {
     break;
   }
 
-  if (tao_->graphics_engine_ && tao_->graphics_engine_->active)
-    tao_->graphics_engine_->displayAccessPoint(*this);
+  if (manager_->graphics_engine_ && manager_->graphics_engine_->active)
+    manager_->graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }
 
-float TaoAccessPoint::getVelocity() {
+float AccessPoint::getVelocity() {
   unsigned short cellFlags = 0;
   float a, b, c, d;
 
@@ -214,13 +216,13 @@ float TaoAccessPoint::getVelocity() {
   }
 
   // TODO(lucasw) needs to be in a display()
-  if (tao_->graphics_engine_ && tao_->graphics_engine_->active)
-    tao_->graphics_engine_->displayAccessPoint(*this);
+  if (manager_->graphics_engine_ && manager_->graphics_engine_->active)
+    manager_->graphics_engine_->displayAccessPoint(*this);
 
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }
 
-float TaoAccessPoint::getPosition() {
+float AccessPoint::getPosition() {
   unsigned short cellFlags = 0;
   float a, b, c, d;
 
@@ -310,9 +312,9 @@ float TaoAccessPoint::getPosition() {
   return a * X * Y + b * X_ * Y + c * X * Y_ + d * X_ * Y_;
 }
 
-TaoInstrument &TaoAccessPoint::getInstrument() { return *instrument; }
+Instrument &AccessPoint::getInstrument() { return *instrument; }
 
-void TaoAccessPoint::applyForce(float f) {
+void AccessPoint::applyForce(float f) {
   if (cella)
     cella->applyForce(f * X * Y);
   if (cellb)
@@ -327,7 +329,7 @@ void TaoAccessPoint::applyForce(float f) {
   //    std::endl;
 }
 
-void TaoAccessPoint::clear() {
+void AccessPoint::clear() {
   instrument = NULL;
   x = 0.0;
   y = 0.0;
@@ -340,7 +342,7 @@ void TaoAccessPoint::clear() {
   cella = cellb = cellc = celld = NULL;
 }
 
-TaoAccessPoint::operator float() { return getPosition(); }
+AccessPoint::operator float() { return getPosition(); }
 
 //////////////////////////////////////////////////////////////////////////////
 // Static member function names:
@@ -363,7 +365,7 @@ TaoAccessPoint::operator float() { return getPosition(); }
 //			    basis for simulating the effect of stopping
 //			    notes on stringed instruments.
 
-void TaoAccessPoint::connect(TaoAccessPoint &p1, TaoAccessPoint &p2,
+void AccessPoint::connect(AccessPoint &p1, AccessPoint &p2,
                              float connectionStrength) {
   static float eaa, eab, eac, ead;
   static float eba, ebb, ebc, ebd;
@@ -458,7 +460,7 @@ void TaoAccessPoint::connect(TaoAccessPoint &p1, TaoAccessPoint &p2,
     p2.celld->force += (-fad - fbd - fcd - fdd) * connectionStrength;
 }
 
-void TaoAccessPoint::collide(TaoAccessPoint &p1, TaoAccessPoint &p2,
+void AccessPoint::collide(AccessPoint &p1, AccessPoint &p2,
                              float connectionStrength) {
   static float eaa, eab, eac, ead;
   static float eba, ebb, ebc, ebd;
@@ -560,7 +562,7 @@ void TaoAccessPoint::collide(TaoAccessPoint &p1, TaoAccessPoint &p2,
   }
 }
 
-void TaoAccessPoint::ground(TaoAccessPoint &p, float connectionStrength) {
+void AccessPoint::ground(AccessPoint &p, float connectionStrength) {
   static float elasticities[2][2];
 
   // calculate reciprocal forces due to temporary spring connections

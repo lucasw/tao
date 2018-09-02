@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,63 +33,64 @@ extern "C" {
 #define DLLEXPORT
 #endif
 
+namespace tao {
 struct DLLEXPORT Row {
   int xmax;
   int offset;
-  std::vector<TaoCell> cells;
+  std::vector<Cell> cells;
 };
 
-class TaoCell;
-class TaoSynthEngine;
-class TaoGraphicsEngine;
+class Cell;
+class SynthEngine;
+class GraphicsEngine;
 
-class DLLEXPORT TaoInstrument {
-  friend class TaoSynthEngine;
-  friend class TaoGraphicsEngine;
+class DLLEXPORT Instrument {
+  friend class SynthEngine;
+  friend class GraphicsEngine;
   // TODO(lucasw) is this needed?
   friend int main(int argc, char *argv[]);
 
 public:
-  TaoInstrument(std::shared_ptr<Tao> tao);
-  ~TaoInstrument();
-  TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch, const TaoPitch &ypitch,
+  Instrument(std::shared_ptr<Manager> manager);
+  ~Instrument();
+  Instrument(std::shared_ptr<Manager> manager, const Pitch &xpitch, const Pitch &ypitch,
                 float decay);
-  TaoInstrument(std::shared_ptr<Tao> tao, const std::string name, const TaoPitch &xpitch,
-                const TaoPitch &ypitch, float decay);
+  Instrument(std::shared_ptr<Manager> manager, const std::string name, const Pitch &xpitch,
+                const Pitch &ypitch, float decay);
   void calculateForces(int startRow, int endRow);
   void calculatePositions(int startRow, int endRow);
   std::string getName() { return name; }
   float getMagnification();
-  TaoInstrument &setMagnification(float m);
-  TaoInstrument &setDecay(float x1, float x2, float y1, float y2, float decay);
-  TaoInstrument &setDecay(float left, float right, float decay);
-  TaoInstrument &setDecay(float decay);
-  TaoInstrument &resetDecay(float x1, float x2, float y1, float y2);
-  TaoInstrument &resetDecay(float left, float right);
-  TaoInstrument &resetDecay();
-  TaoInstrument &setDamping(float x1, float x2, float y1, float y2,
+  Instrument &setMagnification(float m);
+  Instrument &setDecay(float x1, float x2, float y1, float y2, float decay);
+  Instrument &setDecay(float left, float right, float decay);
+  Instrument &setDecay(float decay);
+  Instrument &resetDecay(float x1, float x2, float y1, float y2);
+  Instrument &resetDecay(float left, float right);
+  Instrument &resetDecay();
+  Instrument &setDamping(float x1, float x2, float y1, float y2,
                             float damping);
-  TaoInstrument &setDamping(float left, float right, float damping);
-  TaoInstrument &setDamping(float position, float damping);
-  TaoInstrument &setDamping(float damping);
-  TaoInstrument &resetDamping(float x1, float x2, float y1, float y2);
-  TaoInstrument &resetDamping(float left, float right);
-  TaoInstrument &resetDamping(float position);
-  TaoInstrument &resetDamping();
-  TaoInstrument &lock(float x1, float x2, float y1, float y2);
-  TaoInstrument &lock(float x, float y);
-  TaoInstrument &lockLeft();
-  TaoInstrument &lockRight();
-  TaoInstrument &lockTop();
-  TaoInstrument &lockBottom();
-  TaoInstrument &lockPerimeter();
-  TaoInstrument &lockCorners();
-  TaoInstrument &lockEnds();
-  TaoAccessPoint &operator()(float x, float y);
-  TaoAccessPoint &operator()(float x);
-  TaoCell &at(float x, float y);
-  TaoAccessPoint &point(float x, float y); // The only difference between these
-  TaoAccessPoint &point(float x);          // two func's and the operator() ones
+  Instrument &setDamping(float left, float right, float damping);
+  Instrument &setDamping(float position, float damping);
+  Instrument &setDamping(float damping);
+  Instrument &resetDamping(float x1, float x2, float y1, float y2);
+  Instrument &resetDamping(float left, float right);
+  Instrument &resetDamping(float position);
+  Instrument &resetDamping();
+  Instrument &lock(float x1, float x2, float y1, float y2);
+  Instrument &lock(float x, float y);
+  Instrument &lockLeft();
+  Instrument &lockRight();
+  Instrument &lockTop();
+  Instrument &lockBottom();
+  Instrument &lockPerimeter();
+  Instrument &lockCorners();
+  Instrument &lockEnds();
+  AccessPoint &operator()(float x, float y);
+  AccessPoint &operator()(float x);
+  Cell &at(float x, float y);
+  AccessPoint &point(float x, float y); // The only difference between these
+  AccessPoint &point(float x);          // two func's and the operator() ones
   // above is that these two don't
   // affect the graphics display whereas
   // the operator() ones mark the point
@@ -103,15 +104,15 @@ public:
     worldx = x;
     worldy = y;
   }
-  void placeAbove(TaoInstrument &ref);
-  void placeBelow(TaoInstrument &ref);
-  void placeRightOf(TaoInstrument &ref);
-  void placeLeftOf(TaoInstrument &ref);
-  void placeAbove(TaoInstrument &ref, int distanceInWorldCoords);
-  void placeBelow(TaoInstrument &ref, int distanceInWorldCoords);
-  void placeRightOf(TaoInstrument &ref, int distanceInWorldCoords);
-  void placeLeftOf(TaoInstrument &ref, int distanceInWorldCoords);
-  void copyWorldPosition(TaoInstrument &instr);
+  void placeAbove(Instrument &ref);
+  void placeBelow(Instrument &ref);
+  void placeRightOf(Instrument &ref);
+  void placeLeftOf(Instrument &ref);
+  void placeAbove(Instrument &ref, int distanceInWorldCoords);
+  void placeBelow(Instrument &ref, int distanceInWorldCoords);
+  void placeRightOf(Instrument &ref, int distanceInWorldCoords);
+  void placeLeftOf(Instrument &ref, int distanceInWorldCoords);
+  void copyWorldPosition(Instrument &instr);
 
   inline int getWorldX() { return worldx; }
   inline int getWorldY() { return worldy; }
@@ -123,39 +124,39 @@ public:
   float decay2velocityMultiplier(float decay);
   int hertz2cells(float freq);
 
-  static void glue(TaoInstrument &i1, float x1, float y1, TaoInstrument &i2,
+  static void glue(Instrument &i1, float x1, float y1, Instrument &i2,
                    float x2, float y2);
-  static void glue(TaoInstrument &i1, float x1, float y1, TaoInstrument &i2,
+  static void glue(Instrument &i1, float x1, float y1, Instrument &i2,
                    float x2);
-  static void glue(TaoInstrument &i1, float x1, TaoInstrument &i2, float x2,
+  static void glue(Instrument &i1, float x1, Instrument &i2, float x2,
                    float y2);
-  static void glue(TaoInstrument &i1, float x1, TaoInstrument &i2, float x2);
+  static void glue(Instrument &i1, float x1, Instrument &i2, float x2);
 
-  static void join(TaoAccessPoint &a1, TaoAccessPoint &a2);
+  static void join(AccessPoint &a1, AccessPoint &a2);
 
   // old prototype
   //
-  //    static void join(TaoInstrument &i1, float x1, float y1,
-  //		     TaoInstrument &i2, float x2, float y2);
+  //    static void join(Instrument &i1, float x1, float y1,
+  //		     Instrument &i2, float x2, float y2);
 
-  TaoPitch xpitch, ypitch;
+  Pitch xpitch, ypitch;
 
   // TODO(lucasw) ought to be protected but need to be able to get
   // position externally
   std::vector<Row> rows;
 protected:
-  std::shared_ptr<Tao> tao_;
+  std::shared_ptr<Manager> manager_;
   const std::string name;
   float defaultDecay, defaultVelocityMultiplier;
   float amplification;
-  TaoInstrument *next;
+  Instrument *next;
 
   int xmax, ymax;
   int graphx, graphy;
   int worldx, worldy;
   float xfrequency, yfrequency;
   int perimeterLocked;
-  TaoAccessPoint currentAccess;
+  AccessPoint currentAccess;
 
   // these variables are used to implement access points on an instrument with
   // real x and y coordinates.
@@ -165,15 +166,15 @@ protected:
   void linkCells();
 
   static float defaultMass;
-  static void glueCells(TaoCell *c1, TaoCell *c2);
-  static void joinLeftToLeft(TaoCell &cell1, TaoCell &cell2);
-  static void joinLeftToRight(TaoCell &cell1, TaoCell &cell2);
-  static void joinRightToLeft(TaoCell &cell1, TaoCell &cell2);
-  static void joinRightToRight(TaoCell &cell1, TaoCell &cell2);
-  static void joinBottomToBottom(TaoCell &cell1, TaoCell &cell2);
-  static void joinBottomToTop(TaoCell &cell1, TaoCell &cell2);
-  static void joinTopToBottom(TaoCell &cell1, TaoCell &cell2);
-  static void joinTopToTop(TaoCell &cell1, TaoCell &cell2);
+  static void glueCells(Cell *c1, Cell *c2);
+  static void joinLeftToLeft(Cell &cell1, Cell &cell2);
+  static void joinLeftToRight(Cell &cell1, Cell &cell2);
+  static void joinRightToLeft(Cell &cell1, Cell &cell2);
+  static void joinRightToRight(Cell &cell1, Cell &cell2);
+  static void joinBottomToBottom(Cell &cell1, Cell &cell2);
+  static void joinBottomToTop(Cell &cell1, Cell &cell2);
+  static void joinTopToBottom(Cell &cell1, Cell &cell2);
+  static void joinTopToTop(Cell &cell1, Cell &cell2);
 };
-
+}
 #endif

@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,21 +30,22 @@
 #define DLLEXPORT
 #endif
 
-class TaoSynthEngine;
+namespace tao {
+class SynthEngine;
 
 #define stereo 2
 #define mono 1
 
-class TaoDevice;
+class Device;
 
-class DLLEXPORT TaoOutput : public TaoDevice {
-  friend class TaoSynthEngine;
+class DLLEXPORT Output : public Device {
+  friend class SynthEngine;
 
 public:
-  TaoOutput(std::shared_ptr<Tao> tao);
-  ~TaoOutput();
-  TaoOutput(std::shared_ptr<Tao> tao, const std::string filename, size_t channels);
-  TaoOutput(std::shared_ptr<Tao> tao, const std::string outputName, const std::string filename, size_t channels);
+  Output(std::shared_ptr<Manager> tao);
+  ~Output();
+  Output(std::shared_ptr<Manager> manager, const std::string filename, size_t channels);
+  Output(std::shared_ptr<Manager> manager, const std::string outputName, const std::string filename, size_t channels);
   inline void ch(const float value, const size_t index) {
     if (index < samples.size())
       samples[index] = value;
@@ -69,5 +70,5 @@ private:
   static float displayPosition;
   float myDisplayPosition;
 };
-
+}
 #endif

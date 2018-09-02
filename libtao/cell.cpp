@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,8 @@
 #define FALSE 0
 #endif
 
-void TaoCell::applyForce(float F) {
+using namespace tao;
+void Cell::applyForce(float F) {
   force += F;
 
   if (north)
@@ -48,7 +49,7 @@ void TaoCell::applyForce(float F) {
     swest->force += F / 2.82f;
 }
 
-void TaoCell::bow(float f_bow, float v_bow) {
+void Cell::bow(float f_bow, float v_bow) {
   static float f_stick, f_slip, force_exerted = 0.0;
   static float v_relative, a_cell;
 

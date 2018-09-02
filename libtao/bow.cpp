@@ -1,4 +1,4 @@
-/* Tao - A software package for sound synthesis with physical models
+/* TaoSynth - A software package for sound synthesis with physical models
  * Copyright (C) 1993-1999 Mark Pearson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,13 +17,14 @@
  */
 
 #include <tao/bow.h>
-#include <tao/tao.h>
+#include <tao/manager.h>
 #include <tao/access_point.h>
 #include <tao/instrument.h>
 #include <cmath>
 
-TaoBow::TaoBow(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
-  deviceType = TaoDevice::BOW;
+using namespace tao;
+Bow::Bow(std::shared_ptr<Manager> manager) : Device(manager, "") {
+  deviceType = Device::BOW;
   mode = stick;
   bowVelocity = 0.0;
   downwardForce = 1.0;
@@ -32,8 +33,8 @@ TaoBow::TaoBow(std::shared_ptr<Tao> tao) : TaoDevice(tao, "") {
   addToSynthesisEngine();
 }
 
-TaoBow::TaoBow(std::shared_ptr<Tao> tao, const std::string bowName) : TaoDevice(tao, bowName) {
-  deviceType = TaoDevice::BOW;
+Bow::Bow(std::shared_ptr<Manager> manager, const std::string bowName) : Device(manager, bowName) {
+  deviceType = Device::BOW;
   mode = stick;
   bowVelocity = 0.0;
   downwardForce = 1.0;
@@ -42,28 +43,28 @@ TaoBow::TaoBow(std::shared_ptr<Tao> tao, const std::string bowName) : TaoDevice(
   addToSynthesisEngine();
 }
 
-TaoBow &TaoBow::setForce(float force) {
+Bow &Bow::setForce(float force) {
   downwardForce = force;
   return *this;
 }
 
-TaoBow &TaoBow::setVelocity(float velocity) {
+Bow &Bow::setVelocity(float velocity) {
   bowVelocity = velocity;
   return *this;
 }
 
-float TaoBow::getForce() { return downwardForce; }
-float TaoBow::getVelocity() { return bowVelocity; }
+float Bow::getForce() { return downwardForce; }
+float Bow::getVelocity() { return bowVelocity; }
 
-void TaoBow::operator()(TaoAccessPoint &a) { apply(a); }
+void Bow::operator()(AccessPoint &a) { apply(a); }
 
-void TaoBow::operator()(TaoInstrument &instr, float x) { apply(instr(x)); }
+void Bow::operator()(Instrument &instr, float x) { apply(instr(x)); }
 
-void TaoBow::operator()(TaoInstrument &instr, float x, float y) {
+void Bow::operator()(Instrument &instr, float x, float y) {
   apply(instr(x, y));
 }
 
-void TaoBow::update() {
+void Bow::update() {
   if (!active)
     return;
   if (!targetInstrument)
@@ -100,28 +101,28 @@ void TaoBow::update() {
   interfacePoint.applyForce(forceExerted); // apply the appropriate
 } // frictional force.
 
-void TaoBow::display() {
-  if (!tao_->graphics_engine_)
+void Bow::display() {
+  if (!manager_->graphics_engine_)
     return;
-  if (!active || !targetInstrument || !tao_->graphics_engine_->active)
+  if (!active || !targetInstrument || !manager_->graphics_engine_->active)
     return;
-  if (tao_->synthesisEngine.tick % tao_->graphics_engine_->refreshRate != 0)
+  if (manager_->synthesisEngine.tick % manager_->graphics_engine_->refreshRate != 0)
     return;
 
-  TaoInstrument &instr = interfacePoint.getInstrument();
+  Instrument &instr = interfacePoint.getInstrument();
   GLfloat x;
   GLfloat y;
   GLfloat z;
 
-  tao_->graphics_engine_->displayAccessPoint(interfacePoint);
+  manager_->graphics_engine_->displayAccessPoint(interfacePoint);
 
-  if (tao_->graphics_engine_->displayDeviceNames) {
+  if (manager_->graphics_engine_->displayDeviceNames) {
     x = (GLfloat)(instr.getWorldX() + interfacePoint.cellx);
     z = (GLfloat)(interfacePoint.getPosition() * instr.getMagnification() *
-                      tao_->graphics_engine_->globalMagnification +
+                      manager_->graphics_engine_->globalMagnification +
                   2.0);
     y = (GLfloat)(instr.getWorldY() + interfacePoint.celly);
 
-    tao_->graphics_engine_->displayCharString(x, y, z, this->name.c_str(), 1.0, 1.0, 1.0);
+    manager_->graphics_engine_->displayCharString(x, y, z, this->name.c_str(), 1.0, 1.0, 1.0);
   }
 }
