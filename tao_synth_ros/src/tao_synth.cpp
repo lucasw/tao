@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iostream>
 #include <ros/ros.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <std_msgs/Float32.h>
 #include <tao/taodefs.h>
@@ -54,6 +56,13 @@ public:
     position_sub_ = nh_.subscribe("position", 10,
         &TaoSynthRos::positionCallback, this);
     audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
+
+    ros::param::get("~use_marker_array", use_marker_array_);
+    if (use_marker_array_)
+    {
+      marker_array_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 3);
+      marker_timer_ = nh_.createTimer(ros::Duration(1.0 / 10.0f), &TaoSynthRos::updateMarker, this);
+    }
 
     ros::param::get("~update_period", update_period_);
     timer_ = nh_.createTimer(ros::Duration(update_period_), &TaoSynthRos::update, this);
@@ -139,10 +148,182 @@ public:
     }
   }
 
+  void updateMarker(const ros::TimerEvent& event)
+  {
+    displayInstrument(strand_);
+  }
+
+  void displayInstrument(std::shared_ptr<TaoInstrument> instr) {
+    if (!instr)
+      return;
+
+    visualization_msgs::MarkerArray marker_array;
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "map";
+    marker.header.stamp = ros::Time::now();
+    marker.pose.orientation.w = 1.0;
+    marker.frame_locked = true;
+
+    marker.ns = "tao";
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.scale.x = 0.01;
+    marker.scale.y = 1.0;
+    marker.scale.z = 1.0;
+
+    float cellPosition;
+
+    // TODO(lucasw) make these configurable
+    size_t jstep = 4;
+    size_t istep = 1;
+    float globalMagnification = 0.2;
+
+    float magnification = globalMagnification * instr->getMagnification();
+
+    marker.pose.position.x = instr->getWorldX();
+    marker.pose.position.y = instr->getWorldY();
+
+    marker.color.r = 0.8;
+    marker.color.g = 0.8;
+    marker.color.b = 0.8;
+    marker.color.a = 1.0;
+
+    // draw horizontal lines through rows of cells
+    // ROS_INFO_STREAM(instr->getYMax());
+    for (size_t j = 0; j < instr->rows.size(); j += jstep) {
+      // ROS_INFO_STREAM(j << " " << instr->rows[j].xmax);
+      for (size_t i = 0; i < instr->rows[j].cells.size(); i+= istep) {
+        // TODO(lucasw) add per point color later
+        // if (c->velocityMultiplier < instr->defaultVelocityMultiplier)
+        //   glColor3f(0.2, 0.2, 0.2);
+        // else
+        //  glColor3f(0.0, 0.0, 0.0);
+        geometry_msgs::Point pt;
+        pt.x = instr->rows[j].offset + i;
+        const float pt_scale = 0.02;
+        pt.x *= pt_scale;
+        pt.y = j;
+        pt.y *= pt_scale;
+        // the amplitude of the cell
+        pt.z = (instr->rows[j].cells[i]) * magnification;
+        marker.points.push_back(pt);
+      }
+    }
+
+    marker_array.markers.push_back(marker);
+    marker_array_pub_.publish(marker_array);
+#if 0
+    if (instr->ymax > 0) // if instrument is 2D, draw line round perimeter
+    {                   // if perimeter is locked make line thicker
+      if (instr->perimeterLocked)
+        glLineWidth(2.0);
+      else
+        glLineWidth(1.0);
+
+      glBegin(GL_LINE_STRIP);
+
+      j = 0;
+
+      for (i = 0, c = instr->rows[0].cells; i <= instr->rows[0].xmax; i++, c++)
+      // across bottom
+      {
+        cellPosition = c->position;
+        x = instr->worldx + instr->rows[j].offset + i;
+        z = cellPosition * magnification;
+        y = j + instr->worldy;
+
+        glVertex3f(x, y, z);
+      }
+
+      for (j = 0; j <= instr->ymax; j++) // up right
+      {
+        c = &instr->rows[j].cells[instr->rows[j].xmax];
+        cellPosition = c->position;
+        x = instr->worldx + instr->rows[j].offset + instr->rows[j].xmax;
+        z = cellPosition * magnification;
+        y = j + instr->worldy;
+
+        glVertex3f(x, y, z);
+      }
+
+      j = instr->ymax;
+
+      for (i = instr->rows[instr->ymax].xmax; i >= 0; i--) // across top
+      {
+        c = &instr->rows[instr->ymax].cells[i];
+        cellPosition = c->position;
+        x = instr->worldx + instr->rows[j].offset + i;
+        z = cellPosition * magnification;
+        y = j + instr->worldy;
+
+        glVertex3f(x, y, z);
+      }
+
+      for (j = instr->ymax; j >= 0; j--) // down left
+      {
+        c = &instr->rows[j].cells[0];
+        cellPosition = c->position;
+        x = instr->worldx + instr->rows[j].offset;
+        z = cellPosition * magnification;
+        y = j + instr->worldy;
+
+        glVertex3f(x, y, z);
+      }
+
+      glEnd();
+    }
+
+    glPointSize(3.0);
+    glBegin(GL_POINTS);
+
+    for (j = 0; j <= instr->ymax; j++) // scan cells again to mark any
+    {                                 // locked or glued ones
+
+      for (i = 0, c = instr->rows[j].cells; i <= instr->rows[j].xmax; i++, c++) {
+        cellPosition = c->position;
+        if (c->mode & TAO_CELL_LOCK_MODE) {
+          if ((i == 0 || i == instr->rows[j].xmax || j == 0 || j == instr->ymax) &&
+              instr->perimeterLocked) // if we're at the instrument's
+          {                          // perimeter and it is locked then
+            continue;                // don't mark individual locked
+          }                          // points as the locked perimeter
+                                     // has already been displayed as a
+                                     // thicker line.
+          glColor3f(0.0f, 0.0f, 0.0f);
+          x = instr->worldx + instr->rows[j].offset + i;
+          z = cellPosition * magnification;
+          y = j + instr->worldy;
+          glVertex3f(x, y, z);
+        }
+      }
+    }
+
+    glEnd();
+
+    j = instr->ymax / 2;
+    c = &instr->rows[j].cells[instr->xmax];
+    cellPosition = c->position;
+    x = (GLfloat)(instr->worldx + instr->xmax + 3.0);
+    z = (GLfloat)(cellPosition * magnification);
+    y = (GLfloat)(j + instr->worldy);
+
+    // std::cout << "x=" << x << " y=" << y << " z=" << z
+    //     << " name=" << instr->name << std::endl;
+
+    //displayCharString(x, y, z, instr->name, 0.0, 0.0, 0.0);
+    #endif
+  }
+
 private:
   ros::NodeHandle nh_;
   ros::Subscriber force_sub_;
   ros::Subscriber position_sub_;
+
+  ros::Publisher marker_array_pub_;
+  bool use_marker_array_ = false;
+  ros::Timer marker_timer_;
+
   ros::Publisher audio_pub_;
   sensor_msgs::ChannelFloat32 audio_msg_;
   int samples_per_msg_;
