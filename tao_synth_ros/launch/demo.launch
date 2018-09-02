@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="use_float_to_audio" default="false" />
+
+  <!-- need the https://github.com/lucasw/audio_common/tree/appsink version of audio_common -->
+  <group if="$(arg use_float_to_audio)">
+  <include file="$(find float_to_audio)/launch/float_to_audio.launch" >
+    <arg name="gen_audio" value="false" />
+    <arg name="loopback" value="false" />
+  </include>
+  </group>
+
+  <group ns="audio">
+    <node pkg="tao_synth_ros" type="tao_synth_ros" name="tao_synth_ros"
+        output="screen" required="true" >
+      <param name="force" value="0.4" />
+      <param name="max_time" value="3.0" />
+      <param name="write_output" value="true" />
+    </node>
+  </group>
+</launch>

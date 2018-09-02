@@ -18,6 +18,7 @@ public:
       force_(0.0),
       samples_per_msg_(882),
       write_output_(false),
+      max_time_(0.0),
       audio_rate_(44100.0f),
       update_period_(0.01)
   {
@@ -27,11 +28,14 @@ public:
     strand_.reset(new TaoString(tao_, "strand",
         TaoPitch(150.0f, TaoPitch::frq), decay));
 
+    ros::param::get("~force", force_);
+
     // need two channels if going to use stereo L and R
-    const size_t num_channels = 2;
+    const size_t num_channels = 1;
     ros::param::get("~write_output", write_output_);
     if (write_output_)
       output_.reset(new TaoOutput(tao_, "output", "strand_output", num_channels));
+    ros::param::get("~max_time", max_time_);
 
     // TODO(lucasw) using graphics messes with the timing of synth updates,
     // need to fix that.
@@ -85,6 +89,7 @@ public:
     {
       // TODO(lucasw) need to do fewer updates - but could
       // audio common handle a changing sample rate?
+      // or need to dial down the fidelity of the synth engine?
     }
     ros::spinOnce();
   }
@@ -95,6 +100,9 @@ public:
       return;
 
     int samples_second = tao_->synthesisEngine.tick % static_cast<int>(audio_rate_);
+
+    if ((max_time_ > 0.0) && (tao_->synthesisEngine.time > max_time_))
+      ros::shutdown();
 
     // if (samples_second == 0)
     //   std::cout << "time: " << tao_->synthesisEngine.time << "\n";
@@ -112,10 +120,10 @@ public:
     // is extracted from?
     // TODO(lucasw) if output only has one channel, then chR goes nowhere
     // TODO(lucaw) These should create graphics points
-    float sample_l = (*strand_)(0.13);
-    float sample_r = (*strand_)(0.58);
+    float sample_0 = (*strand_)(0.13);
+    float sample_1 = (*strand_)(0.58);
 
-    audio_msg_.values.push_back(sample_l);
+    audio_msg_.values.push_back(sample_0);
     if (audio_msg_.values.size() == samples_per_msg_)
     {
       audio_pub_.publish(audio_msg_);
@@ -124,8 +132,9 @@ public:
 
     if (write_output_)
     {
-      output_->chL(sample_l);
-      output_->chR(sample_r);
+      output_->ch(sample_0, 0);
+      // output_->chL(sample_0);
+      // output_->chR(sample_1);
     }
   }
 
@@ -138,6 +147,7 @@ private:
   int samples_per_msg_;
   float update_period_;
   ros::Timer timer_;
+  float max_time_;
 
   std::shared_ptr<Tao> tao_;
   std::shared_ptr<TaoString> strand_;
