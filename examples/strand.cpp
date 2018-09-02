@@ -26,7 +26,7 @@ public:
     if (use_graphics)
       tao->graphics_engine_.reset(new TaoGraphicsEngine(tao));
 
-    tao->setScoreDuration(5.0);
+    tao->setScoreDuration(1.0);
     strand->lockEnds();
     tao->init();
   }
@@ -51,12 +51,13 @@ public:
 
     bool apply_force = true;
 
-    pos += 0.000001;
+    // pos += 0.000001;
     if (apply_force) {
-      float force = mag * (1.0 - float(samples_second) / float(nsamples));
+      // float force = mag * (1.0 - float(samples_second) / float(nsamples));
       // This should create a graphics point
-      (*strand)(pos).applyForce(force);
-      mag *= 1.000001;
+      (*strand)(pos).applyForce(mag);
+      mag = 0.0;
+      // mag *= 1.000001;
     }
 
     // TODO(lwalter) output should be configured and then passed to tao which will

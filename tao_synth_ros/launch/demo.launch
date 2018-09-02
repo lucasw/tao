@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="use_float_to_audio" default="false" />
+  <arg name="use_float_to_audio" default="true" />
+  <arg name="write_output" default="false" />
+  <arg name="max_time" default="0.0" />
 
   <!-- need the https://github.com/lucasw/audio_common/tree/appsink version of audio_common -->
   <group if="$(arg use_float_to_audio)">
@@ -14,8 +16,8 @@
     <node pkg="tao_synth_ros" type="tao_synth_ros" name="tao_synth_ros"
         output="screen" required="true" >
       <param name="force" value="0.4" />
-      <param name="max_time" value="3.0" />
-      <param name="write_output" value="true" />
+      <param name="max_time" value="$(arg max_time)" />
+      <param name="write_output" value="$(arg write_output)" />
     </node>
   </group>
 </launch>

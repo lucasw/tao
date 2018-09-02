@@ -112,8 +112,9 @@ public:
       // This should create a graphics point
       (*strand_)(pos_).applyForce(force_);
     }
-    // TODO(lucasw) or decay it
-    force_ = 0.0;
+    force_ *= 0.98;
+    if (force_ < 1e-6)
+      force_ = 0.0;
 
     // TODO(lwalter) output should be configured and then passed to tao which will
     // process it itself?  Or is there a desire for the user to move around where the sample
