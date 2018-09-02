@@ -25,6 +25,7 @@ extern "C" {
 
 #include <tao/access_point.h>
 #include <tao/pitch.h>
+#include <vector>
 
 #ifdef WIN32
 #define DLLEXPORT __declspec(dllexport)
@@ -139,13 +140,15 @@ public:
 
   TaoPitch xpitch, ypitch;
 
+  // TODO(lucasw) ought to be protected but need to be able to get
+  // position externally
+  std::vector<Row> rows;
 protected:
   std::shared_ptr<Tao> tao_;
   const std::string name;
   float defaultDecay, defaultVelocityMultiplier;
   float amplification;
   TaoInstrument *next;
-  Row *rows;
 
   int xmax, ymax;
   int graphx, graphy;

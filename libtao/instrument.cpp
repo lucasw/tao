@@ -35,7 +35,6 @@ TaoInstrument::~TaoInstrument() {
   for (int j = 0; j <= ymax; j++) {
     delete[] rows[j].cells;
   }
-  delete[] rows;
 }
 
 TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,

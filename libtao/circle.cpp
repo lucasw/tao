@@ -37,7 +37,7 @@ void TaoCircle::createTheMaterial() {
 
   int xsize, ysize = ymax + 1;
 
-  rows = new Row[ysize]; // create the right number of rows
+  rows.resize(ysize); // create the right number of rows
 
   radius = ysize / 2.0f;
 

@@ -40,7 +40,7 @@ void TaoTriangle::createTheMaterial() {
 
   int xsize = xmax + 1, ysize = ymax + 1;
 
-  rows = new Row[ysize];
+  rows.resize(ysize);
 
   for (j = 0; j < ysize; j++) {
     if (j < ysize / 2)

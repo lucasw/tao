@@ -52,6 +52,8 @@ class DLLEXPORT TaoCell {
   friend class TaoConnector;
   friend class TaoGraphicsEngine;
 
+public:
+  operator float() { return position; }
 private:
   int mode;
   TaoCell *north, *south, *east, *west;
@@ -63,7 +65,6 @@ private:
   void applyForce(float F);
   void bow(float f_bow, float v_bow);
   void lock() { mode |= TAO_CELL_LOCK_MODE; }
-  operator float() { return position; }
 };
 
 #endif

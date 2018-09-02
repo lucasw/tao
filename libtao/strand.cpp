@@ -34,7 +34,7 @@ TaoString::TaoString(std::shared_ptr<Tao> tao, const std::string name, const Tao
 void TaoString::createTheMaterial() {
   int xsize = xmax + 1, ysize = ymax + 1;
 
-  rows = new Row[ysize];
+  rows.resize(ysize);
 
   rows[0].xmax = xsize - 1;
   rows[0].offset = 0;

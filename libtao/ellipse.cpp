@@ -39,7 +39,7 @@ void TaoEllipse::createTheMaterial() {
   int local_xmax, local_xsize, offset;
   int xsize = xmax + 1, ysize = ymax + 1;
 
-  rows = new Row[ysize];
+  rows.resize(ysize);
 
   xradius = xsize / 2.0f;
   a = xradius * xradius;
