@@ -54,7 +54,7 @@ void TaoTriangle::createTheMaterial() {
     rows[j].offset = offset;
     if (xmax < local_xmax + offset)
       xmax = local_xmax + offset;
-    rows[j].cells = new TaoCell[local_xsize];
+    rows[j].cells.resize(local_xsize);
   }
 
   initialiseCells();

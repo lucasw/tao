@@ -36,7 +36,7 @@ extern "C" {
 struct DLLEXPORT Row {
   int xmax;
   int offset;
-  TaoCell *cells;
+  std::vector<TaoCell> cells;
 };
 
 class TaoCell;

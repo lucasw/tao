@@ -551,11 +551,12 @@ void TaoGraphicsEngine::displayInstrument(TaoInstrument &instr) {
   glColor3f(0.0, 0.0, 0.0);
   glLineWidth(1.0);
 
-  for (j = instr.ymax; j >= 0;
+  for (j = instr.rows.size() - 1; j >= 0;
        j -= jstep) // draw horizontal lines through rows of cells
   {
     glBegin(GL_LINE_STRIP);
-    for (i = 0, c = instr.rows[j].cells; i <= instr.rows[j].xmax; i++, c++) {
+    for (i = 0; i < instr.rows[j].cells.size(); i++) {
+      c = &instr.rows[j].cells[i];
       cellPosition = c->position;
       if (c->velocityMultiplier < instr.defaultVelocityMultiplier)
         glColor3f(0.2, 0.2, 0.2);
@@ -582,9 +583,10 @@ void TaoGraphicsEngine::displayInstrument(TaoInstrument &instr) {
 
     j = 0;
 
-    for (i = 0, c = instr.rows[0].cells; i <= instr.rows[0].xmax; i++, c++)
+    for (i = 0; i < instr.rows[0].cells.size(); i++)
     // across bottom
     {
+      c = &instr.rows[j].cells[i];
       cellPosition = c->position;
       x = instr.worldx + instr.rows[j].offset + i;
       z = cellPosition * magnification;
@@ -637,7 +639,8 @@ void TaoGraphicsEngine::displayInstrument(TaoInstrument &instr) {
   for (j = 0; j <= instr.ymax; j++) // scan cells again to mark any
   {                                 // locked or glued ones
 
-    for (i = 0, c = instr.rows[j].cells; i <= instr.rows[j].xmax; i++, c++) {
+    for (i = 0; i < instr.rows[j].cells.size(); i++) {
+      c = &instr.rows[j].cells[i];
       cellPosition = c->position;
       if (c->mode & TAO_CELL_LOCK_MODE) {
         if ((i == 0 || i == instr.rows[j].xmax || j == 0 || j == instr.ymax) &&

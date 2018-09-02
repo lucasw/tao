@@ -38,7 +38,7 @@ void TaoString::createTheMaterial() {
 
   rows[0].xmax = xsize - 1;
   rows[0].offset = 0;
-  rows[0].cells = new TaoCell[xsize];
+  rows[0].cells.resize(xsize);
 
   assert(rows[0].cells != 0);
 

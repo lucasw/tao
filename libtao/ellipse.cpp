@@ -58,7 +58,7 @@ void TaoEllipse::createTheMaterial() {
     rows[j].offset = offset;
     if (xmax < local_xmax + offset)
       xmax = local_xmax + offset;
-    rows[j].cells = new TaoCell[xsize];
+    rows[j].cells.resize(xsize);
   }
 
   initialiseCells();

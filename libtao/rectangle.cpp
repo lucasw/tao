@@ -43,7 +43,7 @@ void TaoRectangle::createTheMaterial() {
   for (j = 0; j < ysize; j++) {
     rows[j].xmax = xmax;
     rows[j].offset = 0;
-    rows[j].cells = new TaoCell[xsize];
+    rows[j].cells.resize(xsize);
   }
 
   initialiseCells();

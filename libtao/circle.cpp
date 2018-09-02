@@ -53,7 +53,7 @@ void TaoCircle::createTheMaterial() {
     if (xmax < local_xmax + offset)
       xmax = local_xmax + offset;
     // keep track of longest row
-    rows[j].cells = new TaoCell[xsize]; // create `xsize' new cells
+    rows[j].cells.resize(xsize); // create `xsize' new cells
   }
 
   initialiseCells(); // from base class TaoInstrument

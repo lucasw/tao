@@ -32,9 +32,6 @@ float TaoInstrument::defaultMass = 3.5; // Set to optimum value for
 TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao) : tao_(tao), currentAccess(tao) {}
 
 TaoInstrument::~TaoInstrument() {
-  for (int j = 0; j <= ymax; j++) {
-    delete[] rows[j].cells;
-  }
 }
 
 TaoInstrument::TaoInstrument(std::shared_ptr<Tao> tao, const TaoPitch &xpitch,
@@ -381,7 +378,7 @@ void TaoInstrument::copyWorldPosition(TaoInstrument &instr) {
 
 void TaoInstrument::linkCells() {
   register int i, j;
-  TaoCell *thisrow, *c;
+  TaoCell *c;
   int northoffset, southoffset, northi, southi;
   int thisxmax, northxmax, southxmax;
 
@@ -397,37 +394,37 @@ void TaoInstrument::linkCells() {
     }
 
     thisxmax = rows[j].xmax;
-    thisrow = rows[j].cells;
 
-    for (i = 0; i <= thisxmax; i++) {
+    for (i = 0; i < rows[j].cells.size(); i++) {
       if (i == 0)
-        thisrow[i].west = NULL;
+        rows[j].cells[i].west = NULL;
       else
-        thisrow[i].west = &(thisrow[i - 1]);
+        rows[j].cells[i].west = &(rows[j].cells[i - 1]);
       if (i == thisxmax)
-        thisrow[i].east = NULL;
+        rows[j].cells[i].east = NULL;
       else
-        thisrow[i].east = &(thisrow[i + 1]);
+        rows[j].cells[i].east = &(rows[j].cells[i + 1]);
 
       northi = i + northoffset;
       southi = i + southoffset;
 
       if (j == 0 || southi < 0 || southi > southxmax)
-        thisrow[i].south = NULL;
+        rows[j].cells[i].south = NULL;
       else
-        thisrow[i].south = &rows[j - 1].cells[southi];
+        rows[j].cells[i].south = &rows[j - 1].cells[southi];
 
       if (j == ymax || northi < 0 || northi > northxmax)
-        thisrow[i].north = NULL;
+        rows[j].cells[i].north = NULL;
       else
-        thisrow[i].north = &rows[j + 1].cells[northi];
+        rows[j].cells[i].north = &rows[j + 1].cells[northi];
     }
   }
 
   TaoCell *north, *south, *east, *west;
 
   for (j = 0; j <= ymax; j++) {
-    for (i = 0, c = rows[j].cells; i <= rows[j].xmax; i++, c++) {
+    for (i = 0; i <= rows[j].xmax; i++) {
+      c = &rows[j].cells[i];
       if (north = c->north)
         c->neast = north->east;
       else if (east = c->east)
@@ -519,7 +516,8 @@ void TaoInstrument::initialiseCells() {
       powf(4.0, log10f(actualFreq / intendedFreq) / log10f(2.0));
 
   for (j = 0; j <= ymax; j++) {
-    for (i = 0, c = rows[j].cells; i <= rows[j].xmax; i++, c++) {
+    for (i = 0; i <= rows[j].xmax; i++) {
+      c = &rows[j].cells[i];
       c->mode = 0x0000; // was TAO_CELL_BOW_STICK_MODE
       c->companion = NULL;
       c->mass = TaoInstrument::defaultMass * compensationFactor;
@@ -630,7 +628,8 @@ void TaoInstrument::calculateForces(int startRow, int endRow) {
   static float dp;
 
   for (j = startRow; j <= endRow; j++)
-    for (i = 0, c = rows[j].cells; i <= rows[j].xmax; i++, c++) {
+    for (i = 0; i <= rows[j].xmax; i++) {
+      c = &rows[j].cells[i];
       if (c->mode & TAO_CELL_HAS_8_NEIGHBOURS) {
         c->force =
             (c->north->position + c->south->position + c->east->position +
@@ -808,7 +807,8 @@ void TaoInstrument::calculatePositions(int startRow, int endRow) {
   static TaoCell *c;
 
   for (j = startRow; j <= endRow; j++)
-    for (i = 0, c = rows[j].cells; i <= rows[j].xmax; i++, c++) {
+    for (i = 0; i <= rows[j].xmax; i++) {
+      c = &rows[j].cells[i];
       if (!(c->mode & TAO_CELL_LOCK_MODE)) {
         // This speeds up the pitches example by about 3 seconds.
         //(it takes ~10s as opposed to ~13s - still not up to realtime though;
