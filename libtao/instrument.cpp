@@ -34,6 +34,8 @@ float Instrument::defaultMass = 3.5; // Set to optimum value for
 Instrument::Instrument(std::shared_ptr<Manager> manager) : manager_(manager), currentAccess(manager) {}
 
 Instrument::~Instrument() {
+  // TODO(lucasw) why not removeInstrument here?  Maybe it is already removed,
+  // or the manager_ is already in the process of shutting down?
 }
 
 Instrument::Instrument(std::shared_ptr<Manager> manager, const Pitch &xpitch,
@@ -55,6 +57,7 @@ Instrument::Instrument(std::shared_ptr<Manager> manager, const Pitch &xpitch,
   worldy = 0;          // ditto
   next = NULL;
 
+  // TODO(lucasw) leave this to the call
   manager_->synthesisEngine.addInstrument(this);
 }
 

@@ -4,12 +4,14 @@
 
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <std_msgs/Float32.h>
 #include <tao/taodefs.h>
+#include <tao_synth_ros/AddInstrument.h>
 
 
 class TaoSynthRos
@@ -19,24 +21,23 @@ public:
       pos_(0.1),
       force_(0.0),
       samples_per_msg_(882),
-      write_output_(false),
+      // write_output_(false),
       max_time_(0.0),
       audio_rate_(44100.0f),
       update_period_(0.01)
   {
     ros::param::get("~audio_rate", audio_rate_);
     manager_.reset(new tao::Manager(audio_rate_));
-    const float decay = 20.0;
-    strand_.reset(new tao::String(manager_, "strand",
-        tao::Pitch(150.0f, tao::Pitch::frq), decay));
 
     ros::param::get("~force", force_);
 
     // need two channels if going to use stereo L and R
+    #if 0
     const size_t num_channels = 1;
     ros::param::get("~write_output", write_output_);
     if (write_output_)
       output_.reset(new tao::Output(manager_, "output", "strand_output", num_channels));
+    #endif
     ros::param::get("~max_time", max_time_);
 
     // TODO(lucasw) using graphics messes with the timing of synth updates,
@@ -46,7 +47,6 @@ public:
     if (use_graphics)
       manager_->graphics_engine_.reset(new tao::GraphicsEngine(manager_));
 
-    strand_->lockEnds();
     manager_->init();
 
     ros::param::get("~samples_per_msg", samples_per_msg_);
@@ -63,6 +63,9 @@ public:
       marker_array_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 3);
       marker_timer_ = nh_.createTimer(ros::Duration(1.0 / 10.0f), &TaoSynthRos::updateMarker, this);
     }
+
+    add_instrument_service_ = nh_.advertiseService("add_instrument",
+        &TaoSynthRos::addInstrument, this);
 
     ros::param::get("~update_period", update_period_);
     timer_ = nh_.createTimer(ros::Duration(update_period_), &TaoSynthRos::update, this);
@@ -108,14 +111,15 @@ public:
     if (!manager_->synthesisEngine.isActive())
       return;
 
-    int samples_second = manager_->synthesisEngine.tick % static_cast<int>(audio_rate_);
-
     if ((max_time_ > 0.0) && (manager_->synthesisEngine.time > max_time_))
       ros::shutdown();
 
+    // int samples_second = manager_->synthesisEngine.tick % static_cast<int>(audio_rate_);
     // if (samples_second == 0)
     //   std::cout << "time: " << manager_->synthesisEngine.time << "\n";
 
+    // TODO(lucasw) iterate through queue of forces to apply and apply them
+    #if 0
     if (force_ != 0.0)
     {
       // This should create a graphics point
@@ -146,14 +150,59 @@ public:
       // output_->chL(sample_0);
       // output_->chR(sample_1);
     }
+    #endif
+  }
+
+  bool addInstrument(tao_synth_ros::AddInstrument::Request& req,
+                     tao_synth_ros::AddInstrument::Response& res)
+  {
+    res.success = true;
+    // TODO(lucasw) need to disconnect all Connections to any
+    // object that gets deleted - maybe the destructor could do that?
+    // Connections aren't even supported here yet, but otherwise
+    // the shared_ptr won't get deleted and the object will hang around
+    // until whatever it is connected to gets deleted, it also won't
+    // get displayed.  (But will the synth engine get updated?)
+    if (instruments_.count(req.name) > 0)
+    {
+      manager_->synthesisEngine.removeInstrument(instruments_[req.name].get());
+      instruments_[req.name] = nullptr;
+      res.message = "removed existing instance of " + req.name;
+    }
+    if (req.action == tao_synth_ros::AddInstrumentRequest::ADD)
+    {
+      if (req.type == tao_synth_ros::AddInstrumentRequest::STRAND)
+      {
+        // TODO(lucasw) if the synth_engine instrument list is upgraded
+        // then that can be used instead of a redundant map here.
+        instruments_[req.name].reset(new tao::String(manager_, req.name,
+            tao::Pitch(req.pitch_x, tao::Pitch::frq), req.decay));
+        instruments_[req.name]->placeAt(req.position.x, req.position.y);
+        instruments_[req.name]->lockEnds();
+        ROS_INFO_STREAM("new Strand " << req.name << " " << req.pitch_x << " " << req.decay);
+      }
+      else
+      {
+        std::stringstream ss;
+        ss << "can't add type " << req.type << " " << req.name;
+        ROS_ERROR_STREAM(ss.str());
+        res.message = ss.str();
+        res.success = false;
+      }
+    }
+    return true;
   }
 
   void updateMarker(const ros::TimerEvent& event)
   {
-    displayInstrument(strand_);
+    for (const auto& instrument : instruments_)
+    {
+      displayInstrument(instrument.second);
+    }
   }
 
-  void displayInstrument(std::shared_ptr<tao::Instrument> instr) {
+  void displayInstrument(std::shared_ptr<tao::Instrument> instr)
+  {
     if (!instr)
       return;
 
@@ -164,7 +213,7 @@ public:
     marker.pose.orientation.w = 1.0;
     marker.frame_locked = true;
 
-    marker.ns = "tao";
+    marker.ns = "tao_synth/" + instr->getName();
     marker.id = 0;
     marker.type = visualization_msgs::Marker::LINE_STRIP;
     marker.action = visualization_msgs::Marker::ADD;
@@ -320,6 +369,8 @@ private:
   ros::Subscriber force_sub_;
   ros::Subscriber position_sub_;
 
+  ros::ServiceServer add_instrument_service_;
+
   ros::Publisher marker_array_pub_;
   bool use_marker_array_ = false;
   ros::Timer marker_timer_;
@@ -332,9 +383,9 @@ private:
   float max_time_;
 
   std::shared_ptr<tao::Manager> manager_;
-  std::shared_ptr<tao::String> strand_;
-  std::shared_ptr<tao::Output> output_;
-  bool write_output_;
+  std::map<std::string, std::shared_ptr<tao::Instrument> > instruments_;
+  // std::shared_ptr<tao::Output> output_;
+  // bool write_output_;
 
   float audio_rate_;
   float force_;

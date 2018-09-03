@@ -4,6 +4,8 @@ project(tao_synth_ros)
 find_package(catkin REQUIRED COMPONENTS
   # dynamic_reconfigure
   # nodelet
+  geometry_msgs
+  message_generation
   roscpp
   roslint
   sensor_msgs
@@ -18,6 +20,18 @@ find_package(tao_synth REQUIRED)
 # generate_dynamic_reconfigure_options(
 #   cfg/Delay.cfg
 # )
+
+
+add_service_files(
+  FILES
+  AddInstrument.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 catkin_package(
   # INCLUDE_DIRS include
@@ -35,6 +49,8 @@ add_executable(${PROJECT_NAME}
 )
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${tao_synth_LIBRARIES})
+# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
 
 # TODO(lucasw) is this needed?
 if(catkin_EXPORTED_LIBRARIES)

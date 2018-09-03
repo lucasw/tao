@@ -39,6 +39,7 @@ class DLLEXPORT SynthEngine {
   friend class Manager;
 
 public:
+  // TODO(lwalter) replace with map with unique names
   Instrument *instrumentList, *currentInstrument;
   Device *deviceList, *currentDevice;
 
