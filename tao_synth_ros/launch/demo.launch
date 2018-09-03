@@ -17,14 +17,14 @@
 
   <group ns="audio">
     <node pkg="tao_synth_ros" type="tao_synth_ros" name="tao_synth_ros"
-        output="screen" required="true" >
+        output="screen" required="false" >
       <param name="force" value="0.4" />
       <param name="max_time" value="$(arg max_time)" />
       <param name="write_output" value="$(arg write_output)" />
       <param name="use_marker_array" value="$(arg use_rviz)" />
     </node>
 
-    <node pkg="tao_synth_ros" type="guitar.py" name="guitar"
+    <node pkg="tao_synth_ros" type="guitar_setup.py" name="guitar"
         output="screen" >
     </node>
   </group>

@@ -28,7 +28,8 @@ public:
       // write_output_(false),
       max_time_(0.0),
       audio_rate_(44100.0f),
-      update_period_(0.01)
+      update_period_(0.01),
+      pt_scale_(0.02)
   {
     ros::param::get("~audio_rate", audio_rate_);
     manager_.reset(new tao::Manager(audio_rate_));
@@ -110,6 +111,8 @@ public:
     while (force_queue_.size() > 0)
     {
       tao_synth_ros::ForceConstPtr force = force_queue_.front();
+      if (use_marker_array_)
+        force_queue_viz_.push(force);
 
       if (instruments_.count(force->name) > 0)
       {
@@ -257,18 +260,66 @@ public:
 
   void updateMarker(const ros::TimerEvent& event)
   {
+    visualization_msgs::MarkerArray marker_array;
     for (const auto& instrument : instruments_)
     {
-      displayInstrument(instrument.second);
+      displayInstrument(instrument.second, marker_array);
     }
+
+    while (force_queue_viz_.size() > 0)
+    {
+      displayForce(force_queue_viz_.front(), marker_array);
+      force_queue_viz_.pop();
+    }
+    marker_array_pub_.publish(marker_array);
   }
 
-  void displayInstrument(std::shared_ptr<tao::Instrument> instr)
+  bool displayForce(tao_synth_ros::ForceConstPtr& force,
+      visualization_msgs::MarkerArray& marker_array)
+  {
+    if (instruments_.count(force->name) == 0)
+      return false;
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "map";
+    marker.header.stamp = ros::Time::now();
+    marker.pose.orientation.w = 1.0;
+    marker.frame_locked = true;
+
+    marker.ns = "tao_synth/force/" + force->name;
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::ARROW;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.scale.x = 0.06;
+    marker.scale.y = 0.08;
+    marker.scale.z = 0.0;
+
+    marker.color.r = 0.8;
+    marker.color.g = 0.3;
+    marker.color.b = 0.3;
+    marker.color.a = 1.0;
+    marker.lifetime = ros::Duration(1.0);
+
+    const float x_scale = instruments_[force->name]->getXMax() * pt_scale_;
+    float x = instruments_[force->name]->getWorldX() + force->x * x_scale;
+    float y = instruments_[force->name]->getWorldY() + force->y * x_scale;
+    // TODO(lucasw) z could be the current z position of the string, leave 0 for now
+
+    geometry_msgs::Point pt;
+    pt.x = x;
+    pt.y = y;
+    marker.points.push_back(pt);
+    pt.z = force->force;
+    marker.points.push_back(pt);
+
+    marker_array.markers.push_back(marker);
+  }
+
+  void displayInstrument(std::shared_ptr<tao::Instrument> instr,
+      visualization_msgs::MarkerArray& marker_array)
   {
     if (!instr)
       return;
 
-    visualization_msgs::MarkerArray marker_array;
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = ros::Time::now();
@@ -282,6 +333,8 @@ public:
     marker.scale.x = 0.01;
     marker.scale.y = 1.0;
     marker.scale.z = 1.0;
+    // TODO(lucasw) id needs to be unique if wanting multiple overlapping waveforms
+    marker.lifetime = ros::Duration(0.5);
 
     float cellPosition;
 
@@ -298,7 +351,7 @@ public:
     marker.color.r = 0.8;
     marker.color.g = 0.8;
     marker.color.b = 0.8;
-    marker.color.a = 1.0;
+    marker.color.a = 0.5;
 
     // draw horizontal lines through rows of cells
     // ROS_INFO_STREAM(instr->getYMax());
@@ -312,10 +365,9 @@ public:
         //  glColor3f(0.0, 0.0, 0.0);
         geometry_msgs::Point pt;
         pt.x = instr->rows[j].offset + i;
-        const float pt_scale = 0.02;
-        pt.x *= pt_scale;
+        pt.x *= pt_scale_;
         pt.y = j;
-        pt.y *= pt_scale;
+        pt.y *= pt_scale_;
         // the amplitude of the cell
         pt.z = (instr->rows[j].cells[i]) * magnification;
         marker.points.push_back(pt);
@@ -323,7 +375,6 @@ public:
     }
 
     marker_array.markers.push_back(marker);
-    marker_array_pub_.publish(marker_array);
 #if 0
     if (instr->ymax > 0) // if instrument is 2D, draw line round perimeter
     {                   // if perimeter is locked make line thicker
@@ -430,6 +481,7 @@ private:
   ros::NodeHandle nh_;
   ros::Subscriber force_sub_;
   std::queue<tao_synth_ros::ForceConstPtr> force_queue_;
+  std::queue<tao_synth_ros::ForceConstPtr> force_queue_viz_;
 
   ros::ServiceServer add_assembly_service_;
 
@@ -452,10 +504,11 @@ private:
   float audio_rate_;
   float force_;
   float pos_;
+  float pt_scale_;
 };
 
 main(int argc, char *argv[]) {
-  ros::init(argc, argv, "manager_synth");
+  ros::init(argc, argv, "tao_synth_ros");
   TaoSynthRos tao_synth_ros;
   ros::spin();
   // strand_example.spin();

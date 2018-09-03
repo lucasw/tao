@@ -51,6 +51,7 @@ private:
   float currentDampingCoefficient;
   int dampMode;
   float amount;
+  float last_x;
 };
 }
 #endif

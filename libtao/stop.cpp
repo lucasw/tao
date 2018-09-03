@@ -21,7 +21,9 @@
 #include <tao/instrument.h>
 
 using namespace tao;
-Stop::Stop(std::shared_ptr<Manager> manager, const std::string stopName) : Device(manager, stopName) {
+Stop::Stop(std::shared_ptr<Manager> manager, const std::string stopName) :
+    Device(manager, stopName),
+    last_x(0.0) {
   deviceType = Device::STOP;
   maxDampingCoefficient = 0.95f;
   currentDampingCoefficient = 0.0f;
@@ -72,8 +74,6 @@ void Stop::operator()(String &string, Pitch &stoppedPitch) {
 }
 
 void Stop::update() {
-  static float last_x = 0.0;
-
   if (!active)
     return;
   if (!targetInstrument)

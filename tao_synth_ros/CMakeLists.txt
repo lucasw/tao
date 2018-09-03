@@ -26,6 +26,7 @@ add_message_files(
   Force.msg
   Instrument.msg
   Output.msg
+  Stop.msg
 )
 
 add_service_files(
