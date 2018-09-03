@@ -21,6 +21,10 @@ find_package(tao_synth REQUIRED)
 #   cfg/Delay.cfg
 # )
 
+add_message_files(
+  FILES
+  Force.msg
+)
 
 add_service_files(
   FILES

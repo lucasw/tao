@@ -8,10 +8,12 @@
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
+#include <queue>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <std_msgs/Float32.h>
 #include <tao/taodefs.h>
 #include <tao_synth_ros/AddInstrument.h>
+#include <tao_synth_ros/Force.h>
 
 
 class TaoSynthRos
@@ -53,8 +55,6 @@ public:
 
     force_sub_ = nh_.subscribe("force", 10,
         &TaoSynthRos::forceCallback, this);
-    position_sub_ = nh_.subscribe("position", 10,
-        &TaoSynthRos::positionCallback, this);
     audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
 
     ros::param::get("~use_marker_array", use_marker_array_);
@@ -71,14 +71,9 @@ public:
     timer_ = nh_.createTimer(ros::Duration(update_period_), &TaoSynthRos::update, this);
   }
 
-  void forceCallback(const std_msgs::Float32ConstPtr& msg)
+  void forceCallback(const tao_synth_ros::ForceConstPtr& msg)
   {
-    force_ = msg->data;
-  }
-
-  void positionCallback(const std_msgs::Float32ConstPtr& msg)
-  {
-    pos_ = msg->data;
+    force_queue_.push(msg);
   }
 
   void spinOnce()
@@ -114,6 +109,26 @@ public:
     if ((max_time_ > 0.0) && (manager_->synthesisEngine.time > max_time_))
       ros::shutdown();
 
+    // TODO(lucasw) this may not be the best model- maybe a force
+    // should exist for a certain amount of time, minimum 1 update step.
+    // with the current system it is hard to apply a constant force-
+    // it will get doubled up some instants and maybe gaps in others.
+    while (force_queue_.size() > 0)
+    {
+      tao_synth_ros::ForceConstPtr force = force_queue_.front();
+
+      if (instruments_.count(force->name) > 0)
+      {
+        (*instruments_[force->name])(force->x, force->y).applyForce(force->force);
+      }
+      else
+      {
+        // maybe the instrument was recently removed and there is a queue
+        // of forces to clear out, so maybe shouldn't error spam.
+        ROS_ERROR_STREAM(force->name << " not in instruments, can't apply force");
+      }
+      force_queue_.pop();
+    }
     // int samples_second = manager_->synthesisEngine.tick % static_cast<int>(audio_rate_);
     // if (samples_second == 0)
     //   std::cout << "time: " << manager_->synthesisEngine.time << "\n";
@@ -168,6 +183,8 @@ public:
       manager_->synthesisEngine.removeInstrument(instruments_[req.name].get());
       instruments_[req.name] = nullptr;
       res.message = "removed existing instance of " + req.name;
+      ROS_INFO_STREAM(res.message);
+      //
     }
     if (req.action == tao_synth_ros::AddInstrumentRequest::ADD)
     {
@@ -225,8 +242,8 @@ public:
 
     // TODO(lucasw) make these configurable
     size_t jstep = 4;
-    size_t istep = 1;
-    float globalMagnification = 0.2;
+    size_t istep = 4;
+    float globalMagnification = 0.4;
 
     float magnification = globalMagnification * instr->getMagnification();
 
@@ -367,7 +384,7 @@ public:
 private:
   ros::NodeHandle nh_;
   ros::Subscriber force_sub_;
-  ros::Subscriber position_sub_;
+  std::queue<tao_synth_ros::ForceConstPtr> force_queue_;
 
   ros::ServiceServer add_instrument_service_;
 
