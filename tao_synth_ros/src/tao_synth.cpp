@@ -16,6 +16,7 @@
 #include <tao_synth_ros/Force.h>
 #include <tao_synth_ros/Instrument.h>
 #include <tao_synth_ros/Output.h>
+#include <tao_synth_ros/Stop.h>
 
 
 class TaoSynthRos
@@ -48,14 +49,17 @@ public:
 
     ros::param::get("~samples_per_msg", samples_per_msg_);
 
-    force_sub_ = nh_.subscribe("force", 10,
+    force_sub_ = nh_.subscribe("force", 30,
         &TaoSynthRos::forceCallback, this);
+    stop_sub_ = nh_.subscribe("stop", 30,
+        &TaoSynthRos::stopCallback, this);
+    audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
     audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
 
     ros::param::get("~use_marker_array", use_marker_array_);
     if (use_marker_array_)
     {
-      marker_array_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 3);
+      marker_array_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 20);
       marker_timer_ = nh_.createTimer(ros::Duration(1.0 / 10.0f), &TaoSynthRos::updateMarker, this);
     }
 
@@ -69,6 +73,21 @@ public:
   void forceCallback(const tao_synth_ros::ForceConstPtr& msg)
   {
     force_queue_.push(msg);
+  }
+
+  void stopCallback(const tao_synth_ros::StopConstPtr& msg)
+  {
+    if (instruments_.count(msg->instrument_name) == 0)
+    {
+      return;
+    }
+    if (stops_.count(msg->name) == 0)
+    {
+      stops_[msg->name].second.reset(new tao::Stop(manager_, msg->name));
+    }
+    stops_[msg->name].first = msg;
+    stops_[msg->name].second->setAmount(msg->amount);
+    (*stops_[msg->name].second)(*instruments_[msg->instrument_name], msg->x, msg->y);
   }
 
   void spinOnce()
@@ -271,10 +290,51 @@ public:
       displayForce(force_queue_viz_.front(), marker_array);
       force_queue_viz_.pop();
     }
+
+    for (const auto& stop : stops_)
+    {
+      displayStop(stop.second.first, marker_array);
+    }
     marker_array_pub_.publish(marker_array);
   }
 
-  bool displayForce(tao_synth_ros::ForceConstPtr& force,
+  bool displayStop(const tao_synth_ros::StopConstPtr& stop,
+      visualization_msgs::MarkerArray& marker_array)
+  {
+    if (instruments_.count(stop->name) == 0)
+      return false;
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "map";
+    marker.header.stamp = ros::Time::now();
+    marker.pose.orientation.w = 1.0;
+    marker.frame_locked = true;
+
+    marker.ns = "tao_synth/stop/" + stop->name;
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::CUBE;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.scale.x = 0.06;
+    marker.scale.y = 0.06;
+    marker.scale.z = stop->amount * 0.5;
+
+    marker.color.r = 0.7;
+    marker.color.g = 0.5;
+    marker.color.b = 0.3;
+    marker.color.a = 1.0;
+    marker.lifetime = ros::Duration(0.0);
+
+    const float x_scale = instruments_[stop->name]->getXMax() * pt_scale_;
+    float x = instruments_[stop->name]->getWorldX() + stop->x * x_scale;
+    float y = instruments_[stop->name]->getWorldY() + stop->y * x_scale;
+
+    marker.pose.position.x = x;
+    marker.pose.position.y = y;
+    marker.pose.position.z = marker.scale.z * -0.5;
+
+    marker_array.markers.push_back(marker);
+  }
+
+  bool displayForce(const tao_synth_ros::ForceConstPtr& force,
       visualization_msgs::MarkerArray& marker_array)
   {
     if (instruments_.count(force->name) == 0)
@@ -480,6 +540,7 @@ public:
 private:
   ros::NodeHandle nh_;
   ros::Subscriber force_sub_;
+  ros::Subscriber stop_sub_;
   std::queue<tao_synth_ros::ForceConstPtr> force_queue_;
   std::queue<tao_synth_ros::ForceConstPtr> force_queue_viz_;
 
@@ -498,6 +559,7 @@ private:
 
   std::shared_ptr<tao::Manager> manager_;
   std::map<std::string, std::shared_ptr<tao::Instrument> > instruments_;
+  std::map<std::string, std::pair<tao_synth_ros::StopConstPtr, std::shared_ptr<tao::Stop> > > stops_;
   std::map<std::string, tao_synth_ros::Output> outputs_;
   // bool write_output_;
 
