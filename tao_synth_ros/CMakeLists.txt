@@ -24,11 +24,13 @@ find_package(tao_synth REQUIRED)
 add_message_files(
   FILES
   Force.msg
+  Instrument.msg
+  Output.msg
 )
 
 add_service_files(
   FILES
-  AddInstrument.srv
+  AddAssembly.srv
 )
 
 generate_messages(

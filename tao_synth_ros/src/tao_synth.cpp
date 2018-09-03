@@ -12,8 +12,10 @@
 #include <sensor_msgs/ChannelFloat32.h>
 #include <std_msgs/Float32.h>
 #include <tao/taodefs.h>
-#include <tao_synth_ros/AddInstrument.h>
+#include <tao_synth_ros/AddAssembly.h>
 #include <tao_synth_ros/Force.h>
+#include <tao_synth_ros/Instrument.h>
+#include <tao_synth_ros/Output.h>
 
 
 class TaoSynthRos
@@ -32,14 +34,6 @@ public:
     manager_.reset(new tao::Manager(audio_rate_));
 
     ros::param::get("~force", force_);
-
-    // need two channels if going to use stereo L and R
-    #if 0
-    const size_t num_channels = 1;
-    ros::param::get("~write_output", write_output_);
-    if (write_output_)
-      output_.reset(new tao::Output(manager_, "output", "strand_output", num_channels));
-    #endif
     ros::param::get("~max_time", max_time_);
 
     // TODO(lucasw) using graphics messes with the timing of synth updates,
@@ -64,8 +58,8 @@ public:
       marker_timer_ = nh_.createTimer(ros::Duration(1.0 / 10.0f), &TaoSynthRos::updateMarker, this);
     }
 
-    add_instrument_service_ = nh_.advertiseService("add_instrument",
-        &TaoSynthRos::addInstrument, this);
+    add_assembly_service_ = nh_.advertiseService("add_assembly",
+        &TaoSynthRos::addAssembly, this);
 
     ros::param::get("~update_period", update_period_);
     timer_ = nh_.createTimer(ros::Duration(update_period_), &TaoSynthRos::update, this);
@@ -144,20 +138,11 @@ public:
     if (force_ < 1e-6)
       force_ = 0.0;
 
-    // TODO(lwalter) output should be configured and then passed to tao which will
-    // process it itself?  Or is there a desire for the user to move around where the sample
-    // is extracted from?
     // TODO(lucasw) if output only has one channel, then chR goes nowhere
     // TODO(lucaw) These should create graphics points
     float sample_0 = (*strand_)(0.13);
     float sample_1 = (*strand_)(0.58);
 
-    audio_msg_.values.push_back(sample_0);
-    if (audio_msg_.values.size() == samples_per_msg_)
-    {
-      audio_pub_.publish(audio_msg_);
-      audio_msg_.values.resize(0);
-    }
 
     if (write_output_)
     {
@@ -166,10 +151,34 @@ public:
       // output_->chR(sample_1);
     }
     #endif
+
+    // TODO(lucasw) for now have a simple even mix of all outputs,
+    // later optionally publish them separately.
+    float sum = 0;
+    for (const auto& output : outputs_)
+    {
+      if (instruments_.count(output.second.instrument_name) == 0)
+      {
+        ROS_ERROR_STREAM("no instrument " << output.second.instrument_name
+            << " for output " << output.second.name);
+        continue;
+      }
+      const float sample = (*instruments_[output.second.instrument_name])(
+          output.second.x, output.second.y);
+      sum += sample;
+    }
+
+    audio_msg_.values.push_back(sum);
+    if (audio_msg_.values.size() == samples_per_msg_)
+    {
+      audio_pub_.publish(audio_msg_);
+      audio_msg_.values.resize(0);
+    }
+
   }
 
-  bool addInstrument(tao_synth_ros::AddInstrument::Request& req,
-                     tao_synth_ros::AddInstrument::Response& res)
+  bool addAssembly(tao_synth_ros::AddAssembly::Request& req,
+                     tao_synth_ros::AddAssembly::Response& res)
   {
     res.success = true;
     // TODO(lucasw) need to disconnect all Connections to any
@@ -178,36 +187,72 @@ public:
     // the shared_ptr won't get deleted and the object will hang around
     // until whatever it is connected to gets deleted, it also won't
     // get displayed.  (But will the synth engine get updated?)
-    if (instruments_.count(req.name) > 0)
+
+    for (const auto instrument : req.instruments)
     {
-      manager_->synthesisEngine.removeInstrument(instruments_[req.name].get());
-      instruments_[req.name] = nullptr;
-      res.message = "removed existing instance of " + req.name;
-      ROS_INFO_STREAM(res.message);
+      std::string message;
+      if (!addInstrument(instrument, message))
+        res.success = false;
+      res.message += ", " + message;
+    }
+    for (const auto output : req.outputs)
+    {
+      std::string message;
+      if (!addOutput(output, message))
+        res.success = false;
+      res.message += ", " + message;
+    }
+    return true;
+  }
+
+  bool addInstrument(const tao_synth_ros::Instrument& instrument, std::string& message)
+  {
+    if (instruments_.count(instrument.name) > 0)
+    {
+      manager_->synthesisEngine.removeInstrument(instruments_[instrument.name].get());
+      instruments_[instrument.name] = nullptr;
+      message += "removed existing instance of " + instrument.name;
+      ROS_INFO_STREAM(message);
       //
     }
-    if (req.action == tao_synth_ros::AddInstrumentRequest::ADD)
+    if (instrument.action == tao_synth_ros::Instrument::ADD)
     {
-      if (req.type == tao_synth_ros::AddInstrumentRequest::STRAND)
+      if (instrument.type == tao_synth_ros::Instrument::STRAND)
       {
         // TODO(lucasw) if the synth_engine instrument list is upgraded
         // then that can be used instead of a redundant map here.
-        instruments_[req.name].reset(new tao::String(manager_, req.name,
-            tao::Pitch(req.pitch_x, tao::Pitch::frq), req.decay));
-        instruments_[req.name]->placeAt(req.position.x, req.position.y);
-        instruments_[req.name]->lockEnds();
-        ROS_INFO_STREAM("new Strand " << req.name << " " << req.pitch_x << " " << req.decay);
+        instruments_[instrument.name].reset(new tao::String(manager_, instrument.name,
+            tao::Pitch(instrument.pitch_x, tao::Pitch::frq), instrument.decay));
+        instruments_[instrument.name]->placeAt(instrument.position.x,
+                                               instrument.position.y);
+        instruments_[instrument.name]->lockEnds();
+        ROS_INFO_STREAM("new Strand " << instrument.name << " "
+            << instrument.pitch_x << " " << instrument.decay);
       }
       else
       {
         std::stringstream ss;
-        ss << "can't add type " << req.type << " " << req.name;
+        ss << "can't add type " << instrument.type << " " << instrument.name;
         ROS_ERROR_STREAM(ss.str());
-        res.message = ss.str();
-        res.success = false;
+        message += ss.str();
+        return false;
       }
     }
     return true;
+  }
+
+  bool addOutput(const tao_synth_ros::Output& output, std::string& message)
+  {
+    // need two channels if going to use stereo L and R
+    // const size_t num_channels = 1;
+    // ros::param::get("~write_output", write_output_);
+    // if (write_output_)
+    //   output_.reset(new tao::Output(manager_, "output", "strand_output", num_channels));
+    if (outputs_.count(output.name) > 0)
+    {
+      message += "removed existing output " + output.name;
+    }
+    outputs_[output.name] = output;
   }
 
   void updateMarker(const ros::TimerEvent& event)
@@ -386,7 +431,7 @@ private:
   ros::Subscriber force_sub_;
   std::queue<tao_synth_ros::ForceConstPtr> force_queue_;
 
-  ros::ServiceServer add_instrument_service_;
+  ros::ServiceServer add_assembly_service_;
 
   ros::Publisher marker_array_pub_;
   bool use_marker_array_ = false;
@@ -401,7 +446,7 @@ private:
 
   std::shared_ptr<tao::Manager> manager_;
   std::map<std::string, std::shared_ptr<tao::Instrument> > instruments_;
-  // std::shared_ptr<tao::Output> output_;
+  std::map<std::string, tao_synth_ros::Output> outputs_;
   // bool write_output_;
 
   float audio_rate_;

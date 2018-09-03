@@ -1,0 +1,8 @@
+# TODO(lucasw) eventually want arbitrary geometry,
+# but use the built-in types for now.
+tao_synth_ros/Instrument[] instruments
+# tao_synth_ros/Connection[] connections
+tao_synth_ros/Output[] outputs
+---
+string message
+bool success

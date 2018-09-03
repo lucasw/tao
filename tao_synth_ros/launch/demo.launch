@@ -4,6 +4,8 @@
   <arg name="write_output" default="false" />
   <arg name="max_time" default="0.0" />
   <arg name="use_rviz" default="true" />
+  <!-- TODO(lucasw) pass into float_to_audio and tao_synth_ros
+    name="sample_rate" default="16000" -->
 
   <!-- need the https://github.com/lucasw/audio_common/tree/appsink version of audio_common -->
   <group if="$(arg use_float_to_audio)">
@@ -20,6 +22,10 @@
       <param name="max_time" value="$(arg max_time)" />
       <param name="write_output" value="$(arg write_output)" />
       <param name="use_marker_array" value="$(arg use_rviz)" />
+    </node>
+
+    <node pkg="tao_synth_ros" type="guitar.py" name="guitar"
+        output="screen" >
     </node>
   </group>
 
