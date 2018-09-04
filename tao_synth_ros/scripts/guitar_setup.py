@@ -12,7 +12,7 @@ class GuitarSetup:
         self.add_assembly = rospy.ServiceProxy('add_assembly', AddAssembly)
         req = AddAssemblyRequest()
         # The units might be seconds, smaller decay is a more quickly decaying sound
-        decay = rospy.get_param("~decay", 4)
+        decay = rospy.get_param("~decay", 1)
 
         force_pub = rospy.Publisher("force", Force, queue_size=10)
 
@@ -51,7 +51,7 @@ class GuitarSetup:
             mag *= 1.2
             force.x = 0.45
             force_pub.publish(force)
-            rospy.sleep(1.0)
+            rospy.sleep(0.5)
 
 if __name__ == '__main__':
     rospy.init_node('guitar_setup')

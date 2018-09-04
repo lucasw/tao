@@ -54,7 +54,6 @@ public:
     stop_sub_ = nh_.subscribe("stop", 30,
         &TaoSynthRos::stopCallback, this);
     audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
-    audio_pub_ = nh_.advertise<sensor_msgs::ChannelFloat32>("samples", 30);
 
     ros::param::get("~use_marker_array", use_marker_array_);
     if (use_marker_array_)
@@ -79,6 +78,7 @@ public:
   {
     if (instruments_.count(msg->instrument_name) == 0)
     {
+      ROS_ERROR_STREAM("no instrument for stop: " << msg->instrument_name << " " << msg->name);
       return;
     }
     if (stops_.count(msg->name) == 0)
@@ -88,6 +88,8 @@ public:
     stops_[msg->name].first = msg;
     stops_[msg->name].second->setAmount(msg->amount);
     (*stops_[msg->name].second)(*instruments_[msg->instrument_name], msg->x, msg->y);
+    ROS_INFO_STREAM(stops_.size() << " stop: " << msg->instrument_name << " "
+        << msg->name << ", x y " << msg->x << " " << msg->y << ", amount " << msg->amount);
   }
 
   void spinOnce()
