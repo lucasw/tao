@@ -18,7 +18,7 @@
 
 #include <tao/strand.h>
 #include <tao/instrument.h>
-#include <cassert>
+// #include <cassert>
 
 using namespace tao;
 String::String(std::shared_ptr<Manager> manager, const Pitch &pitch, float decay)
@@ -41,7 +41,7 @@ void String::createTheMaterial() {
   rows[0].offset = 0;
   rows[0].cells.resize(xsize);
 
-  assert(rows[0].cells != 0);
+  // assert(rows[0].cells != 0);
 
   initialiseCells();
   linkCells();
