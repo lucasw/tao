@@ -277,6 +277,7 @@ public:
       message += "removed existing output " + output.name;
     }
     outputs_[output.name] = output;
+    return true;
   }
 
   void updateMarker(const ros::TimerEvent& event)
@@ -334,6 +335,7 @@ public:
     marker.pose.position.z = marker.scale.z * -0.5;
 
     marker_array.markers.push_back(marker);
+    return true;
   }
 
   bool displayForce(const tao_synth_ros::ForceConstPtr& force,
@@ -374,6 +376,7 @@ public:
     marker.points.push_back(pt);
 
     marker_array.markers.push_back(marker);
+    return true;
   }
 
   void displayInstrument(std::shared_ptr<tao::Instrument> instr,
@@ -571,9 +574,10 @@ private:
   float pt_scale_;
 };
 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   ros::init(argc, argv, "tao_synth_ros");
   TaoSynthRos tao_synth_ros;
   ros::spin();
   // strand_example.spin();
+  return 0;
 }

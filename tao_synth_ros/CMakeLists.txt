@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(tao_synth_ros)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -15,7 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
 roslint_cpp()
 
 # find_library(TAO_SYNTH_LIBRARY NAMES tao_synth)
-find_package(tao_synth REQUIRED)
+# find_package(tao_synth REQUIRED)
+add_subdirectory(.. tao_synth)
 
 # generate_dynamic_reconfigure_options(
 #   cfg/Delay.cfg
@@ -46,16 +47,25 @@ catkin_package(
   CATKIN_DEPENDS nodelet roscpp sensor_msgs std_msgs
 )
 
+# TODO(lucasw) fix add_subdirectory(..) to provide ../include and tao_synth lib
+# message(INFO ${tao_synth_INCLUDE_DIRS})
+# message(INFO ${tao_synth_LIBRARIES})
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${tao_synth_INCLUDE_DIRES}
+  # ${tao_synth_INCLUDE_DIRS}
+  ../include
 )
 
 add_executable(${PROJECT_NAME}
   src/tao_synth.cpp
 )
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${tao_synth_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  # ${tao_synth_LIBRARIES}
+  tao_synth
+)
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
 

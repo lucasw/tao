@@ -984,6 +984,7 @@ Instrument &Instrument::resetDamping(float position) {
 
 Instrument &Instrument::resetDamping() {
   resetDamping(0.0, 1.0, 0.0, 1.0);
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
