@@ -1,3 +1,6 @@
+/**
+ * Copyright 2018-2020 Lucas Walter
+ */
 //////////////////////////////////////////////////////////////////////////////////
 // Demonstrate a single string/strand
 //////////////////////////////////////////////////////////////////////////////////
@@ -5,19 +8,21 @@
 #include <cmath>
 #include <iostream>
 #include <map>
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <visualization_msgs/Marker.h>
+#include <memory>
 #include <queue>
+#include <ros/ros.h>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <std_msgs/Float32.h>
+#include <string>
 #include <tao/taodefs.h>
 #include <tao_synth_ros/AddAssembly.h>
 #include <tao_synth_ros/Force.h>
 #include <tao_synth_ros/Instrument.h>
 #include <tao_synth_ros/Output.h>
 #include <tao_synth_ros/Stop.h>
-
+#include <utility>
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 class TaoSynthRos
 {
@@ -198,7 +203,6 @@ public:
       audio_pub_.publish(audio_msg_);
       audio_msg_.values.resize(0);
     }
-
   }
 
   bool addAssembly(tao_synth_ros::AddAssembly::Request& req,
@@ -441,8 +445,8 @@ public:
 
     marker_array.markers.push_back(marker);
 #if 0
-    if (instr->ymax > 0) // if instrument is 2D, draw line round perimeter
-    {                   // if perimeter is locked make line thicker
+    if (instr->ymax > 0)  // if instrument is 2D, draw line round perimeter
+    {                     // if perimeter is locked make line thicker
       if (instr->perimeterLocked)
         glLineWidth(2.0);
       else
@@ -463,7 +467,7 @@ public:
         glVertex3f(x, y, z);
       }
 
-      for (j = 0; j <= instr->ymax; j++) // up right
+      for (j = 0; j <= instr->ymax; j++)  // up right
       {
         c = &instr->rows[j].cells[instr->rows[j].xmax];
         cellPosition = c->position;
@@ -476,7 +480,7 @@ public:
 
       j = instr->ymax;
 
-      for (i = instr->rows[instr->ymax].xmax; i >= 0; i--) // across top
+      for (i = instr->rows[instr->ymax].xmax; i >= 0; i--)  // across top
       {
         c = &instr->rows[instr->ymax].cells[i];
         cellPosition = c->position;
@@ -487,7 +491,7 @@ public:
         glVertex3f(x, y, z);
       }
 
-      for (j = instr->ymax; j >= 0; j--) // down left
+      for (j = instr->ymax; j >= 0; j--)  // down left
       {
         c = &instr->rows[j].cells[0];
         cellPosition = c->position;
@@ -504,19 +508,18 @@ public:
     glPointSize(3.0);
     glBegin(GL_POINTS);
 
-    for (j = 0; j <= instr->ymax; j++) // scan cells again to mark any
-    {                                 // locked or glued ones
-
+    for (j = 0; j <= instr->ymax; j++)  // scan cells again to mark any
+    {                                   // locked or glued ones
       for (i = 0, c = instr->rows[j].cells; i <= instr->rows[j].xmax; i++, c++) {
         cellPosition = c->position;
         if (c->mode & TAO_CELL_LOCK_MODE) {
           if ((i == 0 || i == instr->rows[j].xmax || j == 0 || j == instr->ymax) &&
-              instr->perimeterLocked) // if we're at the instrument's
-          {                          // perimeter and it is locked then
-            continue;                // don't mark individual locked
-          }                          // points as the locked perimeter
-                                     // has already been displayed as a
-                                     // thicker line.
+              instr->perimeterLocked)  // if we're at the instrument's
+          {                            // perimeter and it is locked then
+            continue;                  // don't mark individual locked
+          }                            // points as the locked perimeter
+                                       // has already been displayed as a
+                                       // thicker line.
           glColor3f(0.0f, 0.0f, 0.0f);
           x = instr->worldx + instr->rows[j].offset + i;
           z = cellPosition * magnification;
@@ -538,7 +541,7 @@ public:
     // std::cout << "x=" << x << " y=" << y << " z=" << z
     //     << " name=" << instr->name << std::endl;
 
-    //displayCharString(x, y, z, instr->name, 0.0, 0.0, 0.0);
+    // displayCharString(x, y, z, instr->name, 0.0, 0.0, 0.0);
     #endif
   }
 

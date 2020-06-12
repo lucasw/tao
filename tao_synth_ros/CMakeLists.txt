@@ -12,7 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+set(
+  ROSLINT_CPP_OPTS
+  "--extensions=cpp,h,hpp" "--filter=-whitespace/braces,-runtime/references"
+)
 roslint_cpp()
+roslint_python()
 
 # find_library(TAO_SYNTH_LIBRARY NAMES tao_synth)
 # find_package(tao_synth REQUIRED)

@@ -5,6 +5,7 @@ import rospy
 from tao_synth_ros.msg import Force, Instrument, Output, Stop
 from tao_synth_ros.srv import *
 
+
 class Guitar:
     def __init__(self):
         # decay = rospy.get_param("~decay", 4)
@@ -119,9 +120,8 @@ class Guitar:
             [None, None],
             ]
 
-
         for note in song:
-            if note[0] != None:
+            if note[0] is not None:
                 stop = Stop()
                 stop.name = note[1]
                 stop.instrument_name = note[1]
@@ -153,8 +153,7 @@ class Guitar:
             self.force_pub.publish(force)
             rospy.sleep(delay)
 
+
 if __name__ == '__main__':
     rospy.init_node('guitar')
     guitar = Guitar()
-
-

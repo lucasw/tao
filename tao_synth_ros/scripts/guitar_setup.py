@@ -5,6 +5,7 @@ import rospy
 from tao_synth_ros.msg import Force, Instrument, Output
 from tao_synth_ros.srv import *
 
+
 class GuitarSetup:
     def __init__(self):
         rospy.wait_for_service('add_assembly')
@@ -53,8 +54,7 @@ class GuitarSetup:
             force_pub.publish(force)
             rospy.sleep(0.5)
 
+
 if __name__ == '__main__':
     rospy.init_node('guitar_setup')
     guitar_setup = GuitarSetup()
-
-
