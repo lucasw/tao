@@ -59,6 +59,7 @@ jobs:
             sudo apt-get install -y ros-$ROS_DISTRO-sensor-msgs
             sudo apt-get install -y ros-$ROS_DISTRO-std-msgs
             sudo apt-get install -y ros-$ROS_DISTRO-std-srvs
+            sudo apt-get install -y ros-$ROS_DISTRO-visualization-msgs
             sudo apt-get install -y ros-cmake-modules
             sudo apt-get install -y libeigen3-dev
             source /opt/ros/$ROS_DISTRO/setup.bash

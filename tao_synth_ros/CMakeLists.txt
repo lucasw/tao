@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   sensor_msgs
   std_msgs
+  visualization_msgs
 )
 
 set(
